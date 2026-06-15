@@ -1,0 +1,28 @@
+/* Narrow dropdown styles for single-column mega-menus (collection) */
+.dropdown-menu-2.single-column {
+	width: 320px;
+	max-width: 90vw;
+	padding: 1rem;
+}
+
+.dropdown-menu-2.single-column .dropdown-column {
+	flex: 0 0 100% !important;
+	max-width: 100% !important;
+}
+
+.dropdown-menu-2.single-column .dropdown-column .dropdown-header::after {
+	left: 0;
+}
+
+.dropdown-menu-2.single-column .menu-img-banner,
+.dropdown-menu-2.single-column .ratio_asos {
+	display: none;
+}
+
+/* Keep collection submenu item names on one line */
+.collection-menu .dropdown-item {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+

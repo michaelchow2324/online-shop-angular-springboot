@@ -1,0 +1,149 @@
+{
+    "id": 52,
+    "content": {
+        "home_banner": {
+            "status": true,
+            "banners": [
+                {
+                    "status": true,
+                    "title": "Cute & Practical",
+                    "tag": "Handmade with love",
+                    "description": "Handmade with love in the studio. Shipped from our home to yours.",
+                    "button_text": "Shop Now",
+                    "image_url": "/homepage/home_banner.jpg",
+                    "redirect_link": {
+                        "link": "",
+                        "link_type": "none"
+                    }
+                }
+            ]
+        },
+        "products_list": {
+            "tag": "Just Landed",
+            "title": "New Arrivals",
+            "status": true,
+            "description": "Polka dots, petite florals & trending colours.",
+            "product_ids": [21, 16, 15, 12, 19, 17, 18, 14]
+        },
+        "categories": {
+            "tag": "Shop Collection",
+            "title": "Shop By Category",
+            "status": true
+        },
+        "services": {
+            "status": true,
+            "banners": [
+                {
+                    "title": "Personalised Just for You",
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/service.png",
+                    "button_text": "More Info",
+                    "description": "We offer personalisation on our keychains, lanyards & bookmarks. Add a cute quote or name for a thoughtful gift.",
+                    "redirect_link": {
+                        "link": "",
+                        "link_type": "page"
+                    }
+                },
+                {
+                    "title": "Free Note Cards",
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/service.png",
+                    "button_text": "Shop",
+                    "description": "Buying or sending a gift? Add a free note card to your order! Limit 1 per item ordered.",
+                    "redirect_link": {
+                        "link": "",
+                        "link_type": "page"
+                    }
+                },
+                {
+                    "title": "Mystery Bundle Box",
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/service.png",
+                    "button_text": "Shop",
+                    "description": "The ultimate kiki & co experience. A curated selection of our most loved items at a special price.",
+                    "redirect_link": {
+                        "link": "",
+                        "link_type": "page"
+                    }
+                }
+            ]
+        },
+        "category_product": {
+            "tag": "Shop Collection",
+            "title": "Shop by Category",
+            "status": true,
+            "category_ids": [8, 9, 10]
+        },
+        "social_media": {
+            "title": "Follow us on Instagram",
+            "status": true,
+            "banners": [
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_7.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_6.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_5.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_4.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_3.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_2.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                },
+                {
+                    "status": true,
+                    "image_url": "/images/theme/fashion_one/fashion_one_insta_1.png",
+                    "button_text": "",
+                    "redirect_link": {
+                        "link": "https://instagram.com/",
+                        "link_type": "external_url"
+                    }
+                }
+            ]
+        },
+        "products_ids": [21, 16, 15, 12, 19, 17, 18, 14]
+    },
+    "slug": "kikiandco"
+}

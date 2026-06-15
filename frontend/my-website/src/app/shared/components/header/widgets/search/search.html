@@ -1,0 +1,109 @@
+@if(style() === 'kiki'){
+<!-- Kiki & Co. style: icon-only trigger + full-width inline panel -->
+<!-- Wrap trigger+panel together so clickOutside doesn't fire on the trigger click -->
+<div class="kiki-search-wrapper" (clickOutside)="closeSearch()">
+  <div class="kiki-search-trigger" (click)="openSearch()">
+    <i class="ri-search-line"></i>
+  </div>
+
+  <div class="kiki-search-panel" [class.open]="menuService.isOpenSearch">
+    <div class="kiki-search-input-row">
+      <i class="ri-search-line"></i>
+      <input
+        #kikiInput
+        type="text"
+        class="kiki-search-input"
+        [placeholder]="typedText + '|'"
+        [formControl]="term"
+        (keydown.enter)="onEnterKey()"
+        autocomplete="off"
+      />
+      <button class="kiki-search-close" type="button" (click)="closeSearch()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="kiki-search-results">
+      <div class="kiki-search-categories">
+        @if(filteredCategory.length){
+        <h5>Categories</h5>
+        @for(cat of filteredCategory; track cat.id){
+        <a class="kiki-cat-link" (click)="navigateToCategory(cat.slug)">{{ cat.name }}</a>
+        }
+        } @else if(term.value?.length >= 1) {
+        <p class="kiki-no-results">No categories found</p>
+        }
+      </div>
+      <div class="kiki-search-products">
+        @if(filteredResults.length){
+        @for(product of filteredResults; track product.id; let i = $index){
+        <div class="kiki-product-result" [class.selected]="i === selectedResultIndex" (click)="navigateToProduct(product.slug)">
+          <img [src]="product?.product_thumbnail?.original_url" [alt]="product.name" />
+          <div class="kiki-product-info">
+            <span class="kiki-product-name">{{ product.name }}</span>
+            <small class="kiki-product-price">${{ product.sale_price | number:'1.2-2' }}</small>
+          </div>
+        </div>
+        }
+        } @else if(term.value?.length >= 1) {
+        <p class="kiki-no-results">No products found</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+} @else if(style() === 'simple'){
+<form class="form_search" role="form" (clickOutside)="closeSearch()">
+  <input
+    type="search"
+    class="nav-search nav-search-field"
+    [placeholder]="typedText+'|'"
+    [formControl]="term"
+    (click)="focusInput(true)"
+    (keydown.enter)="onEnterKey()"
+    autocomplete="false"
+  />
+  <button type="submit" name="nav-submit-button" class="btn-search">
+    <i class="ri-search-line"></i>
+  </button>
+  <app-search-dropdown
+    [term]="term.value || ''"
+    [selectedCategory]="selectedCategory.value || ''"
+    [products]="filteredResults"
+    [categories]="filteredCategory"
+    [selectedResultIndex]="selectedResultIndex"
+    [isOpenResult]="isOpenResult"
+  />
+</form>
+} @else {
+<div (click)="openSearchModal()">
+  <i class="ri-search-line"></i>
+</div>
+
+<div class="search-full" [class.open]="menuService.isOpenSearch">
+  <div class="input-group">
+    <span class="input-group-text">
+      <i class="ri-search-line font-light"></i>
+    </span>
+    <input
+      type="text"
+      class="form-control search-type"
+      [placeholder]="typedText+'|'"
+      [formControl]="term"
+      (click)="focusInput(true)"
+      (keydown.enter)="onEnterKey()"
+      autocomplete="false"
+    />
+    <span class="input-group-text close-search" (click)="closeSearch()">
+      <i class="ri-close-line"></i>
+    </span>
+  </div>
+  <app-search-dropdown
+    [term]="term.value || ''"
+    [selectedCategory]="selectedCategory.value || ''"
+    [products]="filteredResults"
+    [categories]="filteredCategory"
+    [selectedResultIndex]="selectedResultIndex"
+    [isOpenResult]="isOpenResult"
+  />
+</div>
+}

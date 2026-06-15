@@ -1,0 +1,19 @@
+/* Bootstrap */
+// @import '../scss/utils/bootstrap/bootstrap.scss';
+@use "sass:math";
+@use "sass:color";
+
+@use "node_modules/bootstrap/dist/css/bootstrap.min.css";
+
+/* Toastr */
+@use 'ngx-toastr/toastr.css';
+
+/* Ngx Owl Carousel */
+@use 'ngx-owl-carousel-o/lib/styles/scss/owl.carousel';
+// @use 'ngx-owl-carousel-o/lib/styles/scss/owl.theme.default';
+
+/* Swiper */
+@use 'swiper/swiper.scss';
+
+/* Style */
+@use '../../assets/scss/style.scss';

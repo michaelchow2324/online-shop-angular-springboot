@@ -1,0 +1,110 @@
+import { isPlatformBrowser } from "@angular/common";
+import { Component, PLATFORM_ID, inject, input, signal } from "@angular/core";
+
+import { Store } from "@ngxs/store";
+import { forkJoin, of } from "rxjs";
+import { catchError } from "rxjs/operators";
+
+import { Categories } from "../../../shared/components/widgets/categories/categories";
+import { IKikiandco } from "../../../shared/interface/theme.interface";
+import { InstagramPost, InstagramService } from "../../../shared/services/instagram.service";
+import { ThemeOptionService } from "../../../shared/services/theme-option.service";
+import { GetCategoriesAction } from "../../../shared/store/action/category.action";
+import { GetProductByIdsAction } from "../../../shared/store/action/product.action";
+import { ThemeHomeSlider } from "../widgets/theme-home-slider/theme-home-slider";
+import { ThemeProduct } from "../widgets/theme-product/theme-product";
+import { ThemeProductTabSection } from "../widgets/theme-product-tab-section/theme-product-tab-section";
+import { ThemeServices } from "../widgets/theme-services/theme-services";
+import { ThemeSocialMedia } from "../widgets/theme-social-media/theme-social-media";
+import { ThemeTitle } from "../widgets/theme-title/theme-title";
+
+@Component({
+  selector: "app-kikiandco",
+  imports: [
+    ThemeHomeSlider,
+    Categories,
+    ThemeTitle,
+    ThemeProduct,
+    ThemeServices,
+    ThemeProductTabSection,
+    ThemeSocialMedia,
+  ],
+  templateUrl: "./kikiandco.html",
+  styleUrl: "./kikiandco.scss",
+})
+export class Kikiandco {
+  private store = inject(Store);
+  private themeOptionService = inject(ThemeOptionService);
+  private instagramService = inject(InstagramService);
+
+  private platformId: boolean;
+  readonly data = input<IKikiandco>();
+  readonly slug = input<string>();
+
+  /** Live Instagram posts; null = not yet loaded, [] = failed/no posts */
+  instagramPosts = signal<InstagramPost[] | null>(null);
+
+  /** Builds a social_media object shaped like the JSON data so ThemeSocialMedia can consume it. */
+  get instagramMediaData() {
+    const posts = this.instagramPosts();
+    const staticData = this.data()?.content?.social_media;
+    if (!posts || posts.length === 0) return staticData;
+    return {
+      ...staticData,
+      banners: posts.map(p => ({
+        status: true,
+        image_url: p.imageUrl,
+        button_text: '',
+        redirect_link: { link: p.permalink, link_type: 'external_url' },
+      })),
+    };
+  }
+
+  constructor() {
+    const platformId = inject<Object>(PLATFORM_ID);
+    this.platformId = isPlatformBrowser(platformId);
+  }
+
+  ngOnChanges() {
+    const data = this.data();
+    if (data?.slug == this.slug()) {
+      const categoryProductIds = data?.content?.category_product?.category_ids || [];
+
+      // Get Products
+      let getProduct$;
+      if (data?.content?.products_ids?.length) {
+        getProduct$ = this.store.dispatch(
+          new GetProductByIdsAction({
+            status: 1,
+            approve: 1,
+            ids: data?.content?.products_ids?.join(","),
+            paginate: data?.content?.products_ids?.length,
+          }),
+        );
+      } else {
+        getProduct$ = of(null);
+      }
+
+      // Get Categories — load all, let each section filter client-side
+      let getCategory$;
+      if (data?.content?.categories?.status || categoryProductIds.length) {
+        getCategory$ = this.store.dispatch(new GetCategoriesAction());
+      } else {
+        getCategory$ = of(null);
+      }
+
+      forkJoin([getProduct$, getCategory$]).subscribe({
+        complete: () => {
+          this.themeOptionService.preloader = false;
+        },
+      });
+
+      // Load live Instagram feed; fall back silently to static JSON on error
+      if (data?.content?.social_media?.status) {
+        this.instagramService.getFeed().pipe(
+          catchError(() => of([] as InstagramPost[]))
+        ).subscribe(posts => this.instagramPosts.set((posts || []).slice(0, 5)));
+      }
+    }
+  }
+}

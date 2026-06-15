@@ -1,0 +1,85 @@
+<!-- ===== HERO SECTION ===== -->
+<section class="kiki-hero p-0">
+  <div class="home-slider">
+    <app-theme-home-slider [banners]="data()?.content?.home_banner" />
+  </div>
+</section>
+<!-- ===== END HERO ===== -->
+
+<!-- ===== NEW ARRIVALS SLIDER ===== -->
+@if(data()?.content?.products_list?.status && data()?.content?.products_list?.product_ids?.length){
+  <div class="kiki-section-wrap">
+    <app-theme-title [title]="data()?.content?.products_list" [type]="'basic'" [space]="true" />
+    <section class="section-b-space pt-0">
+      <div class="container">
+        <app-theme-product
+          [productIds]="data()?.content?.products_list?.product_ids || []"
+          [style]="'vertical'"
+          [slider]="true"
+        />
+      </div>
+    </section>
+  </div>
+}
+<!-- ===== END NEW ARRIVALS ===== -->
+
+<!-- ===== COLLECTIONS / CATEGORIES GRID ===== -->
+@if(data()?.content?.categories?.status){
+  <section class="section-b-space">
+    <div class="container">
+      <app-theme-title [title]="data()?.content?.categories" [type]="'basic'" [space]="true" />
+      <app-categories
+        [style]="'kiki'"
+        [categoryIds]="data()?.content?.categories?.category_ids || []"
+        [slider]="false"
+      />
+    </div>
+  </section>
+}
+<!-- ===== END COLLECTIONS ===== -->
+
+<!-- ===== FEATURES / PERKS SECTION ===== -->
+@if(data()?.content?.services?.banners?.length){
+  <section class="kiki-features section-t-space section-b-space">
+    <div class="container">
+      <div class="kiki-section-heading text-center mb-5">
+        <span class="kiki-eyebrow">Why Shop With Us</span>
+        <h2 class="kiki-title">Our Promises to You</h2>
+      </div>
+      <app-theme-services
+        [services]="data()?.content?.services?.banners || []"
+        [class]="'col-lg-4 col-sm-6'"
+        [type]="'simple'"
+      />
+    </div>
+  </section>
+}
+<!-- ===== END FEATURES ===== -->
+
+<!-- ===== SHOP BY CATEGORY (TAB PRODUCTS) ===== -->
+<!-- @if(data()?.content?.category_product?.status && data()?.content?.category_product?.category_ids?.length){
+  <div class="kiki-tab-wrap">
+    <app-theme-title [title]="data()?.content?.category_product" [type]="'basic'" [space]="true" />
+    <section class="section-b-space pt-0">
+      <div class="container">
+        <app-theme-product-tab-section
+          [categoryIds]="data()?.content?.category_product?.category_ids"
+          [style]="'vertical'"
+        />
+      </div>
+    </section>
+  </div>
+} -->
+<!-- ===== END TAB PRODUCTS ===== -->
+
+<!-- ===== INSTAGRAM FEED ===== -->
+@if(instagramMediaData?.status && instagramMediaData?.banners?.length){
+  <section class="kiki-instagram instagram section-b-space ratio_square">
+    <app-theme-social-media
+      [media]="instagramMediaData"
+      [class]="'container'"
+      [type]="'borderd'"
+    />
+  </section>
+}
+<!-- ===== END INSTAGRAM ===== -->

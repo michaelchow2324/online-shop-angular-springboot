@@ -1,0 +1,22 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+@if(layout === 'collection_left_sidebar'){
+<app-collection-left-sidebar [filter]="filter" />
+} @if(layout === 'collection_right_sidebar'){
+<app-collection-right-sidebar [filter]="filter" />
+} @if(layout === 'collection_no_sidebar'){
+<app-collection-no-sidebar [filter]="filter" />
+} @if(layout === 'collection_2_grid' || layout === 'collection_3_grid' || layout ===
+'collection_4_grid' || layout === 'collection_list_view'){
+<app-collection-list [filter]="filter" />
+} @if(layout === 'collection_top_filter'){
+<app-collection-top-filter [filter]="filter" />
+} @if(layout === 'collection_category_slider'){
+<app-collection-category-slider [filter]="filter" />
+} @if(layout === 'collection_category_sidebar'){
+<app-collection-category-sidebar [filter]="filter" />
+} @if(layout === 'collection_sidebar_popup'){
+<app-collection-sidebar-popup [filter]="filter" />
+} @if(layout === 'collection_product_infinite_scroll'){
+<app-collection-product-infinite-scroll [filter]="filter" />
+}
