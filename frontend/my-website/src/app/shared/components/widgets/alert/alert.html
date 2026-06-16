@@ -1,9 +1,0 @@
-@if(alert['type'] === 'error'){
-<div class="alert alert-danger login-alert" role="alert">
-  <i class="ri-error-warning-line"></i> {{ alert['message'] }}
-</div>
-}@else if(alert['type'] === 'success'){
-<div class="alert alert-success login-alert" role="alert">
-  <i class="ri-check-line"></i>{{ alert['message'] }}
-</div>
-}
