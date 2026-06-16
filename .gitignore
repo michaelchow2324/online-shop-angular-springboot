@@ -1,0 +1,34 @@
+# Monorepo root — applies to whole repo (subfolder .gitignore files still apply below)
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+*.iml
+
+# Python (e.g. frontend/.venv for write_zh_hk.py)
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.*.example
+!.env.prod.example
+**/.env.prod
+**/application-dev.properties
+
+# Node (frontend)
+**/node_modules/
+**/.angular/cache
+**/dist/
+
+# Java (backend)
+**/target/
+
+# Logs & local tooling
+*.log
+.npm/
