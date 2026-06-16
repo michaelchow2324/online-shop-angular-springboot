@@ -1,0 +1,56 @@
+@use "sass:math";
+@use "sass:list";
+@use '../utils/variables';
+
+/**=====================
+    Confetti css
+==========================**/
+.confetti-wrapper {
+  position: fixed !important;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  z-index: 999;
+  display: none;
+
+  &.show {
+    display: block;
+  }
+}
+
+[class|='confetti'] {
+  position: absolute;
+}
+
+$colors: (#d13447, #ffbf00, #263672);
+ 
+@for $i from 0 through 150 {
+  $w: math.random(18);
+  $l: math.random(100);
+  $index: math.floor(math.random() * 3) + 1;
+
+  .confetti-#{$i} {
+    width: #{$w}px;
+    height: #{$w * 0.4}px;
+    // background-color: nth($colors, math.random(3));
+    background-color: list.nth($colors, $index);
+    top: -10%;
+    // left: unquote($l + '%');
+    left: #{$l}%;
+    // opacity: 0.5 + math.random(50) / 100;
+    opacity: 0.5 + math.random() * 0.5;
+
+    transform: rotate(#{math.random() * 360}deg);
+    // animation: drop-#{$i} unquote(8 + math.random() + 's') unquote(math.random() + 's') infinite;
+    animation: drop-#{$i} #{8 + math.random()}s ease-in infinite;
+  }
+
+  @keyframes drop-#{$i} {
+    100% {
+      top: 110%;
+      // left: unquote($l + math.random(8) + '%');
+      left: #{$l + math.random(8)}%;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Params } from '@angular/router';
+
+import { Observable } from 'rxjs';
+
+import { environment } from '../../../environments/environment.development';
+import { ICouponModel } from '../interface/coupon.interface';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class CouponService {
+  private http = inject(HttpClient);
+
+  public skeletonLoader: boolean = false;
+
+  getCoupons(payload?: Params): Observable<ICouponModel> {
+    return this.http.get<ICouponModel>(`${environment.URL}/coupon.json`, { params: payload });
+  }
+}

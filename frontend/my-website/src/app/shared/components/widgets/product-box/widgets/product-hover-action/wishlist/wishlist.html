@@ -1,0 +1,9 @@
+<a
+  href="javascript:void(0)"
+  title="Add to Wishlist"
+  [class.theme-color]="product()?.is_wishlist"
+  [class]="class()"
+  (click)="addToWishlist(product()!)"
+>
+  <i class="ri-heart-{{ product()?.is_wishlist ? 'fill' : 'line' }}"></i>
+</a>

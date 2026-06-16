@@ -1,0 +1,35 @@
+<!-- Top Progress Loader -->
+<ngx-loading-bar class="loader-bg" [includeSpinner]="true" [height]="'3px'" />
+
+<!-- Main Loader -->
+@if(themeOptionService.preloader){
+<app-loader />
+}
+
+<app-header [logo]="setLogo().header_logo" />
+<router-outlet />
+<app-footer [logo]="setLogo().footer_logo" />
+
+@if ((themeOption$ | async)?.product?.sticky_product) {
+<app-recent-purchase-popup />
+}
+
+<!-- this is the theme selector -->
+<!-- <app-theme-customizer /> -->
+
+<div class="compare-tap-top-box">
+  <app-sticky-compare />
+
+  @if((themeOption$ | async)?.general?.back_to_top_enable && show){
+  <app-back-to-top />
+  }
+</div>
+
+@if((themeOption$ | async)?.popup?.news_letter?.is_enable){
+<app-newsletter-modal #newsletterModal />
+} @if(!themeOptionService.newsletterModal && exit && (themeOption$ |
+async)?.popup?.exit?.is_enable){
+<app-exit-modal it-modal #exitModal />
+} @if(authService.isLogin){
+<app-login-modal #loginModal />
+}

@@ -1,0 +1,43 @@
+package com.yourstore.online_store_api.product;
+
+import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductDTO {
+    
+    /**
+     * Nested object matching the frontend's IAttachment interface.
+     * The template reads `product.product_thumbnail.original_url` to display the image.
+     */
+    public static class ProductImage {
+        private String original_url;
+
+        public ProductImage() {}
+
+        public ProductImage(String original_url) {
+            this.original_url = original_url;
+        }
+
+        public String getOriginal_url() { return original_url; }
+        public void setOriginal_url(String original_url) { this.original_url = original_url; }
+    }
+
+    private Long id;
+    private String name;
+    private String slug;
+    private String description;
+    private BigDecimal price;
+      // Matches IProduct.product_thumbnail: IAttachment (frontend interface)
+    private ProductImage product_thumbnail;
+    private boolean status;
+    
+
+
+}

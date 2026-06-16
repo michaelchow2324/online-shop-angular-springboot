@@ -1,0 +1,41 @@
+<header class="style-light header-compact kiki-header">
+  @if(data()?.header?.page_top_bar_enable){
+  <app-top-bar [data]="data()" />
+  }
+  <div class="container-fluid kiki-header-inner">
+
+    <!-- LEFT: nav links (desktop) / hamburger (mobile) -->
+    <div class="kiki-header-left">
+      <div class="toggle-nav d-xl-none" (click)="mainMenuOpen()">
+        <i class="ri-menu-line sidebar-bar"></i>
+      </div>
+      <nav class="kiki-nav d-none d-xl-flex">
+        <app-menu />
+      </nav>
+    </div>
+
+    <!-- CENTER: logo -->
+    <div class="kiki-header-center">
+      <div class="brand-logo">
+        <app-header-logo [logo]="logo()" />
+      </div>
+    </div>
+
+    <!-- RIGHT: search + account + cart (pushed toward logo) -->
+    <div class="kiki-header-right">
+      <div class="icon-nav">
+        <ul>
+          <li class="onhover-div search-icon-li">
+            <app-search [style]="'kiki'" />
+          </li>
+          <li class="onhover-div onhover-dropdown mobile-cart">
+            <app-user-profile />
+          </li>
+          <li class="onhover-div">
+            <app-cart />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
