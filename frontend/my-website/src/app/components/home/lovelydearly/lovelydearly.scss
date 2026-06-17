@@ -1,57 +1,57 @@
 // ============================================================
-// Kiki & Co. Home Theme – Soft, feminine, handmade aesthetic
-// Inspired by kikiandco.nz
+// Lovely Dearly Home Theme – Soft, feminine, handmade aesthetic
+// Inspired by lovelydearly.nz
 // ============================================================
 
 // ---------- Design tokens ----------
 :host {
-  --kiki-rose:       #c8869e;
-  --kiki-rose-light: #f7c5d6;
-  --kiki-cream:      #fefdf8;
-  --kiki-sand:       #faf8f2;
-  --kiki-text:       #3d2828;
-  --kiki-muted:      #9e8080;
-  --kiki-radius:     14px;
-  --kiki-shadow:     0 4px 24px rgba(200, 134, 158, 0.12);
-  --kiki-shadow-hover: 0 10px 36px rgba(200, 134, 158, 0.22);
+  --lovelydearly-rose:       #c8869e;
+  --lovelydearly-rose-light: #f7c5d6;
+  --lovelydearly-cream:      #fefdf8;
+  --lovelydearly-sand:       #faf8f2;
+  --lovelydearly-text:       #3d2828;
+  --lovelydearly-muted:      #9e8080;
+  --lovelydearly-radius:     14px;
+  --lovelydearly-shadow:     0 4px 24px rgba(200, 134, 158, 0.12);
+  --lovelydearly-shadow-hover: 0 10px 36px rgba(200, 134, 158, 0.22);
   display: block;
   background-color: #fefdf8;
 }
 
 // ---------- Typography helpers ----------
-.kiki-eyebrow {
+.lovelydearly-eyebrow {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--kiki-rose);
+  color: var(--lovelydearly-rose);
   margin-bottom: 8px;
 }
 
-.kiki-title {
+.lovelydearly-title {
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 700;
-  color: var(--kiki-text);
+  color: var(--lovelydearly-text);
   margin-bottom: 10px;
   line-height: 1.25;
 }
 
-.kiki-subtitle {
+.lovelydearly-subtitle {
   font-size: 0.95rem;
-  color: var(--kiki-muted);
+  color: var(--lovelydearly-muted);
   margin-bottom: 0;
   max-width: 480px;
   margin-inline: auto;
 }
 
 // ---------- Section heading ----------
-.kiki-section-heading {
+.lovelydearly-section-heading {
   padding-bottom: 10px;
 }
 
 // ---------- Hero ----------
-.kiki-hero {
+.lovelydearly-hero {
   // Ensure hero image fills full width
   .home-slider {
     width: 100%;
@@ -60,23 +60,23 @@
 }
 
 // ---------- New Arrivals wrapper ----------
-.kiki-section-wrap {
+.lovelydearly-section-wrap {
   background-color: #fefdf8;
 
   // Soften the default title1 border
   .title1 {
     &::after {
-      background-color: var(--kiki-rose);
+      background-color: var(--lovelydearly-rose);
     }
     h4 {
-      color: var(--kiki-rose);
+      color: var(--lovelydearly-rose);
     }
   }
 }
 
 // ---------- Collections / Categories ----------
-.kiki-collections {
-  background-color: var(--kiki-cream);
+.lovelydearly-collections {
+  background-color: var(--lovelydearly-cream);
   padding-top: 60px;
   padding-bottom: 60px;
 
@@ -87,11 +87,11 @@
         font-size: 0.9rem;
         font-weight: 600;
         letter-spacing: 0.04em;
-        color: var(--kiki-text);
+        color: var(--lovelydearly-text);
       }
 
       img {
-        border-radius: var(--kiki-radius);
+        border-radius: var(--lovelydearly-radius);
         transition: transform 0.35s ease;
       }
 
@@ -103,8 +103,8 @@
 }
 
 // ---------- Features / Services ----------
-.kiki-features {
-  background-color: var(--kiki-sand);
+.lovelydearly-features {
+  background-color: var(--lovelydearly-sand);
   padding-top: 60px;
   padding-bottom: 60px;
 
@@ -114,14 +114,14 @@
       text-align: center;
       padding: 36px 28px;
       background: #fff;
-      border-radius: var(--kiki-radius);
-      box-shadow: var(--kiki-shadow);
+      border-radius: var(--lovelydearly-radius);
+      box-shadow: var(--lovelydearly-shadow);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       height: 100%;
 
       &:hover {
         transform: translateY(-5px);
-        box-shadow: var(--kiki-shadow-hover);
+        box-shadow: var(--lovelydearly-shadow-hover);
       }
 
       img {
@@ -135,7 +135,7 @@
       h4 {
         font-size: 1rem;
         font-weight: 700;
-        color: var(--kiki-text);
+        color: var(--lovelydearly-text);
         margin-bottom: 10px;
         text-transform: capitalize;
         letter-spacing: 0.01em;
@@ -143,7 +143,7 @@
 
       p {
         font-size: 0.88rem;
-        color: var(--kiki-muted);
+        color: var(--lovelydearly-muted);
         line-height: 1.65;
         margin-bottom: 0;
       }
@@ -152,23 +152,23 @@
 }
 
 // ---------- Tab products wrapper ----------
-.kiki-tab-wrap {
+.lovelydearly-tab-wrap {
   background-color: #fefdf8;
 
   ::ng-deep {
     .title1 {
       &::after {
-        background-color: var(--kiki-rose);
+        background-color: var(--lovelydearly-rose);
       }
       h4 {
-        color: var(--kiki-rose);
+        color: var(--lovelydearly-rose);
       }
     }
 
     // Highlight the active tab pill with rose color
     .nav-tabs .nav-link.active {
-      background-color: var(--kiki-rose) !important;
-      border-color: var(--kiki-rose) !important;
+      background-color: var(--lovelydearly-rose) !important;
+      border-color: var(--lovelydearly-rose) !important;
       color: #fff !important;
     }
 
@@ -178,11 +178,11 @@
       font-size: 0.85rem;
       font-weight: 600;
       letter-spacing: 0.03em;
-      color: var(--kiki-text);
+      color: var(--lovelydearly-text);
       transition: all 0.2s ease;
 
       &:hover:not(.active) {
-        background-color: var(--kiki-rose-light);
+        background-color: var(--lovelydearly-rose-light);
         border-color: transparent;
       }
     }
@@ -190,24 +190,24 @@
 }
 
 // ---------- Instagram ----------
-.kiki-instagram {
+.lovelydearly-instagram {
   ::ng-deep {
     .instagram-box {
-      border-radius: var(--kiki-radius);
+      border-radius: var(--lovelydearly-radius);
       overflow: hidden;
     }
 
-    .kiki-section-heading {
+    .lovelydearly-section-heading {
       margin-bottom: 24px;
     }
 
     // Title override for instagram heading
     .title1 h2,
     .title7 h2 {
-      color: var(--kiki-text);
+      color: var(--lovelydearly-text);
 
       &::after {
-        background-color: var(--kiki-rose);
+        background-color: var(--lovelydearly-rose);
       }
     }
   }
@@ -216,24 +216,24 @@
 // ---------- Product card overrides ----------
 // Soften product card look throughout the page
 ::ng-deep {
-  app-kikiandco {
+  app-lovelydearly {
     .product-box,
     .product-wrap {
-      border-radius: var(--kiki-radius);
+      border-radius: var(--lovelydearly-radius);
       overflow: hidden;
-      box-shadow: var(--kiki-shadow);
+      box-shadow: var(--lovelydearly-shadow);
       transition: box-shadow 0.3s ease, transform 0.3s ease;
 
       &:hover {
-        box-shadow: var(--kiki-shadow-hover);
+        box-shadow: var(--lovelydearly-shadow-hover);
         transform: translateY(-4px);
       }
     }
 
     .add-button button,
     .add-to-cart-btn {
-      background-color: var(--kiki-rose) !important;
-      border-color: var(--kiki-rose) !important;
+      background-color: var(--lovelydearly-rose) !important;
+      border-color: var(--lovelydearly-rose) !important;
       color: #fff !important;
       border-radius: 50px;
 
@@ -247,13 +247,13 @@
 
 // ---------- Responsive adjustments ----------
 @media (max-width: 767px) {
-  .kiki-collections,
-  .kiki-features {
+  .lovelydearly-collections,
+  .lovelydearly-features {
     padding-top: 40px;
     padding-bottom: 40px;
   }
 
-  .kiki-title {
+  .lovelydearly-title {
     font-size: 1.4rem;
   }
 

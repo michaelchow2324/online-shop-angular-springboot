@@ -122,7 +122,7 @@ export class Search {
   ngOnInit() {
     if (
       this.isBrowser &&
-      (this.style() == "simple" || this.style() == "kiki")
+      (this.style() == "simple" || this.style() == "lovelydearly")
     ) {
       this.startTypingAnimation();
     }
@@ -282,7 +282,7 @@ export class Search {
     if (this.isBrowser) {
       setTimeout(() => {
         const input = document.querySelector(
-          ".kiki-search-input",
+          ".lovelydearly-search-input",
         ) as HTMLInputElement;
         if (input) input.focus();
       }, 260);

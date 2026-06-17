@@ -6,7 +6,7 @@ import { forkJoin, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { Categories } from "../../../shared/components/widgets/categories/categories";
-import { IKikiandco } from "../../../shared/interface/theme.interface";
+import { ILovelydearly } from "../../../shared/interface/theme.interface";
 import { InstagramPost, InstagramService } from "../../../shared/services/instagram.service";
 import { ThemeOptionService } from "../../../shared/services/theme-option.service";
 import { GetCategoriesAction } from "../../../shared/store/action/category.action";
@@ -19,7 +19,7 @@ import { ThemeSocialMedia } from "../widgets/theme-social-media/theme-social-med
 import { ThemeTitle } from "../widgets/theme-title/theme-title";
 
 @Component({
-  selector: "app-kikiandco",
+  selector: "app-lovelydearly",
   imports: [
     ThemeHomeSlider,
     Categories,
@@ -29,16 +29,16 @@ import { ThemeTitle } from "../widgets/theme-title/theme-title";
     ThemeProductTabSection,
     ThemeSocialMedia,
   ],
-  templateUrl: "./kikiandco.html",
-  styleUrl: "./kikiandco.scss",
+  templateUrl: "./lovelydearly.html",
+  styleUrl: "./lovelydearly.scss",
 })
-export class Kikiandco {
+export class Lovelydearly {
   private store = inject(Store);
   private themeOptionService = inject(ThemeOptionService);
   private instagramService = inject(InstagramService);
 
   private platformId: boolean;
-  readonly data = input<IKikiandco>();
+  readonly data = input<ILovelydearly>();
   readonly slug = input<string>();
 
   /** Live Instagram posts; null = not yet loaded, [] = failed/no posts */

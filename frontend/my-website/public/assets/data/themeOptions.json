@@ -2,12 +2,12 @@
     "id": 1,
     "options": {
         "seo": {
-            "og_title": "MultiKart Marketplace: Uniting Vendors for Shopping Excellence",
-            "meta_tags": "Multikart Marketplace: Where Vendors Shine Together",
-            "meta_title": "Online Marketplace, Vendor Collaboration, E-commerce Platform",
+            "og_title": "Lovely Dearly | Handmade Accessories & Gifts from New Zealand",
+            "meta_tags": "Lovely Dearly, handmade accessories, NZ gifts, cosmetic bags, wallets, headbands",
+            "meta_title": "Lovely Dearly | Handmade Accessories & Gifts from New Zealand",
             "og_image_id": 107,
-            "og_description": "Experience a unique shopping journey at MultiKart Marketplace, where vendors collaborate to provide a vast array of products. Explore, shop, and connection in one convenient destination.",
-            "meta_description": "Discover MultiKart Marketplace – a vibrant online platform where vendors unite to showcase their products, creating a diverse shopping experience. Explore a wide range of offerings and connect with sellers on a single platform.",
+            "og_description": "Shop cute and practical handmade accessories from Lovely Dearly. Personalised gifts, cosmetic bags, wallets, and more — crafted with love and shipped worldwide from New Zealand.",
+            "meta_description": "Lovely Dearly offers handmade accessories and thoughtful gifts — cosmetic bags, wallets, headbands, and more. Personalisation available. Free NZ shipping on orders over $85.",
             "og_image": {
                 "id": 107,
                 "name": "fashion_two_1",
@@ -92,11 +92,11 @@
             "twitter": "https://twitter.com/",
             "bg_color": "#fdf6f0",
             "bg_image": "/images/footer/christmas.jpg",
-            "facebook": "https://www.facebook.com/kikiandco.nz",
-            "instagram": "https://www.instagram.com/kikiandco.nz/",
-            "pinterest": "https://nz.pinterest.com/kikiandconz/",
-            "sub_title": "Join the Kiki Club for occasional email marketing & exclusive offers.",
-            "about_email": "hello@kikiandco.nz",
+            "facebook": "https://www.facebook.com/lovelydearly",
+            "instagram": "https://www.instagram.com/lovelydearly/",
+            "pinterest": "https://www.pinterest.com/lovelydearly/",
+            "sub_title": "Join Lovely Dearly for occasional email updates & exclusive offers.",
+            "about_email": "hello@lovelydearly.ca",
             "help_center": [
                 {
                     "id": 1,
@@ -156,7 +156,7 @@
                     "value": "faq"
                 }
             ],
-            "footer_about": "Cute & practical handmade accessories, crafted with love in the Kiki & Co. studio. Shipped from our home to yours.",
+            "footer_about": "Cute & practical handmade accessories, crafted with love in the Lovely Dearly studio. Shipped from our home to yours.",
             "footer_style": "footer_one",
             "about_address": "Shipped from New Zealand worldwide",
             "app_store_url": "https://www.apple.com/in/app-store/",
@@ -164,7 +164,7 @@
             "play_store_url": "https://play.google.com/store/apps",
             "support_number": "123-456-7898",
             "footer_copyright": true,
-            "copyright_content": "2026, Kiki & Co.",
+            "copyright_content": "2026, Lovely Dearly",
             "footer_categories": [
                 74,
                 41,

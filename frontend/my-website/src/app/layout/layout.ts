@@ -83,19 +83,19 @@ export class Layout {
       }
     });
 
-    // hard code kikiandco theme
+    // hard code lovelydearly theme
     // this.route.queryParams.subscribe(params => (this.theme = params['theme']));
-    this.theme = "kikiandco";
+    this.theme = "lovelydearly";
     this.router.events.subscribe((event: Params) => {
       if (this.isBrowser) {
         if (event instanceof NavigationEnd) {
           if (this.theme) {
             document.body.classList.add('home');
-            // Kiki & Co. theme-specific body class for scoped CSS overrides
-            if (this.theme === 'kikiandco') {
-              document.body.classList.add('kikiandco-theme');
+            // Lovely Dearly theme-specific body class for scoped CSS overrides
+            if (this.theme === 'lovelydearly') {
+              document.body.classList.add('lovelydearly-theme');
             } else {
-              document.body.classList.remove('kikiandco-theme');
+              document.body.classList.remove('lovelydearly-theme');
             }
             if (
               this.theme == 'fashion_one' ||
@@ -195,7 +195,7 @@ export class Layout {
               themeOptionService.theme_color_2 = '#f7bb97';
             } else if (this.theme == 'surfboard') {
               themeOptionService.theme_color = '#2E94D2';
-            } else if (this.theme == 'kikiandco') {
+            } else if (this.theme == 'lovelydearly') {
               themeOptionService.theme_color = '#c8869e';
             }
           } else {
@@ -364,7 +364,7 @@ export class Layout {
       } else if (this.theme == 'surfboard') {
         headerLogo = 'assets/images/icon/logo/47.png';
         footerLogo = 'assets/images/icon/logo/47.png';
-      } else if (this.theme == 'kikiandco') {
+      } else if (this.theme == 'lovelydearly') {
         headerLogo = 'assets/images/settings/lovely-dearly-logo.jpeg';
         footerLogo = 'assets/images/settings/footer-logo.png';
       } else if (this.theme == 'goggles') {

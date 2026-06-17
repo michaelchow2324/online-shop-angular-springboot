@@ -1,16 +1,16 @@
-/* Kiki-inspired category grid styles */
+/* Lovely Dearly category grid styles */
 
-.kiki-category-grid {
+.lovelydearly-category-grid {
 	padding: 28px 0;
 	background-color: #fefbf5;
 
-	.kiki-category-tile {
+	.lovelydearly-category-tile {
 		display: block;
 		text-decoration: none;
 		color: inherit;
 		text-align: left;
 
-		.kiki-img-wrap {
+		.lovelydearly-img-wrap {
 			background: #fff;
 			border-radius: 12px;
 			overflow: hidden;
@@ -21,7 +21,7 @@
 			position: relative;
 		}
 
-		.kiki-img {
+		.lovelydearly-img {
 			position: absolute;
 			inset: 0;
 			width: 100%;
@@ -32,7 +32,7 @@
 			transition: transform 0.45s ease;
 		}
 
-		.kiki-caption {
+		.lovelydearly-caption {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
@@ -46,7 +46,7 @@
 			margin: 0;
 		}
 
-		.kiki-link {
+		.lovelydearly-link {
 			color: #b76b84;
 			font-weight: 700;
 			font-size: 1.1rem;
@@ -55,14 +55,14 @@
 		}
 
 		&:hover {
-			.kiki-img {
+			.lovelydearly-img {
 				transform: scale(1.06);
 			}
-			.kiki-img-wrap {
+			.lovelydearly-img-wrap {
 				box-shadow: 0 14px 40px rgba(200, 134, 158, 0.14);
 				transform: translateY(-6px);
 			}
-			.kiki-link {
+			.lovelydearly-link {
 				transform: translateX(4px);
 				color: #c8869e;
 			}
@@ -71,7 +71,7 @@
 }
 
 @media (max-width: 767px) {
-	.kiki-category-grid .kiki-caption h4 {
+	.lovelydearly-category-grid .lovelydearly-caption h4 {
 		font-size: 0.9rem;
 	}
 }

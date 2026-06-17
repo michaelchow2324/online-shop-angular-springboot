@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 import { Bag } from './bag/bag';
 import { Beauty } from './beauty/beauty';
-import { Kikiandco } from './kikiandco/kikiandco';
+import { Lovelydearly } from './lovelydearly/lovelydearly';
 import { Bicycle } from './bicycle/bicycle';
 import { Books } from './books/books';
 import { Christmas } from './christmas/christmas';
@@ -114,7 +114,7 @@ import { ThemeState } from '../../shared/store/state/theme.state';
     Parallax,
     DigitalDownload,
     SingleProduct,
-    Kikiandco,
+    Lovelydearly,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

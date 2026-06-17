@@ -1,51 +1,51 @@
-@if(style() === 'kiki'){
-<!-- Kiki & Co. style: icon-only trigger + full-width inline panel -->
+@if(style() === 'lovelydearly'){
+<!-- Lovely Dearly style: icon-only trigger + full-width inline panel -->
 <!-- Wrap trigger+panel together so clickOutside doesn't fire on the trigger click -->
-<div class="kiki-search-wrapper" (clickOutside)="closeSearch()">
-  <div class="kiki-search-trigger" (click)="openSearch()">
+<div class="lovelydearly-search-wrapper" (clickOutside)="closeSearch()">
+  <div class="lovelydearly-search-trigger" (click)="openSearch()">
     <i class="ri-search-line"></i>
   </div>
 
-  <div class="kiki-search-panel" [class.open]="menuService.isOpenSearch">
-    <div class="kiki-search-input-row">
+  <div class="lovelydearly-search-panel" [class.open]="menuService.isOpenSearch">
+    <div class="lovelydearly-search-input-row">
       <i class="ri-search-line"></i>
       <input
-        #kikiInput
+        #lovelydearlyInput
         type="text"
-        class="kiki-search-input"
+        class="lovelydearly-search-input"
         [placeholder]="typedText + '|'"
         [formControl]="term"
         (keydown.enter)="onEnterKey()"
         autocomplete="off"
       />
-      <button class="kiki-search-close" type="button" (click)="closeSearch()">
+      <button class="lovelydearly-search-close" type="button" (click)="closeSearch()">
         <i class="ri-close-line"></i>
       </button>
     </div>
-    <div class="kiki-search-results">
-      <div class="kiki-search-categories">
+    <div class="lovelydearly-search-results">
+      <div class="lovelydearly-search-categories">
         @if(filteredCategory.length){
         <h5>Categories</h5>
         @for(cat of filteredCategory; track cat.id){
-        <a class="kiki-cat-link" (click)="navigateToCategory(cat.slug)">{{ cat.name }}</a>
+        <a class="lovelydearly-cat-link" (click)="navigateToCategory(cat.slug)">{{ cat.name }}</a>
         }
         } @else if(term.value?.length >= 1) {
-        <p class="kiki-no-results">No categories found</p>
+        <p class="lovelydearly-no-results">No categories found</p>
         }
       </div>
-      <div class="kiki-search-products">
+      <div class="lovelydearly-search-products">
         @if(filteredResults.length){
         @for(product of filteredResults; track product.id; let i = $index){
-        <div class="kiki-product-result" [class.selected]="i === selectedResultIndex" (click)="navigateToProduct(product.slug)">
+        <div class="lovelydearly-product-result" [class.selected]="i === selectedResultIndex" (click)="navigateToProduct(product.slug)">
           <img [src]="product?.product_thumbnail?.original_url" [alt]="product.name" />
-          <div class="kiki-product-info">
-            <span class="kiki-product-name">{{ product.name }}</span>
-            <small class="kiki-product-price">${{ product.sale_price | number:'1.2-2' }}</small>
+          <div class="lovelydearly-product-info">
+            <span class="lovelydearly-product-name">{{ product.name }}</span>
+            <small class="lovelydearly-product-price">${{ product.sale_price | number:'1.2-2' }}</small>
           </div>
         </div>
         }
         } @else if(term.value?.length >= 1) {
-        <p class="kiki-no-results">No products found</p>
+        <p class="lovelydearly-no-results">No products found</p>
         }
       </div>
     </div>

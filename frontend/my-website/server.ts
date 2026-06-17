@@ -57,7 +57,7 @@ export function app(): express.Express {
   // ── SSR handler — this is where Server-Side Rendering happens ──────────────
   // Every page request that is NOT a static file reaches this handler.
   // CommonEngine runs the full Angular component tree on the server:
-  //   1. Angular boots, routes to the correct page component (e.g. Kikiandco)
+  //   1. Angular boots, routes to the correct page component (e.g. Lovelydearly)
   //   2. ngOnChanges() fires → dispatches GetCategoriesAction
   //   3. getCategories() calls Spring Boot API → gets category data
   //   4. <app-categories> renders with real data

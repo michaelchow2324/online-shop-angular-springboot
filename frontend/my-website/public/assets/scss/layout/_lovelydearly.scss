@@ -1,30 +1,30 @@
 // ============================================================
-// Kiki & Co. – Global theme overrides
-// Scoped to .kikiandco-theme on <body> so they never bleed
+// Lovely Dearly – Global theme overrides
+// Scoped to .lovelydearly-theme on <body> so they never bleed
 // into other pages / themes.
 // ============================================================
 
-$kiki-rose:        #c94f6d;   // deep rose-pink — primary accent
-$kiki-rose-light:  #fce8ee;   // pale blush for announcement bar / hover bg
-$kiki-cream:       #fefdf8;   // warm cream — matched to logo background
-$kiki-sand:        #faf8f2;   // slightly warmer sand for sub-footer / newsletter
-$kiki-text:        #3b1a1a;   // deep burgundy-black — echoes logo's dark red
-$kiki-muted:       #9e6e6e;   // muted rosewood for placeholder / secondary text
-$kiki-radius:      14px;
+$lovelydearly-rose:        #c94f6d;   // deep rose-pink — primary accent
+$lovelydearly-rose-light:  #fce8ee;   // pale blush for announcement bar / hover bg
+$lovelydearly-cream:       #fefdf8;   // warm cream — matched to logo background
+$lovelydearly-sand:        #faf8f2;   // slightly warmer sand for sub-footer / newsletter
+$lovelydearly-text:        #3b1a1a;   // deep burgundy-black — echoes logo's dark red
+$lovelydearly-muted:       #9e6e6e;   // muted rosewood for placeholder / secondary text
+$lovelydearly-radius:      14px;
 
 // ── Top announcement bar ───────────────────────────────────
-.kikiandco-theme {
+.lovelydearly-theme {
   background-color: #fefdf8;
 
   .top-header {
-    background-color: $kiki-rose-light;
-    border-bottom: 1px solid rgba($kiki-rose, 0.18);
+    background-color: $lovelydearly-rose-light;
+    border-bottom: 1px solid rgba($lovelydearly-rose, 0.18);
     padding: 9px 0;
 
     .header-contact ul li,
     .header-contact ul li i,
     .right-nav-about .right-nav-list {
-      color: $kiki-text;
+      color: $lovelydearly-text;
       font-size: 0.82rem;
       font-weight: 500;
     }
@@ -34,22 +34,22 @@ $kiki-radius:      14px;
     .theme-form-select .form-select:focus {
       background-color: transparent;
       border: none;
-      color: $kiki-text;
+      color: $lovelydearly-text;
       box-shadow: none;
       font-size: 0.82rem;
     }
   }
 
-  // ── Main header — kikiandco.nz exact layout ──────────────────
+  // ── Main header — lovelydearly.nz exact layout ──────────────────
   // 3-column CSS grid: [Nav RIGHT-aligned] [Logo] [Icons LEFT-aligned]
   // Grid prevents nav/icons from ever overlapping the centered logo.
-  header.kiki-header {
+  header.lovelydearly-header {
     background-color: #fefdf8;
-    border-bottom: 1px solid rgba($kiki-rose, 0.14);
-    box-shadow: 0 2px 12px rgba($kiki-rose, 0.07);
+    border-bottom: 1px solid rgba($lovelydearly-rose, 0.14);
+    box-shadow: 0 2px 12px rgba($lovelydearly-rose, 0.07);
     position: relative;
 
-    .kiki-header-inner {
+    .lovelydearly-header-inner {
       display: grid;
       grid-template-columns: 1fr auto 1fr; // left | logo | right
       align-items: center;
@@ -58,7 +58,7 @@ $kiki-radius:      14px;
     }
 
     // Left col — nav right-aligned so it sits close to the logo
-    .kiki-header-left {
+    .lovelydearly-header-left {
       display: flex;
       align-items: center;
       justify-content: flex-end; // nav hugs the logo from the left
@@ -70,14 +70,14 @@ $kiki-radius:      14px;
 
         i {
           font-size: 1.45rem;
-          color: $kiki-text;
+          color: $lovelydearly-text;
           transition: color 0.2s;
 
-          &:hover { color: $kiki-rose; }
+          &:hover { color: $lovelydearly-rose; }
         }
       }
 
-      .kiki-nav {
+      .lovelydearly-nav {
         align-items: center;
 
         nav ul.pixelstrap,
@@ -96,7 +96,7 @@ $kiki-radius:      14px;
               font-weight: 600;
               letter-spacing: 0.07em;
               text-transform: uppercase;
-              color: $kiki-text;
+              color: $lovelydearly-text;
               padding: 8px 14px;
               white-space: nowrap;
               transition: color 0.2s;
@@ -104,8 +104,8 @@ $kiki-radius:      14px;
 
               &:hover,
               &.active {
-                color: $kiki-rose;
-                border-bottom-color: $kiki-rose;
+                color: $lovelydearly-rose;
+                border-bottom-color: $lovelydearly-rose;
               }
             }
 
@@ -116,7 +116,7 @@ $kiki-radius:      14px;
     }
 
     // Center col — logo, no absolute positioning needed with grid
-    .kiki-header-center {
+    .lovelydearly-header-center {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -128,7 +128,7 @@ $kiki-radius:      14px;
     }
 
     // Right col — icons LEFT-aligned so they sit close to the logo
-    .kiki-header-right {
+    .lovelydearly-header-right {
       display: flex;
       align-items: center;
       justify-content: flex-start; // icons hug the logo from the right
@@ -148,12 +148,12 @@ $kiki-radius:      14px;
 
           a i, i {
             font-size: 1.2rem;
-            color: $kiki-text;
+            color: $lovelydearly-text;
             transition: color 0.2s;
             padding: 8px;
             display: block;
 
-            &:hover { color: $kiki-rose; }
+            &:hover { color: $lovelydearly-rose; }
           }
         }
       }
@@ -164,11 +164,11 @@ $kiki-radius:      14px;
       position: static;
 
       // Wrapper keeps trigger+panel as one unit for clickOutside
-      .kiki-search-wrapper {
+      .lovelydearly-search-wrapper {
         position: static;
       }
 
-      .kiki-search-trigger {
+      .lovelydearly-search-trigger {
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -176,21 +176,21 @@ $kiki-radius:      14px;
 
         i {
           font-size: 1.2rem;
-          color: $kiki-text;
+          color: $lovelydearly-text;
           transition: color 0.2s;
 
-          &:hover { color: $kiki-rose; }
+          &:hover { color: $lovelydearly-rose; }
         }
       }
 
-      // ── Kiki search panel (drops below header, full-width) ──
-      .kiki-search-panel {
+      // ── Lovely Dearly search panel (drops below header, full-width) ──
+      .lovelydearly-search-panel {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         background: #fefdf8;
-        border-bottom: 1px solid rgba($kiki-rose, 0.2);
+        border-bottom: 1px solid rgba($lovelydearly-rose, 0.2);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         z-index: 9999;
         transform: translateY(-100%);
@@ -205,47 +205,47 @@ $kiki-radius:      14px;
         }
 
         // Input row at the top
-        .kiki-search-input-row {
+        .lovelydearly-search-input-row {
           display: flex;
           align-items: center;
           padding: 18px 32px;
-          border-bottom: 1px solid rgba($kiki-rose, 0.12);
+          border-bottom: 1px solid rgba($lovelydearly-rose, 0.12);
           gap: 12px;
 
           > i {
             font-size: 1.2rem;
-            color: $kiki-muted;
+            color: $lovelydearly-muted;
             flex-shrink: 0;
           }
 
-          .kiki-search-input {
+          .lovelydearly-search-input {
             flex: 1;
             border: none;
             outline: none;
             font-size: 1rem;
-            color: $kiki-text;
+            color: $lovelydearly-text;
             background: transparent;
             font-family: inherit;
 
-            &::placeholder { color: $kiki-muted; }
+            &::placeholder { color: $lovelydearly-muted; }
           }
 
-          .kiki-search-close {
+          .lovelydearly-search-close {
             background: none;
             border: none;
             cursor: pointer;
             padding: 4px 8px;
-            color: $kiki-muted;
+            color: $lovelydearly-muted;
             line-height: 1;
             flex-shrink: 0;
 
             i { font-size: 1.3rem; transition: color 0.2s; }
-            &:hover i { color: $kiki-rose; }
+            &:hover i { color: $lovelydearly-rose; }
           }
         }
 
         // Two-column results area
-        .kiki-search-results {
+        .lovelydearly-search-results {
           display: grid;
           grid-template-columns: 240px 1fr;
           max-height: 360px;
@@ -257,9 +257,9 @@ $kiki-radius:      14px;
         }
 
         // LEFT — categories
-        .kiki-search-categories {
+        .lovelydearly-search-categories {
           padding: 20px 24px;
-          border-right: 1px solid rgba($kiki-rose, 0.1);
+          border-right: 1px solid rgba($lovelydearly-rose, 0.1);
           overflow-y: auto;
 
           h5 {
@@ -267,35 +267,35 @@ $kiki-radius:      14px;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: $kiki-muted;
+            color: $lovelydearly-muted;
             margin-bottom: 10px;
           }
 
-          .kiki-cat-link {
+          .lovelydearly-cat-link {
             display: block;
-            color: $kiki-text;
+            color: $lovelydearly-text;
             font-size: 0.9rem;
             padding: 6px 0;
             cursor: pointer;
-            border-bottom: 1px solid rgba($kiki-rose, 0.07);
+            border-bottom: 1px solid rgba($lovelydearly-rose, 0.07);
             transition: color 0.15s, padding-left 0.15s;
 
             &:hover {
-              color: $kiki-rose;
+              color: $lovelydearly-rose;
               padding-left: 6px;
             }
           }
         }
 
         // RIGHT — products
-        .kiki-search-products {
+        .lovelydearly-search-products {
           padding: 20px 24px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 12px;
 
-          .kiki-product-result {
+          .lovelydearly-product-result {
             display: flex;
             align-items: center;
             gap: 14px;
@@ -305,7 +305,7 @@ $kiki-radius:      14px;
             transition: background 0.15s;
 
             &:hover, &.selected {
-              background-color: rgba($kiki-rose, 0.06);
+              background-color: rgba($lovelydearly-rose, 0.06);
             }
 
             img {
@@ -314,33 +314,33 @@ $kiki-radius:      14px;
               object-fit: cover;
               border-radius: 6px;
               flex-shrink: 0;
-              background-color: $kiki-sand;
+              background-color: $lovelydearly-sand;
             }
 
-            .kiki-product-info {
+            .lovelydearly-product-info {
               display: flex;
               flex-direction: column;
               gap: 2px;
 
-              .kiki-product-name {
+              .lovelydearly-product-name {
                 font-size: 0.88rem;
                 font-weight: 500;
-                color: $kiki-text;
+                color: $lovelydearly-text;
                 line-height: 1.3;
               }
 
-              .kiki-product-price {
+              .lovelydearly-product-price {
                 font-size: 0.8rem;
-                color: $kiki-rose;
+                color: $lovelydearly-rose;
                 font-weight: 600;
               }
             }
           }
         }
 
-        .kiki-no-results {
+        .lovelydearly-no-results {
           font-size: 0.85rem;
-          color: $kiki-muted;
+          color: $lovelydearly-muted;
           padding: 8px 0;
         }
       }
@@ -349,57 +349,57 @@ $kiki-radius:      14px;
     // Cart badge
     .cart-icon-count,
     .icon-nav .badge {
-      background-color: $kiki-rose;
+      background-color: $lovelydearly-rose;
     }
   }
 
   // Sticky state
-  header.kiki-header.sticky.fixed {
-    box-shadow: 0 4px 24px rgba($kiki-rose, 0.14);
+  header.lovelydearly-header.sticky.fixed {
+    box-shadow: 0 4px 24px rgba($lovelydearly-rose, 0.14);
   }
 
   // ── Footer (footer_one → footer-light) ────────────────────
   footer.footer-light {
-    background-color: $kiki-cream;
+    background-color: $lovelydearly-cream;
 
     .footer-theme {
-      color: $kiki-text;
+      color: $lovelydearly-text;
     }
 
     // Newsletter (top stripe)
     .subscribe-form {
-      background-color: $kiki-sand;
-      border-bottom: 1px solid rgba($kiki-rose, 0.15);
+      background-color: $lovelydearly-sand;
+      border-bottom: 1px solid rgba($lovelydearly-rose, 0.15);
       padding: 34px 0;
 
       h4,
       .title1 h4 {
-        color: $kiki-text;
+        color: $lovelydearly-text;
         font-size: 1.1rem;
         font-weight: 700;
       }
 
       p {
-        color: $kiki-muted;
+        color: $lovelydearly-muted;
         font-size: 0.9rem;
       }
 
       .form-control {
         border-radius: 30px 0 0 30px;
-        border: 1.5px solid rgba($kiki-rose, 0.3);
+        border: 1.5px solid rgba($lovelydearly-rose, 0.3);
         background-color: #fff;
-        color: $kiki-text;
+        color: $lovelydearly-text;
 
         &:focus {
           box-shadow: none;
-          border-color: $kiki-rose;
+          border-color: $lovelydearly-rose;
         }
       }
 
       .btn-solid,
       button[type="submit"] {
-        background-color: $kiki-rose;
-        border-color: $kiki-rose;
+        background-color: $lovelydearly-rose;
+        border-color: $lovelydearly-rose;
         color: #fff;
         border-radius: 0 30px 30px 0;
         font-weight: 600;
@@ -407,20 +407,20 @@ $kiki-radius:      14px;
         transition: background-color 0.25s ease;
 
         &:hover {
-          background-color: darken($kiki-rose, 8%);
-          border-color: darken($kiki-rose, 8%);
+          background-color: darken($lovelydearly-rose, 8%);
+          border-color: darken($lovelydearly-rose, 8%);
         }
       }
     }
 
     // Footer columns
     .light-layout {
-      background-color: $kiki-cream;
+      background-color: $lovelydearly-cream;
     }
 
     .sub-title {
       .footer-title h4 {
-        color: $kiki-text;
+        color: $lovelydearly-text;
         font-size: 0.88rem;
         font-weight: 700;
         letter-spacing: 0.1em;
@@ -429,12 +429,12 @@ $kiki-radius:      14px;
 
       .footer-content {
         ul li a {
-          color: $kiki-muted;
+          color: $lovelydearly-muted;
           font-size: 0.875rem;
           transition: color 0.2s;
 
           &:hover {
-            color: $kiki-rose;
+            color: $lovelydearly-rose;
           }
         }
       }
@@ -442,7 +442,7 @@ $kiki-radius:      14px;
 
     // Footer about text
     .footer-content p {
-      color: $kiki-muted;
+      color: $lovelydearly-muted;
       font-size: 0.875rem;
       line-height: 1.7;
     }
@@ -450,8 +450,8 @@ $kiki-radius:      14px;
     // Social icons
     .social {
       li a i {
-        background-color: rgba($kiki-rose, 0.1);
-        color: $kiki-rose;
+        background-color: rgba($lovelydearly-rose, 0.1);
+        color: $lovelydearly-rose;
         border-radius: 50%;
         width: 36px;
         height: 36px;
@@ -461,7 +461,7 @@ $kiki-radius:      14px;
         transition: background-color 0.25s ease, color 0.25s ease;
 
         &:hover {
-          background-color: $kiki-rose;
+          background-color: $lovelydearly-rose;
           color: #fff;
         }
       }
@@ -469,17 +469,17 @@ $kiki-radius:      14px;
 
     // Copyright bar
     .sub-footer {
-      background-color: $kiki-sand;
-      border-top: 1px solid rgba($kiki-rose, 0.15);
+      background-color: $lovelydearly-sand;
+      border-top: 1px solid rgba($lovelydearly-rose, 0.15);
 
       p,
       .footer-end {
-        color: $kiki-muted;
+        color: $lovelydearly-muted;
         font-size: 0.8rem;
       }
 
       a {
-        color: $kiki-rose;
+        color: $lovelydearly-rose;
       }
     }
   }
@@ -490,12 +490,12 @@ $kiki-radius:      14px;
   .btn-solid,
   button.btn-solid {
     &:where(:not(.btn-outline)) {
-      background-color: $kiki-rose;
-      border-color: $kiki-rose;
+      background-color: $lovelydearly-rose;
+      border-color: $lovelydearly-rose;
       color: #fff;
 
       &:hover {
-        background-color: darken($kiki-rose, 8%);
+        background-color: darken($lovelydearly-rose, 8%);
       }
     }
   }
@@ -534,7 +534,7 @@ $kiki-radius:      14px;
 
         span {
           font-weight: 600;
-          color: $kiki-rose;
+          color: $lovelydearly-rose;
         }
       }
     }
@@ -549,9 +549,9 @@ $kiki-radius:      14px;
       a.btn {
         flex: 1 1 0 !important;
         display: block !important;
-        background-color: $kiki-rose !important;
+        background-color: $lovelydearly-rose !important;
         background-image: none !important;
-        border: 1px solid $kiki-rose !important;
+        border: 1px solid $lovelydearly-rose !important;
         color: #fff !important;
         text-transform: capitalize !important;
         font-size: 15px !important;
@@ -563,8 +563,8 @@ $kiki-radius:      14px;
         transition: background-color 0.25s ease, color 0.25s ease !important;
 
         &:hover {
-          background-color: darken($kiki-rose, 8%) !important;
-          border-color: darken($kiki-rose, 8%) !important;
+          background-color: darken($lovelydearly-rose, 8%) !important;
+          border-color: darken($lovelydearly-rose, 8%) !important;
           color: #fff !important;
         }
       }
@@ -572,5 +572,5 @@ $kiki-radius:      14px;
   }
 
   // Theme active-color (used by swatches, tabs etc.)
-  --theme-color: #{$kiki-rose};
+  --theme-color: #{$lovelydearly-rose};
 }

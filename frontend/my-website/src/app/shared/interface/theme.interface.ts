@@ -1598,15 +1598,15 @@ export interface ITestimonialBanner {
 }
 
 // ──────────────────────────────────────────────
-// Kiki & Co. Home Theme Interface
+// Lovely Dearly Home Theme Interface
 // ──────────────────────────────────────────────
-export interface IKikiandco {
+export interface ILovelydearly {
   id: number;
-  content: IKikiandcoContent;
+  content: ILovelydearlyContent;
   slug: string;
 }
 
-export interface IKikiandcoContent {
+export interface ILovelydearlyContent {
   home_banner: IHomeBanner;
   products_list: IProductList;
   categories: IProductCategoryFashionFour;

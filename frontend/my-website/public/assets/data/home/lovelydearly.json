@@ -60,7 +60,7 @@
                     "status": true,
                     "image_url": "/images/theme/fashion_one/service.png",
                     "button_text": "Shop",
-                    "description": "The ultimate kiki & co experience. A curated selection of our most loved items at a special price.",
+                    "description": "The ultimate Lovely Dearly experience. A curated selection of our most loved items at a special price.",
                     "redirect_link": {
                         "link": "",
                         "link_type": "page"
@@ -145,5 +145,5 @@
         },
         "products_ids": [21, 16, 15, 12, 19, 17, 18, 14]
     },
-    "slug": "kikiandco"
+    "slug": "lovelydearly"
 }

@@ -121,22 +121,22 @@
 </div>
 } 
 
-<!-- Custom Kiki Grid Style -->
-@if(style() === 'kiki'){
-<div class="kiki-category-grid row g-4">
+<!-- Custom Lovely Dearly grid style -->
+@if(style() === 'lovelydearly'){
+<div class="lovelydearly-category-grid row g-4">
   @for(category of categories; track category.id){
   <div class="col-lg-3 col-sm-6 col-6">
-    <a href="javascript:void(0)" [routerLink]="['/category', category.slug]" class="kiki-category-tile">
-      <div class="kiki-img-wrap">
+    <a href="javascript:void(0)" [routerLink]="['/category', category.slug]" class="lovelydearly-category-tile">
+      <div class="lovelydearly-img-wrap">
         <img
           [src]="category.category_image ? category?.category_image?.original_url : 'assets/images/placeholder/category.png'"
-          class="kiki-img"
+          class="lovelydearly-img"
           [alt]="category.name"
         />
       </div>
-      <div class="kiki-caption">
+      <div class="lovelydearly-caption">
         <h4>{{ category.name }}</h4>
-        <span class="kiki-link">→</span>
+        <span class="lovelydearly-link">→</span>
       </div>
     </a>
   </div>
