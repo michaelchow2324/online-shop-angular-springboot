@@ -35,13 +35,12 @@
                       <source [src]="image ? image.original_url : ''" [type]="image?.mime_type" />
                     </audio>
                     }@else {
+                    @if(image?.original_url){
                     <img
-                      [src]="image ?
-                                      image.original_url :
-                                      'assets/images/placeholder/product.png'"
+                      [src]="image.original_url"
                       class="img-fluid"
                       [alt]="product()?.name"
-                    />
+                    />}
                     }
                   </div>
                 </div>
@@ -65,11 +64,9 @@
                         [type]="product()?.product_thumbnail?.mime_type"
                       />
                     </audio>
-                    }@else {
-                    <img
-                      [src]="product()?.product_thumbnail ?
-                                product()?.product_thumbnail?.original_url :
-                                'assets/images/placeholder/product.png'"
+                    }@else if(product()?.product_thumbnail?.original_url) {
+                <img
+                  [src]="product()!.product_thumbnail!.original_url"
                       class="img-fluid"
                       [alt]="product()?.name"
                     />

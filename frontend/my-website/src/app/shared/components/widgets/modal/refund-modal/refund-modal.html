@@ -14,13 +14,13 @@
   <form class="product-review-form">
     <div class="product-wrapper">
       <div class="product-image">
+        @if(productDetails()?.product_thumbnail?.original_url){
         <img
-          [src]="productDetails() && productDetails()?.product_thumbnail ?
-                productDetails()?.product_thumbnail?.original_url :
-                'assets/images/placeholder/product.png'"
+          [src]="productDetails()!.product_thumbnail!.original_url"
           class="img-fluid"
           [alt]="productDetails()?.name"
         />
+        }
       </div>
       <div class="product-content">
         <h5 class="name">{{ productDetails()?.name }}</h5>

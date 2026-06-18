@@ -75,13 +75,13 @@
                     } }
                   </owl-carousel-o>
                   @if(!product.product_galleries?.length){
+                  @if(product.product_thumbnail?.original_url; as imageUrl){
                   <img
-                    [src]="product.product_thumbnail ?
-                                          product.product_thumbnail.original_url :
-                                          'assets/images/placeholder/product.png'"
+                    [src]="imageUrl"
                     class="img-fluid"
                     [alt]="product.name"
                   />
+                  }
                   }
                 </div>
               </div>
@@ -114,12 +114,13 @@
                             <i class="ri-music-2-line"></i>
                           </button>
                           }@else {
-                          <img
-                            [src]="image ? image.original_url : 'assets/images/placeholder/product.png'"
+                          @if(image?.original_url){
+                    <img
+                      [src]="image.original_url"
                             class="img-fluid"
                             [alt]="product.name"
                             (click)="owlCar.to(activeSlide = image.id.toString())"
-                          />
+                          />}
                           }
                         </div>
                       </div>

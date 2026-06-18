@@ -2,6 +2,8 @@ package com.yourstore.online_store_api.product;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.yourstore.online_store_api.product.ProductDTO.ProductImage;
 
 import lombok.AllArgsConstructor;
@@ -32,5 +34,10 @@ public class ProductDetailDTO {
     private ProductDTO[] relatedProducts;
     private ProductDTO[] crossSellProducts;
     private boolean status;
+
+    @JsonProperty("sale_price")
+    public BigDecimal getSale_price() {
+        return salePrice != null ? salePrice : price;
+    }
 
 }

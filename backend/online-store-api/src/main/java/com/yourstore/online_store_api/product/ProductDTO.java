@@ -1,6 +1,9 @@
 package com.yourstore.online_store_api.product;
 
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,12 +35,15 @@ public class ProductDTO {
     private Long id;
     private String name;
     private String slug;
+    private String sku;
     private String description;
     private BigDecimal price;
       // Matches IProduct.product_thumbnail: IAttachment (frontend interface)
     private ProductImage product_thumbnail;
     private boolean status;
-    
 
-
-}
+    /** Theme templates read sale_price for display; same as price until sales are implemented. */
+    @JsonProperty("sale_price")
+    public BigDecimal getSalePrice() {
+        return price;
+    }

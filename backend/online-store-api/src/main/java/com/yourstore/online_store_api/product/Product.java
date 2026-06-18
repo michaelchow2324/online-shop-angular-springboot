@@ -45,6 +45,9 @@ public class Product {
     @Column(nullable = false, unique = true)
     private String slug;
 
+    @Column(unique = true, length = 50)
+    private String sku;
+
     // It is stored as a large text column, not a short default varchar.
     @Column(columnDefinition = "TEXT")
     private String description;

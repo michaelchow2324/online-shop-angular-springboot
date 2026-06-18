@@ -85,15 +85,13 @@
                             @for(product of order.products; track product.id){
                             <tr>
                               <td class="product-image">
+                                @if(product?.product_thumbnail?.original_url; as imageUrl){
                                 <img
-                                  [src]="product?.pivot?.variation && product?.pivot?.variation?.variation_image
-                                                                                    ? product?.pivot?.variation?.variation_image?.original_url
-                                                                                    : product?.product_thumbnail
-                                                                                    ? product?.product_thumbnail?.original_url
-                                                                                    : 'assets/images/placeholder/product.png'"
+                                  [src]="imageUrl"
                                   class="img-fluid"
                                   alt="product"
                                 />
+                                }
                               </td>
                               <td>
                                 <h6>

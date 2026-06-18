@@ -59,10 +59,12 @@
       @for(product of products(); track product.id; let i = $index){
       <li class="result-item" [class.selected]="i === selectedResultIndex()">
         <div class="suggestion-image">
+          @if(product.product_thumbnail?.original_url; as imageUrl){
           <img
-            [src]="product.product_thumbnail ? product.product_thumbnail.original_url : 'assets/images/placeholder/product.png'"
+            [src]="imageUrl"
             [alt]="product.name"
           />
+          }
         </div>
         <div class="suggestion-category">
           <a

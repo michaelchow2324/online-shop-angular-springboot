@@ -38,11 +38,11 @@
 }@else {
 <div class="media">
   <a href="javascript:void(0)" [routerLink]="['/product/', product()?.slug]">
-    <img
+    @if(product()?.product_thumbnail?.original_url){<img
       class="img-fluid"
-      [src]="product()?.product_thumbnail ? product()?.product_thumbnail?.original_url : 'assets/images/placeholder/product.png'"
+      [src]="product()!.product_thumbnail!.original_url"
       [alt]="product()?.name"
-    />
+    />}
   </a>
   <div class="media-body align-self-center">
     <div class="rating">

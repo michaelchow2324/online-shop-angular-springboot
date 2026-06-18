@@ -175,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
         String translatedDescription = translation != null && translation.getDescription() != null ? translation.getDescription() : p.getDescription();
 
         // `active` maps to `status` to align with the frontend's ICategory.status field
-        return new ProductDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), productImage, p.isActive());
+        return new ProductDTO(p.getId(), translatedName, p.getSlug(), p.getSku(), translatedDescription, p.getPrice(), productImage, p.isActive());
     }
 
     private ProductDetailDTO toDetailDto(Product p, String locale) {
@@ -195,7 +195,7 @@ public class ProductServiceImpl implements ProductService {
         String translatedName = translation != null && translation.getName() != null ? translation.getName() : p.getName();
         String translatedDescription = translation != null && translation.getDescription() != null ? translation.getDescription() : p.getDescription();
 
-        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), null, false, null, productImage, null, null, 0, null, null, null, null, p.isActive());
+        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), p.getPrice(), false, null, productImage, null, null, 0, p.getSku(), null, null, null, p.isActive());
     }
 
     private String normalizeLocale(String locale) {

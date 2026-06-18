@@ -16,11 +16,11 @@
                   </button>
                   <div class="img-section">
                     <div>
-                      <img
-                        [src]="product?.product_thumbnail ? product?.product_thumbnail?.original_url : 'assets/images/placeholder/product.png'"
+                      @if(product?.product_thumbnail?.original_url){<img
+                        [src]="product!.product_thumbnail!.original_url"
                         class="img-fluid"
                         [alt]="product?.name"
-                      />
+                      />}
                     </div>
                     <a href="javascript:void(0)">
                       <h5>{{ product?.name }}</h5>

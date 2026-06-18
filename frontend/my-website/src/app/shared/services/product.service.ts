@@ -99,16 +99,17 @@ export class ProductService {
         // Seed TransferState during SSR so the browser payload includes data.
         // store the products in TransferState, so the browser can rehydrate from it instead of making another HTTP call later (cache + SSR).
         tap((result) => {
-          const data = Array.isArray(result)
+          const raw = Array.isArray(result)
             ? result
             : result?.content ?? [];
-          this.transferState.set(PRODUCTS_KEY, data ?? []);
+          this.transferState.set(PRODUCTS_KEY, raw.map((product: any) => this.normalizeProduct(product)) ?? []);
         }),
         // map the response to IProductModel, so the frontend can consume it
         map((result) => {
-          const data = Array.isArray(result)
+          const raw = Array.isArray(result)
             ? result
             : result?.content ?? [];
+          const data = raw.map((product: any) => this.normalizeProduct(product));
           const total = Array.isArray(result)
             ? data.length
             : result?.totalElements ?? result?.total ?? data.length;
@@ -134,6 +135,9 @@ export class ProductService {
       ? product.crossSellProducts
       : [];
 
+    const price = product.price ?? product.sale_price ?? product.salePrice ?? 0;
+    const salePrice = product.sale_price ?? product.salePrice ?? product.price ?? 0;
+
     return {
       ...product,
       highlightedName: product.highlightedName ?? product.name ?? '',
@@ -144,7 +148,8 @@ export class ProductService {
       brand_id: product.brand_id ?? product.brand?.id ?? null,
       product_thumbnail: product.product_thumbnail ?? product.thumbnail ?? null,
       product_galleries: product.product_galleries ?? product.images ?? [],
-      sale_price: product.sale_price ?? product.salePrice ?? null,
+      price,
+      sale_price: salePrice,
       related_products: relatedProducts,
       cross_sell_products: crossSellProducts,
       categories,

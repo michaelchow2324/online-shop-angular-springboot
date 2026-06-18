@@ -24,10 +24,12 @@
             <tr>
               <td>
                 <a href="javascript:void(0)" [routerLink]="['/product/', product.slug]">
+                  @if(product.product_thumbnail?.original_url; as imageUrl){
                   <img
-                    [src]="product.product_thumbnail ? product.product_thumbnail.original_url : 'assets/images/placeholder/product.png'"
+                    [src]="imageUrl"
                     [alt]="product.name"
                   />
+                  }
                 </a>
               </td>
               <td>

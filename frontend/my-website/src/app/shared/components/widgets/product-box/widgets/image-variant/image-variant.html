@@ -1,4 +1,5 @@
 @if(variant === 'image_slider'){
+@if(product()?.product_galleries?.length || thumbnail?.original_url){
 <owl-carousel-o
   [options]="customOptions"
   (mouseenter)="startAutoplay()"
@@ -6,44 +7,55 @@
 >
   @for(image of product()?.product_galleries; track image.id){
   <ng-template carouselSlide>
+    @if(thumbnail?.original_url ?? image?.original_url; as imageUrl){
     <img
-      [src]="thumbnail ? thumbnail.original_url  : image?.original_url ? image?.original_url : 'assets/images/placeholder/product.png'"
+      [src]="imageUrl"
       class="img-fluid bg-img"
       [alt]="product()?.name"
     />
+    }
   </ng-template>
   }
 </owl-carousel-o>
+}
 } @else if(variant === 'image_flip') {
+@if(flipImage.length){
 <div class="flip">
   @for(image of flipImage.slice(0,2); let i = $index; track image.id){
+  @if(image?.original_url; as imageUrl){
   <div class="{{ i === 0 ? 'front' : 'back' }}">
     <a [routerLink]="['/product', product()?.slug]">
       <img
-        [src]="image ? image?.original_url : 'assets/images/placeholder/product.png'"
+        [src]="imageUrl"
         class="img-fluid bg-img"
         [alt]="product()?.name"
       />
     </a>
   </div>
   }
+  }
 </div>
+}
 } @else if(variant === 'image_zoom') {
+@if(thumbnail?.original_url; as imageUrl){
 <div class="zoom">
   <a [routerLink]="['/product', product()?.slug]">
     <img
-      [src]="thumbnail ? thumbnail.original_url : 'assets/images/placeholder/product.png'"
+      [src]="imageUrl"
       class="img-fluid bg-img"
       [alt]="product()?.name"
     />
   </a>
 </div>
+}
 } @else {
+@if(thumbnail?.original_url; as imageUrl){
 <a [routerLink]="['/product', product()?.slug]">
   <img
-    [src]="thumbnail ? thumbnail.original_url : 'assets/images/placeholder/product.png'"
+    [src]="imageUrl"
     class="img-fluid bg-img"
     [alt]="product()?.name"
   />
 </a>
+}
 }

@@ -63,13 +63,13 @@ attributeValues.includes(value.id)){
       >{{ value?.name }} / {{ value?.sale_price | currencySymbol }}</ng-template
     >
     <button [ngbTooltip]="tipContent">
-      <img
+      @if(value?.variation_image?.original_url){<img
         style="width: 50px"
-        [src]="value?.variation_image ? value?.variation_image?.original_url : 'assets/images/placeholder/product.png'"
+        [src]="value!.variation_image!.original_url"
         (mouseover)="!soldOutAttributesIds.includes(value.id) && setVariant(product.variations, value, 'hover')"
         (click)="setVariant(product.variations, value)"
         alt="img"
-      />
+      />}
     </button>
   </a>
 </li>
@@ -98,12 +98,12 @@ attributeValues.includes(value.id)){
     (mouseleave)="removeVariation()"
   >
     @if(attribute?.style === 'image'){
-    <img
-      [src]="value?.variation_image ? value?.variation_image?.original_url : 'assets/images/placeholder/product.png'"
+    @if(value?.variation_image?.original_url){<img
+      [src]="value!.variation_image!.original_url"
       (click)="setVariant(product.variations, value)"
       (mouseover)="setVariant(product.variations, value, 'hover')"
       alt="img"
-    />
+    />}
     }@else {
     <app-button
       [id]="'value_btn'"

@@ -109,12 +109,12 @@
   >
     @if(attribute?.style === 'image'){
     <a>
-      <img
-        [src]="value?.variation_image ? value?.variation_image?.original_url : 'assets/images/placeholder/product.png'"
+      @if(value?.variation_image?.original_url){<img
+        [src]="value!.variation_image!.original_url"
         (click)="setVariant(product.variations, value)"
         (mouseover)="setVariant(product.variations, value, 'hover')"
         alt="img"
-      />
+      />}
     </a>
     }@else {
     <app-button
