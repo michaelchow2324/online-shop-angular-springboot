@@ -12,9 +12,9 @@
               <a [href]="media.redirect_link.link" target="_blank">
                 <div
                   class="instagram-box bg-size"
-                  [style.background-image]="'url(' + (media.image_url?.startsWith('http') ? media.image_url : StorageURL+media.image_url) + ')'"
+                  [style.background-image]="'url(' + (mediaUrl(media.image_url)) + ')'"
                 >
-                  <img [src]="media.image_url?.startsWith('http') ? media.image_url : StorageURL+media.image_url" class="bg-img" alt="img" />
+                  <img [src]="mediaUrl(media.image_url)" class="bg-img" alt="img" />
                   <div class="overlay">
                     <i class="ri-instagram-line"></i>
                   </div>

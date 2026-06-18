@@ -40,7 +40,7 @@
             height: auto;
           "
         >
-          <source [src]="StorageURL+banner.image_url" type="video/mp4" />
+          <source [src]="mediaUrl(banner.image_url)" type="video/mp4" />
         </video>
       </div>
     </div>
@@ -95,7 +95,7 @@ videoType.includes(filteredBanners[0].image_url.substring(filteredBanners[0].ima
         height: auto;
       "
     >
-      <source [src]="StorageURL+filteredBanners[0].image_url" type="video/mp4" />
+      <source [src]="mediaUrl(filteredBanners[0].image_url)" type="video/mp4" />
     </video>
   </div>
 </div>

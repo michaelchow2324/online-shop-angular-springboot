@@ -3,8 +3,8 @@ import { Component, SimpleChanges, input } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { environment } from '../../../../../environments/environment';
 import { NoData } from '../../../../shared/components/widgets/no-data/no-data';
+import { resolveMediaUrl } from '../../../../shared/utils/resolve-media-url';
 import { IAboutFutures } from '../../../../shared/interface/theme-option.interface';
 import { IBanners } from '../../../../shared/interface/theme.interface';
 
@@ -20,7 +20,7 @@ export class ThemeServices {
   readonly type = input<string>();
 
   public filteredServices: IBanners[];
-  public StorageURL = environment.storageURL;
+  mediaUrl = resolveMediaUrl;
 
   ngOnChanges(change: SimpleChanges) {
     if (change['services'] && change['services'].currentValue) {

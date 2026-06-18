@@ -3,8 +3,8 @@ import { RouterModule } from '@angular/router';
 
 import { CarouselModule } from 'ngx-owl-carousel-o';
 
-import { environment } from '../../../../../environments/environment';
 import { ImageLink } from '../../../../shared/components/widgets/image-link/image-link';
+import { resolveMediaUrl } from '../../../../shared/utils/resolve-media-url';
 import { homeBannerSlider } from '../../../../shared/data/owl-carousel';
 import { IBanners } from '../../../../shared/interface/theme.interface';
 
@@ -21,7 +21,7 @@ export class ThemeHomeSlider {
   public options = homeBannerSlider;
   public filteredBanners: IBanners[];
   public videoType = ['mp4', 'webm', 'ogg'];
-  public StorageURL = environment.storageURL;
+  mediaUrl = resolveMediaUrl;
 
   ngOnChanges(change: SimpleChanges) {
     this.filteredBanners = change['banners'].currentValue?.banners?.filter((banner: IBanners) => {

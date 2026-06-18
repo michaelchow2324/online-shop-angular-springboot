@@ -19,6 +19,10 @@ public class InstagramController {
 
     @GetMapping("/feed")
     public ResponseEntity<List<InstagramPost>> getFeed() {
-        return ResponseEntity.ok(instagramService.getLatestPosts());
+        try {
+            return ResponseEntity.ok(instagramService.getLatestPosts());
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.ok(List.of());
+        }
     }
 }

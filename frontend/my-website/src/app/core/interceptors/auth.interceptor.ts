@@ -59,7 +59,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (error.status === 401) {
           this.notificationService.notification = false;
           this.store.dispatch(new AuthClearAction());
-          this.authService.isLogin = true;
+          // Do not pop login on public pages — stale demo tokens are cleared silently.
         }
         return throwError(() => error);
       }),

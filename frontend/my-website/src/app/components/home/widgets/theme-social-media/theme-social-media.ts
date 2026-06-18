@@ -4,8 +4,8 @@ import { Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CarouselModule, OwlOptions } from 'ngx-owl-carousel-o';
 
-import { environment } from '../../../../../environments/environment';
 import { NoData } from '../../../../shared/components/widgets/no-data/no-data';
+import { resolveMediaUrl } from '../../../../shared/utils/resolve-media-url';
 import { SocialMediaSlider } from '../../../../shared/data/owl-carousel';
 import { ThemeTitle } from '../theme-title/theme-title';
 
@@ -22,5 +22,5 @@ export class ThemeSocialMedia {
   readonly class = input<string>();
   readonly type = input<string>();
 
-  public StorageURL = environment.storageURL;
+  mediaUrl = resolveMediaUrl;
 }

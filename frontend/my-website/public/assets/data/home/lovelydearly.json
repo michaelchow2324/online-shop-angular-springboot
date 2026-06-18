@@ -10,7 +10,7 @@
                     "tag": "Handmade with love",
                     "description": "Handmade with love in the studio. Shipped from our home to yours.",
                     "button_text": "Shop Now",
-                    "image_url": "/homepage/home_banner.jpg",
+                    "image_url": "/assets/images/homepage/home_banner.jpg",
                     "redirect_link": {
                         "link": "",
                         "link_type": "none"
@@ -36,7 +36,7 @@
                 {
                     "title": "Personalised Just for You",
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/service.png",
+                    "image_url": "/assets/images/theme/fashion_one/service.png",
                     "button_text": "More Info",
                     "description": "We offer personalisation on our keychains, lanyards & bookmarks. Add a cute quote or name for a thoughtful gift.",
                     "redirect_link": {
@@ -47,7 +47,7 @@
                 {
                     "title": "Free Note Cards",
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/service.png",
+                    "image_url": "/assets/images/theme/fashion_one/service.png",
                     "button_text": "Shop",
                     "description": "Buying or sending a gift? Add a free note card to your order! Limit 1 per item ordered.",
                     "redirect_link": {
@@ -58,7 +58,7 @@
                 {
                     "title": "Mystery Bundle Box",
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/service.png",
+                    "image_url": "/assets/images/theme/fashion_one/service.png",
                     "button_text": "Shop",
                     "description": "The ultimate Lovely Dearly experience. A curated selection of our most loved items at a special price.",
                     "redirect_link": {
@@ -80,7 +80,7 @@
             "banners": [
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_7.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_7.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -89,7 +89,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_6.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_6.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -98,7 +98,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_5.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_5.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -107,7 +107,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_4.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_4.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -116,7 +116,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_3.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_3.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -125,7 +125,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_2.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_2.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",
@@ -134,7 +134,7 @@
                 },
                 {
                     "status": true,
-                    "image_url": "/images/theme/fashion_one/fashion_one_insta_1.png",
+                    "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_1.png",
                     "button_text": "",
                     "redirect_link": {
                         "link": "https://instagram.com/",

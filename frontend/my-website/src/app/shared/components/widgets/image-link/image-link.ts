@@ -5,8 +5,8 @@ import { RouterModule } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../../environments/environment';
 import { IProduct } from '../../../interface/product.interface';
+import { resolveMediaUrl } from '../../../utils/resolve-media-url';
 import { ProductState } from '../../../store/state/product.state';
 
 @Component({
@@ -24,7 +24,7 @@ export class ImageLink {
   readonly banner_details = input<boolean>(false);
   readonly placeholder = input<string>();
 
-  public StorageURL = environment.storageURL;
+  mediaUrl = resolveMediaUrl;
 
   ngOnChanges(change: SimpleChanges) {
     if (

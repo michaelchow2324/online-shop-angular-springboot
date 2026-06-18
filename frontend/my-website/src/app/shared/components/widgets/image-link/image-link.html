@@ -4,11 +4,11 @@
   <div
     class="bg-size"
     [ngClass]="class()"
-    [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+    [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
   ></div>
   }@else{
   <img
-    [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+    [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
     class="bg-img w-100"
     alt="banner"
   />
@@ -20,11 +20,11 @@
   <div
     class="bg-size"
     [ngClass]="class()"
-    [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+    [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
   ></div>
   }@else{
   <img
-    [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+    [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
     class="bg-img w-100"
     alt="banner"
   />
@@ -36,7 +36,7 @@
   <div
     class="bg-size"
     [ngClass]="class()"
-    [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+    [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
   >
     @if(banner_details()){
     <div class="absolute-contain">
@@ -47,7 +47,7 @@
   </div>
   }@else {
   <img
-    [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+    [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
     class="bg-img w-100"
     alt="banner"
   />
@@ -57,7 +57,7 @@
 <div
   class="bg-size"
   [ngClass]="class()"
-  [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+  [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
 >
   @if(banner_details()){
   <div class="absolute-contain">
@@ -68,7 +68,7 @@
 </div>
 }@else {
 <img
-  [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+  [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
   class="bg-img w-100"
   alt="banner"
 />
@@ -78,13 +78,13 @@
   <div
     class="bg-size"
     [ngClass]="class()"
-    [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+    [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
   >
     <ng-content />
   </div>
   }@else {
   <img
-    [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+    [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
     class="bg-img w-100"
     alt="banner"
   />
@@ -94,13 +94,13 @@
 <div
   class="bg-size"
   [ngClass]="class()"
-  [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+  [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
 >
   <ng-content />
 </div>
 }@else {
 <img
-  [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+  [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
   class="bg-img w-100"
   alt="banner"
 />
@@ -108,11 +108,11 @@
 <div
   class="bg-size"
   [ngClass]="class()"
-  [style.background-image]="'url(' + (image()?.image_url ? StorageURL+image()?.image_url : placeholder()) + ')'"
+  [style.background-image]="'url(' + (image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()) + ')'"
 ></div>
 }@else {
 <img
-  [src]="image()?.image_url ? StorageURL+image()?.image_url : placeholder()"
+  [src]="image()?.image_url ? mediaUrl(image()?.image_url) : placeholder()"
   class="bg-img w-100"
   alt="banner"
 />

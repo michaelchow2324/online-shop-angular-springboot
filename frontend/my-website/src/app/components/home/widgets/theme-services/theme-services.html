@@ -4,7 +4,7 @@
     [ngClass]="filteredServices.length === 4 ? 'col-xl-3 col-sm-6' : filteredServices.length === 3 ? 'col-lg-4 col-sm-6' : filteredServices.length === 2 ? 'col-sm-6' : 'col-12'"
   >
     <div class="service-block1">
-      <img [src]="StorageURL+service.image_url" [alt]="service.title" />
+      <img [src]="mediaUrl(service.image_url)" [alt]="service.title" />
       <div class="service-skeleton-img"></div>
       <h4>{{ service.title }}</h4>
       <h4 class="skeleton-content-h4"></h4>
@@ -18,7 +18,7 @@
   >
     <div class="service-block">
       <div class="media">
-        <img [src]="StorageURL+service.image_url" [alt]="service.title" />
+        <img [src]="mediaUrl(service.image_url)" [alt]="service.title" />
         <div class="skeleton-img-box"></div>
         <div class="media-body">
           <h4>{{ service.title }}</h4>
