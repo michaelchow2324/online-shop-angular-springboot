@@ -32,6 +32,7 @@ services:
       dockerfile: Dockerfile
       args:
         SITE_URL: https://${DOMAIN}
+        STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_BASE_URL}
     restart: unless-stopped
     environment:
       PORT: "4000"

@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 import { ICategory, ICategoryModel } from '../interface/category.interface';
 import { Params } from '../interface/core.interface';
 
-// TransferState key â€” the server stores fetched categories here so the
+// TransferState key ??the server stores fetched categories here so the
 // browser rehydrates from state instead of making a second HTTP call.
 const CATEGORIES_KEY = makeStateKey<ICategory[]>('categories');
 
@@ -23,7 +23,7 @@ export class CategoryService {
  
   getCategories(payload?: Params): Observable<ICategoryModel> {
     const locale = this.getLocale();
-    // â”€â”€â”€ ORIGINAL CODE (kept for comparison) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?€?€?€ ORIGINAL CODE (kept for comparison) ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
     // return this.http
     //   .get<ICategory[]>(`${environment.apiUrl}/categories`, { params: payload })
     //   .pipe(
@@ -32,7 +32,7 @@ export class CategoryService {
     //       return { data, total: data.length } as ICategoryModel;
     //     })
     //   );
-    // â”€â”€â”€ END ORIGINAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ?€?€?€ END ORIGINAL ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
 
     // 1. During SSR (Server Side Rendering) the server serialises the API response into TransferState.
     // 2. In the browser, if the key exists (transferred from server), reuse it

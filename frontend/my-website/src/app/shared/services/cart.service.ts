@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 
 import { Observable, Subject } from 'rxjs';
 
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { ICartModel } from '../interface/cart.interface';
 
 @Injectable({

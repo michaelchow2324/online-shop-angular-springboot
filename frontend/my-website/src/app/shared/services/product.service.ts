@@ -8,7 +8,7 @@ import { Params } from '../interface/core.interface';
 import { IProduct, IProductModel } from '../interface/product.interface';
 
 
-// TransferState key — the server stores fetched products here so the
+// TransferState key ??the server stores fetched products here so the
 // browser rehydrates from state instead of making a second HTTP call.
 const PRODUCTS_KEY = makeStateKey<IProduct[]>('products');
 
