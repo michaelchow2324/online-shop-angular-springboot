@@ -6,16 +6,20 @@
           <a ngbNavLink>{{ 'description' | translate }}</a>
           <div class="material-border"></div>
         </li>
+        <!-- Review tab disabled for now
         @if(!product()?.is_external){
         <li ngbNavItem="review">
           <a ngbNavLink>{{ 'review' | translate }}</a>
           <div class="material-border"></div>
         </li>
         }
+        -->
+        <!-- Q&A tab disabled for now
         <li ngbNavItem="questions_answers">
           <a ngbNavLink>{{ 'q_a' | translate }}</a>
           <div class="material-border"></div>
         </li>
+        -->
       </ul>
       <div class="tab-content nav-material">
         <div class="tab-pane fade show active">
@@ -28,18 +32,20 @@
             ></div>
             }
           </div>
-          }@if (active === 'review') {
+          }<!-- Review tab content disabled for now
+          @if (active === 'review') {
           <div class="single-product-tables">
             <app-product-review [product]="product()" [reviews]="(review$ | async)?.data || []" />
           </div>
-          }@if (active === 'questions_answers') {
+          }--><!-- Q&A tab content disabled for now
+          @if (active === 'questions_answers') {
           <div class="single-product-tables">
             <app-questions-answers
               [product]="product()!"
               [questionAnswers]="(question$ | async)?.data || []"
             />
           </div>
-          }
+          }-->
         </div>
         <div [ngbNavOutlet]="nav" class="custom-tab"></div>
       </div>

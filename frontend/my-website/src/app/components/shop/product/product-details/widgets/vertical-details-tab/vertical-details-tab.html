@@ -12,14 +12,18 @@
             >{{ 'description' | translate }}</a
           >
         </li>
+        <!-- Review tab disabled for now
         @if(!product()?.is_external){
         <li ngbNavItem="review">
           <a ngbNavLink [class.active]="active === 'review'">{{ 'review' | translate }}</a>
         </li>
         }
+        -->
+        <!-- Q&A tab disabled for now
         <li ngbNavItem="questions_answers">
           <a ngbNavLink [class.active]="active === 'questions_answers'">{{ 'q_a' | translate }}</a>
         </li>
+        -->
       </ul>
     </div>
     <div class="col-xl-10">
@@ -30,18 +34,20 @@
             class="part ckeditor-content"
             [innerHTML]="getTrustedHtml(product()?.description)"
           ></div>
-          } }@if (active === 'review') {
+          } }<!-- Review tab content disabled for now
+          @if (active === 'review') {
           <div class="single-product-tables">
             <app-product-review [product]="product()" [reviews]="(review$ | async)?.data || []" />
           </div>
-          }@if (active === 'questions_answers') {
+          }--><!-- Q&A tab content disabled for now
+          @if (active === 'questions_answers') {
           <div class="single-product-tables">
             <app-questions-answers
               [product]="product()!"
               [questionAnswers]="(question$ | async)?.data || []"
             />
           </div>
-          }
+          }-->
         </div>
         <div [ngbNavOutlet]="nav" class="custom-tab"></div>
       </div>

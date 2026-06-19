@@ -17,7 +17,7 @@
 </h4>
 }
 
-<!-- Quantity -->
+<!-- Purchase section disabled for now (quantity, add to cart, buy now)
 @if(!product.is_external){
 <div class="product-buttons">
   <div>
@@ -103,7 +103,9 @@
   {{ product.external_button_text ? product.external_button_text : 'buy_now' | translate }}
 </app-button>
 }
+-->
 
+<!-- Wishlist & compare disabled for now
 <div class="buy-box compare-box">
   @if(!product_variation()){
   <a href="javascript:void(0)" (click)="addToWishlist(product)">
@@ -124,7 +126,9 @@
   </a>
   }
 </div>
+-->
 
+<!-- Stock urgency disabled for now
 @if(product && product.quantity && product.quantity <= 10){
 <div class="left-progressbar">
   <h6>
@@ -139,6 +143,7 @@
   </div>
 </div>
 }
+-->
 
 <!-- Sale -->
 @if(product.sale_starts_at && product.sale_expired_at){

@@ -9,15 +9,19 @@
     <li>
       <span>{{ 'weight' | translate }}: </span>{{ product()?.weight }} {{ 'gms' | translate }}
     </li>
-    } @if(product() && product()?.stock_status){
+    }
+    <!-- Out of stock info disabled for now
+    @if(product() && product()?.stock_status){
     <li>
       <span>{{ 'stock_status' | translate }}: </span>{{ product()!.stock_status | translate }}
     </li>
-    } @if(product()?.quantity! > 0){
+    }
+    @if(product()?.quantity! > 0){
     <li>
       <span>{{ 'quantity' | translate }}: </span>{{ product()?.quantity }} {{ 'items_left' |
       translate }}
     </li>
     }
+    -->
   </ul>
 </div>

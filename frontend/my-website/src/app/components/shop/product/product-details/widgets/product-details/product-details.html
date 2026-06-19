@@ -1,3 +1,4 @@
+<!-- Purchase social proof disabled for now
 @if((option()?.product?.encourage_view && product.encourage_view)){
 <div class="trending-text">
   <img src="assets/images/trending.gif" class="img-fluid" alt="" />
@@ -6,13 +7,14 @@
   </h5>
 </div>
 }
+-->
 
 <!-- Product name -->
 <a [routerLink]="['/product', product.slug]">
   <h2 class="main-title">{{ selectedVariation ? selectedVariation.name : product.name }}</h2>
 </a>
 
-<!-- Review -->
+<!-- Rating & review disabled for now
 @if(!product.is_external){
 <div class="product-rating">
   <div class="rating-list">
@@ -26,6 +28,7 @@
   <a href="javascript:void(0)">{{ product.reviews_count }} {{ 'review' | translate }}</a>
 </div>
 }
+-->
 
 <!-- Price -->
 <div class="price-text">
@@ -66,9 +69,11 @@
 
   <span></span>
 
+  <!-- Q&A disabled for now
   <a href="javascript:void(0)" class="" (click)="openModal('question',product)">
     <i class="ri-questionnaire-line"></i>{{ 'ask_a_question' | translate }}
   </a>
+  -->
   }
 </div>
 }

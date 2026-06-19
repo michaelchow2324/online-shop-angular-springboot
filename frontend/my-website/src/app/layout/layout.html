@@ -10,9 +10,11 @@
 <router-outlet />
 <app-footer [logo]="setLogo().footer_logo" />
 
+<!-- Recent purchase popup disabled for now
 @if ((themeOption$ | async)?.product?.sticky_product) {
 <app-recent-purchase-popup />
 }
+-->
 
 <!-- this is the theme selector -->
 <!-- <app-theme-customizer /> -->
