@@ -28,6 +28,7 @@
         (selectVariation)="selectedVariant($event!)"
       />
     </div>
+    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
     <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
       <app-product-hover-action [product]="product()" [showAction]="['compare', 'view']">
@@ -40,11 +41,13 @@
         />
       </app-product-hover-action>
     </div>
+    -->
   </div>
   <div class="product-detail">
     <a class="product-title mb-2" [routerLink]="['/product', product()?.slug]">
       {{ selectedVariation ? selectedVariation.name : product()?.name }}
     </a>
+    <!-- Rating disabled for now
     <div class="rating-w-count">
       <div class="rating">
         <ngb-rating [(rate)]="product()!.rating_count">
@@ -58,6 +61,7 @@
       </div>
       <span>({{ product()?.reviews_count }})</span>
     </div>
+    -->
     <h4 class="price">
       {{(selectedVariation ? selectedVariation.sale_price : product()?.sale_price) |
       currencySymbol}} @if(selectedVariation ? selectedVariation.discount : product()?.discount){

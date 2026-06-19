@@ -12,11 +12,12 @@ import { GetProductsAction } from '../../../shared/store/action/product.action';
 import { CategoryState } from '../../../shared/store/state/category.state';
 import { ProductState } from '../../../shared/store/state/product.state';
 import { CollectionProducts } from '../collection/widgets/collection-products/collection-products';
-import { Sidebar } from '../collection/widgets/sidebar/sidebar';
+// Disabled for now — uncomment when re-enabling filters in category.html
+// import { Sidebar } from '../collection/widgets/sidebar/sidebar';
 
 @Component({
   selector: 'app-category',
-  imports: [Breadcrumb, Sidebar, CollectionProducts],
+  imports: [Breadcrumb, CollectionProducts],
   templateUrl: './category.html',
   styleUrl: './category.scss',
 })
@@ -50,6 +51,7 @@ export class Category {
     sortBy: 'asc',
     rating: '',
     attribute: '',
+    layout: 'collection_no_sidebar', // hides filter button while sidebar is commented out
   };
 
   public totalItems: number = 0;
@@ -90,6 +92,7 @@ export class Category {
                 sortBy: params['sortBy'] ? params['sortBy'] : this.filter['sortBy'],
                 rating: params['rating'] ? params['rating'] : '',
                 attribute: params['attribute'] ? params['attribute'] : '',
+                layout: 'collection_no_sidebar',
               };
               this.store.dispatch(new GetProductsAction(this.filter));
               return [];

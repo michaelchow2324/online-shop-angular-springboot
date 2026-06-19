@@ -27,12 +27,14 @@
       (selectVariation)="selectedVariant($event)"
     />
 
+    <!-- Icon set disabled for now (cart)
     <app-cart-button
       [class]="'btn gradient-btn'"
       [text]="'Add To Cart'"
       [product]="product()"
       [selectedVariation]="selectedVariation"
     />
+    -->
   </div>
 </div>
 }@else {
@@ -45,6 +47,7 @@
     />}
   </a>
   <div class="media-body align-self-center">
+    <!-- Rating disabled for now
     <div class="rating">
       <ngb-rating [(rate)]="product()!.rating_count">
         <ng-template let-fill="fill" let-index="index">
@@ -55,6 +58,7 @@
         </ng-template>
       </ngb-rating>
     </div>
+    -->
     <a [routerLink]="['/product/', product()?.slug]">
       <h6>{{ product()?.name }}</h6>
     </a>

@@ -5,9 +5,11 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
+    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
     <div class="cart-info">
       <app-product-hover-action [product]="product()" />
     </div>
+    -->
 
     @if(product()?.is_trending || product()?.is_sale_enable || product()?.is_featured){
     <label class="trending-label-product11"
@@ -35,6 +37,7 @@
       </span>
       }
     </h4>
+    <!-- Rating disabled for now
     <div class="rating-w-count mb-0 mt-2">
       <div class="rating">
         <ngb-rating [(rate)]="product()!.rating_count">
@@ -48,6 +51,7 @@
       </div>
       <span>({{ product()?.reviews_count }})</span>
     </div>
+    -->
   </div>
   <div class="abs-product">
     <div class="product-detail mt-0">
@@ -73,6 +77,7 @@
       [attributes]="product()?.attributes || []"
       (selectVariation)="selectedVariant($event)"
     />
+    <!-- Icon set disabled for now (cart)
     <app-cart-button
       [text]="'Add To Cart'"
       [iconClass]="' '"
@@ -81,5 +86,6 @@
       [selectedVariation]="selectedVariation"
       [enableModal]="true"
     />
+    -->
   </div>
 </div>

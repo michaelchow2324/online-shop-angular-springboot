@@ -19,6 +19,7 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
+    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
     <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
 
@@ -26,6 +27,7 @@
         <app-cart-button [product]="product()" />
       </app-product-hover-action>
     </div>
+    -->
   </div>
   <div class="product-detail">
     @if(product()?.brand){
@@ -43,6 +45,7 @@
     </a>
 
     <div class="bottom-details">
+      <!-- Rating disabled for now
       <div class="rating-label">
         <div>
           <span>{{ product()?.rating_count ? product()?.rating_count : 0 }}</span
@@ -52,6 +55,7 @@
           >({{ product()?.reviews_count }} {{ 'reviews' | translate }})</span
         >
       </div>
+      -->
 
       <div class="price-vertical">
         @if(product()?.discount){

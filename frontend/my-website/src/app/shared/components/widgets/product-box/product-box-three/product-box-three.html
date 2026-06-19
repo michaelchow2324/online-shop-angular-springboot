@@ -6,6 +6,7 @@
     <a class="product-title" [routerLink]="['/product', product()?.slug]">
       {{ selectedVariation ? selectedVariation.name : product()?.name }}
     </a>
+    <!-- Rating disabled for now
     <div class="rating">
       <ngb-rating [(rate)]="product()!.rating_count">
         <ng-template let-fill="fill" let-index="index">
@@ -16,14 +17,17 @@
         </ng-template>
       </ngb-rating>
     </div>
+    -->
     @if(product()?.unit){
     <ul class="details">
       <li>{{ product()?.unit }}</li>
     </ul>
     }
+    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
     <div class="add-wish">
       <app-wishlist [product]="product()" />
     </div>
+    -->
   </div>
   <div class="img-wrapper">
     <app-image-variant
@@ -31,9 +35,11 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
+    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
     <div class="quick-view-part">
       <app-quick-view [product]="product()" />
     </div>
+    -->
   </div>
   <div class="bottom-detail">
     <div>
@@ -58,6 +64,7 @@
       </h4>
     </div>
   </div>
+  <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
   <ul class="cart-detail">
     <li>
       <app-cart-button
@@ -71,4 +78,5 @@
       <app-compare [product]="product()" [text]="'Compare'" />
     </li>
   </ul>
+  -->
 </div>
