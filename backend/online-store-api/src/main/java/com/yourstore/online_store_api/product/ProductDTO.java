@@ -47,3 +47,5 @@ public class ProductDTO {
     public BigDecimal getSalePrice() {
         return price;
     }
+
+}

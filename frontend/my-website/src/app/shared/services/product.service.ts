@@ -32,7 +32,7 @@ export class ProductService {
      const transferred = this.transferState.get<IProduct[] | null>(PRODUCTS_KEY, null);
     if (transferred) {
       this.transferState.remove(PRODUCTS_KEY);
-      const data = transferred as IProduct[];
+      const data = transferred.map((product: any) => this.normalizeProduct(product));
       return of({ data, total: data.length } as IProductModel);
     }
 

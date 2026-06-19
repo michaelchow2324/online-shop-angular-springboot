@@ -36,3 +36,4 @@ deploy/.env.prod.example
 deploy/Caddyfile
 deploy/GIT_MONOREPO_FIX.md
 deploy/HETZNER_SERVER_SETUP.md
+DEPLOYMENT_PLAN.md
