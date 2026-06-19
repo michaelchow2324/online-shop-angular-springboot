@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { IAttachment } from '../../../../../interface/attachment.interface';
 import { IProduct } from '../../../../../interface/product.interface';
 import { IOption } from '../../../../../interface/theme-option.interface';
+import { resolveMediaUrl } from '../../../../../utils/resolve-media-url';
 import { ThemeOptionState } from '../../../../../store/state/theme-option.state';
 
 @Component({
@@ -25,6 +26,7 @@ export class ProductBoxImageVariant {
 
   public variant: string = 'image_zoom';
   public flipImage: IAttachment[] = [];
+  public readonly productPlaceholder = 'assets/images/placeholder/product.png';
   public imageType = [
     'image/apng',
     'image/avif',
@@ -54,6 +56,10 @@ export class ProductBoxImageVariant {
       }
       return images!;
     });
+  }
+
+  imageSrc(url?: string | null): string {
+    return url ? resolveMediaUrl(url) : this.productPlaceholder;
   }
 
   startAutoplay() {

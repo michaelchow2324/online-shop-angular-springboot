@@ -581,4 +581,27 @@ $lovelydearly-radius:      14px;
 
   // Theme active-color (used by swatches, tabs etc.)
   --theme-color: #{$lovelydearly-rose};
+
+  // Product cards — hide bottom-left rating badge and offer marquee popups
+  .basic-product {
+    .img-wrapper {
+      .rating-label {
+        display: none !important;
+      }
+
+      .general-variant.thumbnail {
+        display: none !important;
+      }
+    }
+
+    .product-detail {
+      .offer-panel {
+        display: none !important;
+      }
+    }
+
+    &.theme-product-1:hover .product-detail .offer-panel {
+      animation: none;
+    }
+  }
 }

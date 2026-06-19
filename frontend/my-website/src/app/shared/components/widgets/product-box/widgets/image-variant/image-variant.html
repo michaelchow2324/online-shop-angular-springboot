@@ -1,61 +1,71 @@
 @if(variant === 'image_slider'){
-@if(product()?.product_galleries?.length || thumbnail?.original_url){
 <owl-carousel-o
   [options]="customOptions"
   (mouseenter)="startAutoplay()"
   (mouseleave)="stopAutoplay()"
 >
+  @if(product()?.product_galleries?.length){
   @for(image of product()?.product_galleries; track image.id){
   <ng-template carouselSlide>
-    @if(thumbnail?.original_url ?? image?.original_url; as imageUrl){
     <img
-      [src]="imageUrl"
+      [src]="imageSrc(thumbnail?.original_url ?? image?.original_url)"
       class="img-fluid bg-img"
       [alt]="product()?.name"
     />
-    }
+  </ng-template>
+  }
+  } @else {
+  <ng-template carouselSlide>
+    <img
+      [src]="imageSrc(thumbnail?.original_url)"
+      class="img-fluid bg-img"
+      [alt]="product()?.name"
+    />
   </ng-template>
   }
 </owl-carousel-o>
-}
 } @else if(variant === 'image_flip') {
-@if(flipImage.length){
 <div class="flip">
+  @if(flipImage.length){
   @for(image of flipImage.slice(0,2); let i = $index; track image.id){
-  @if(image?.original_url; as imageUrl){
   <div class="{{ i === 0 ? 'front' : 'back' }}">
     <a [routerLink]="['/product', product()?.slug]">
       <img
-        [src]="imageUrl"
+        [src]="imageSrc(image?.original_url)"
         class="img-fluid bg-img"
         [alt]="product()?.name"
       />
     </a>
   </div>
   }
+  } @else {
+  <div class="front">
+    <a [routerLink]="['/product', product()?.slug]">
+      <img
+        [src]="imageSrc(thumbnail?.original_url)"
+        class="img-fluid bg-img"
+        [alt]="product()?.name"
+      />
+    </a>
+  </div>
   }
 </div>
-}
 } @else if(variant === 'image_zoom') {
-@if(thumbnail?.original_url; as imageUrl){
 <div class="zoom">
   <a [routerLink]="['/product', product()?.slug]">
     <img
-      [src]="imageUrl"
+      [src]="imageSrc(thumbnail?.original_url)"
       class="img-fluid bg-img"
       [alt]="product()?.name"
     />
   </a>
 </div>
-}
 } @else {
-@if(thumbnail?.original_url; as imageUrl){
 <a [routerLink]="['/product', product()?.slug]">
   <img
-    [src]="imageUrl"
+    [src]="imageSrc(thumbnail?.original_url)"
     class="img-fluid bg-img"
     [alt]="product()?.name"
   />
 </a>
-}
 }
