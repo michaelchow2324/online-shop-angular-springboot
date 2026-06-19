@@ -63,7 +63,7 @@
             },
             "default_currency": {
                 "id": 1,
-                "code": "USD",
+                "code": "CAD",
                 "symbol": "$",
                 "no_of_decimal": 2,
                 "exchange_rate": 1,

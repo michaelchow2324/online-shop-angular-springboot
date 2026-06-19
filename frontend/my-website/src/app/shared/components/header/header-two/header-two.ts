@@ -1,4 +1,4 @@
-import { isPlatformBrowser, NgClass } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Component, HostListener, PLATFORM_ID, inject, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
@@ -8,10 +8,11 @@ import { IOption } from '../../../interface/theme-option.interface';
 import { MenuService } from '../../../services/menu.service';
 import { Menu } from '../../widgets/menu/menu';
 import { TopBar } from '../../widgets/top-bar/top-bar';
-import { Cart } from '../widgets/cart/cart';
 import { HeaderLogo } from '../widgets/header-logo/header-logo';
-import { Search } from '../widgets/search/search';
-import { UserProfile } from '../widgets/user-profile/user-profile';
+// Disabled for now — uncomment when re-enabling search / account / cart in header-two.html
+// import { Cart } from '../widgets/cart/cart';
+// import { Search } from '../widgets/search/search';
+// import { UserProfile } from '../widgets/user-profile/user-profile';
 
 @Component({
   selector: 'app-header-two',
@@ -21,10 +22,9 @@ import { UserProfile } from '../widgets/user-profile/user-profile';
     TopBar,
     Menu,
     HeaderLogo,
-    Cart,
-    Search,
-    UserProfile,
-    NgClass,
+    // Cart,
+    // Search,
+    // UserProfile,
   ],
   templateUrl: './header-two.html',
   styleUrl: './header-two.scss',

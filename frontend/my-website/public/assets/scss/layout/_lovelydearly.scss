@@ -29,14 +29,22 @@ $lovelydearly-radius:      14px;
       font-weight: 500;
     }
 
-    // Language / currency dropdowns
+    // Language / currency selectors
     .theme-form-select .form-select,
-    .theme-form-select .form-select:focus {
+    .theme-form-select .form-select:focus,
+    .theme-form-select .btn.dropdown-toggle,
+    .theme-form-select .btn.dropdown-toggle span,
+    .currency-static span {
       background-color: transparent;
       border: none;
-      color: $lovelydearly-text;
+      color: #000;
       box-shadow: none;
       font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .theme-form-select .btn.dropdown-toggle::after {
+      color: #000;
     }
   }
 
