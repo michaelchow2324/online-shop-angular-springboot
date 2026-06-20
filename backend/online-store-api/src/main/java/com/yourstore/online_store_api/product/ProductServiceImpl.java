@@ -170,7 +170,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDetailDTO toDetailDto(Product p, String locale) {
-        List<Media> mediaRows = mediaRepository.findByEntityTypeAndEntityIdOrderByPrimaryDescIdAsc("product", p.getId());
+        List<Media> mediaRows = mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc("product", p.getId());
         ProductImage[] images = mediaRows.stream()
                 .map(this::toProductImage)
                 .toArray(ProductImage[]::new);
@@ -195,7 +195,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         // if the primary image id is not set, we get the first image from the media table.
-        return mediaRepository.findByEntityTypeAndEntityIdOrderByPrimaryDescIdAsc("product", p.getId())
+        return mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc("product", p.getId())
                 .stream()
                 .findFirst()
                 .map(this::toProductImage)
