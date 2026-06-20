@@ -158,16 +158,7 @@ public class ProductServiceImpl implements ProductService {
      * from the `media` table and the configured storage service.
      */
     private ProductDTO toDto(Product p, String locale) {
-        // Resolve the image URL from the media table via the storage service
-        ProductDTO.ProductImage productImage = null;
-        if (p.getImageMediaId() != null) {
-            Media m = mediaRepository.findById(p.getImageMediaId()).orElse(null);
-            if (m != null) {
-                // Wrap the URL in a nested object matching the frontend's IAttachment interface:
-                // { original_url: "http://..." } — read by the template as category_image.original_url
-                productImage = new ProductDTO.ProductImage(storageService.publicUrl(m.getStorageKey()));
-            }
-        }
+        ProductImage productImage = resolvePrimaryImage(p);
         ProductTranslation translation = translationRepository.findByProductIdAndLocale(p.getId(), locale)
                 .orElse(null);
 
@@ -179,15 +170,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDetailDTO toDetailDto(Product p, String locale) {
-        ProductDTO.ProductImage productImage = null;
-        if (p.getImageMediaId() != null) {
-            Media m = mediaRepository.findById(p.getImageMediaId()).orElse(null);
-            if (m != null) {
-                // Wrap the URL in a nested object matching the frontend's IAttachment interface:
-                // { original_url: "http://..." } — read by the template as category_image.original_url
-                productImage = new ProductDTO.ProductImage(storageService.publicUrl(m.getStorageKey()));
-            }
-        }
+        List<Media> mediaRows = mediaRepository.findByEntityTypeAndEntityIdOrderByPrimaryDescIdAsc("product", p.getId());
+        ProductImage[] images = mediaRows.stream()
+                .map(this::toProductImage)
+                .toArray(ProductImage[]::new);
+        ProductImage thumbnail = images.length > 0 ? images[0] : resolvePrimaryImage(p);
 
         ProductTranslation translation = translationRepository.findByProductIdAndLocale(p.getId(), locale)
                 .orElse(null);
@@ -195,7 +182,44 @@ public class ProductServiceImpl implements ProductService {
         String translatedName = translation != null && translation.getName() != null ? translation.getName() : p.getName();
         String translatedDescription = translation != null && translation.getDescription() != null ? translation.getDescription() : p.getDescription();
 
-        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), p.getPrice(), false, null, productImage, null, null, 0, p.getSku(), null, null, null, p.isActive());
+        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), p.getPrice(), false, images, thumbnail, null, null, 0, p.getSku(), null, null, null, p.isActive());
+    }
+
+    private ProductImage resolvePrimaryImage(Product p) {
+        // we seed primary image id into product table when we seed the images into the media table.
+        // getImageMediaId contains the id of the primary image.
+        if (p.getImageMediaId() != null) {
+            Media media = mediaRepository.findById(p.getImageMediaId()).orElse(null);
+            if (media != null) {
+                return toProductImage(media);
+            }
+        }
+        // if the primary image id is not set, we get the first image from the media table.
+        return mediaRepository.findByEntityTypeAndEntityIdOrderByPrimaryDescIdAsc("product", p.getId())
+                .stream()
+                .findFirst()
+                .map(this::toProductImage)
+                .orElse(null);
+    }
+
+    // helper function to convert a media entity to a product image.
+    private ProductImage toProductImage(Media media) {
+        return new ProductImage(
+                media.getId(),
+                storageService.publicUrl(media.getStorageKey()),
+                mimeTypeFromStorageKey(media.getStorageKey()));
+    }
+
+    // helper function to get the mime type from the storage key.
+    private String mimeTypeFromStorageKey(String storageKey) {
+        String extension = storageKey.substring(storageKey.lastIndexOf('.') + 1).toLowerCase();
+        return switch (extension) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "webp" -> "image/webp";
+            default -> "image/jpeg";
+        };
     }
 
     private String normalizeLocale(String locale) {
