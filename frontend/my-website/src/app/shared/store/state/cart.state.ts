@@ -180,17 +180,13 @@ export class CartState {
       return prev + Number(curr.sub_total);
     }, 0);
 
-    output.stickyCartOpen = true;
+    output.stickyCartOpen = false;
     output.sidebarCartOpen = true;
     output.is_digital_only = output.items
       .map(item => item.product && item?.product?.product_type)
       .every(item => item == 'digital');
 
     ctx.patchState(output);
-
-    setTimeout(() => {
-      this.store.dispatch(new CloseStickyCartAction());
-    }, 1500);
   }
 
   @Action(UpdateCartAction)
