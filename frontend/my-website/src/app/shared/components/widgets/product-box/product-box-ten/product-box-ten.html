@@ -19,15 +19,14 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
 
       <app-product-hover-action [product]="product()" [showAction]="['view', 'compare']">
         <app-cart-button [product]="product()" />
       </app-product-hover-action>
     </div>
-    -->
+
   </div>
   <div class="product-detail">
     @if(product()?.brand){

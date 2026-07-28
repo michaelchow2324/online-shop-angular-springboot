@@ -176,9 +176,11 @@ export class ProductService {
       type: product.type ?? '',
       product_type: product.product_type ?? '',
       sku: product.sku ?? '',
-      stock_status: product.stock_status ?? '',
-      stock: product.stock ?? 0,
-      quantity: product.quantity ?? 0,
+      stock: product.stock ?? product.quantity ?? 100,
+      quantity: product.quantity ?? product.stock ?? 100,
+      stock_status:
+        product.stock_status ||
+        ((product.quantity ?? product.stock ?? 100) > 0 ? 'in_stock' : 'out_of_stock'),
       safe_checkout: product.safe_checkout ?? false,
       secure_checkout: product.secure_checkout ?? false,
       social_share: product.social_share ?? false,

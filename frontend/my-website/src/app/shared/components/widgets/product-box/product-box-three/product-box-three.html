@@ -23,11 +23,10 @@
       <li>{{ product()?.unit }}</li>
     </ul>
     }
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="add-wish">
+        <div class="add-wish">
       <app-wishlist [product]="product()" />
     </div>
-    -->
+
   </div>
   <div class="img-wrapper">
     <app-image-variant
@@ -35,11 +34,10 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="quick-view-part">
+        <div class="quick-view-part">
       <app-quick-view [product]="product()" />
     </div>
-    -->
+
   </div>
   <div class="bottom-detail">
     <div>
@@ -64,8 +62,7 @@
       </h4>
     </div>
   </div>
-  <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-  <ul class="cart-detail">
+    <ul class="cart-detail">
     <li>
       <app-cart-button
         [product]="product()"
@@ -78,5 +75,5 @@
       <app-compare [product]="product()" [text]="'Compare'" />
     </li>
   </ul>
-  -->
+
 </div>

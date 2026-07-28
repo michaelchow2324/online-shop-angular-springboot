@@ -8,12 +8,11 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
       <app-product-hover-action [product]="product()" [showAction]="['compare', 'view']" />
     </div>
-    -->
+
     @if(product()?.product_galleries?.length){
     <ul class="general-variant thumbnail">
       <app-display-variant-attributes
@@ -54,8 +53,7 @@
       <span>({{ product()?.reviews_count }})</span>
     </div>
     -->
-    <!-- Icon set disabled for now (cart)
-    <app-cart-button [product]="product()" [class]="'add-round-btn'" [enableModal]="true" />
-    -->
+        <app-cart-button [product]="product()" [class]="'add-round-btn'" [enableModal]="true" />
+
   </div>
 </div>

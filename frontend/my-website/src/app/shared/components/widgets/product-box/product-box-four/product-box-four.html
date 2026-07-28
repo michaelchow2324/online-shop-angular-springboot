@@ -11,12 +11,11 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
       <app-product-hover-action [product]="product()" [showAction]="['compare', 'view']" />
     </div>
-    -->
+
   </div>
   <div class="product-detail">
     @if(product() && product()?.slug){
@@ -43,14 +42,13 @@
       <del> {{ (product()?.price) | currencySymbol }} </del>
       }
     </h4>
-    <!-- Icon set disabled for now (cart)
-    <app-cart-button
+        <app-cart-button
       [text]="'add_to_cart'"
       [product]="product()"
       [class]="'add-cart-btn'"
       [iconClass]="' '"
       [enableModal]="true"
     />
-    -->
+
   </div>
 </div>

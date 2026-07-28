@@ -28,8 +28,7 @@
         (selectVariation)="selectedVariant($event!)"
       />
     </div>
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-wishlist [product]="product()" [class]="'wishlist-icon'" />
       <app-product-hover-action [product]="product()" [showAction]="['compare', 'view']">
         <app-cart-button
@@ -41,7 +40,7 @@
         />
       </app-product-hover-action>
     </div>
-    -->
+
   </div>
   <div class="product-detail">
     <a class="product-title mb-2" [routerLink]="['/product', product()?.slug]">

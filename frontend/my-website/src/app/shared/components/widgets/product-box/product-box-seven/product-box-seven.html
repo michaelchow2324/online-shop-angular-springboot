@@ -24,11 +24,10 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-product-hover-action [product]="product()" />
     </div>
-    -->
+
   </div>
   <div class="product-detail">
     <a
@@ -59,8 +58,7 @@
       <span class="discounted-price"> {{ product()?.discount }}% {{ 'off' | translate }} </span>
       }
     </h4>
-    <!-- Icon set disabled for now (cart)
-    <div class="addtocart_btn">
+        <div class="addtocart_btn">
       <app-cart-button
         [product]="product()"
         [class]="'add-button add_cart'"
@@ -68,6 +66,6 @@
         [text]="'Add to Cart'"
       />
     </div>
-    -->
+
   </div>
 </div>

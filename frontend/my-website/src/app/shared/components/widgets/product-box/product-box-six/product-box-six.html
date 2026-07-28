@@ -13,12 +13,11 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-cart-button [product]="product()" [enableModal]="true" />
       <app-product-hover-action [product]="product()" />
     </div>
-    -->
+
 
     @if(product()?.is_trending || product()?.is_sale_enable || product()?.is_featured){
     <label class="rotate-label"

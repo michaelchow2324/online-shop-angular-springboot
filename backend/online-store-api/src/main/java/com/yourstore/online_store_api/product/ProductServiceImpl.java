@@ -182,7 +182,10 @@ public class ProductServiceImpl implements ProductService {
         String translatedName = translation != null && translation.getName() != null ? translation.getName() : p.getName();
         String translatedDescription = translation != null && translation.getDescription() != null ? translation.getDescription() : p.getDescription();
 
-        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), p.getPrice(), false, images, thumbnail, null, null, 0, p.getSku(), null, null, null, p.isActive());
+        // No inventory column yet — return a high available qty so storefront cart/buy buttons work.
+        // Replace with real stock when inventory is implemented.
+        int availableStock = 100;
+        return new ProductDetailDTO(p.getId(), translatedName, p.getSlug(), translatedDescription, p.getPrice(), p.getPrice(), false, images, thumbnail, null, null, availableStock, p.getSku(), null, null, null, p.isActive());
     }
 
     private ProductImage resolvePrimaryImage(Product p) {

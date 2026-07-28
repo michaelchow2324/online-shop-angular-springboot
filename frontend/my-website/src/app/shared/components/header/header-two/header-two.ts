@@ -9,10 +9,7 @@ import { MenuService } from '../../../services/menu.service';
 import { Menu } from '../../widgets/menu/menu';
 import { TopBar } from '../../widgets/top-bar/top-bar';
 import { HeaderLogo } from '../widgets/header-logo/header-logo';
-// Disabled for now — uncomment when re-enabling search / account / cart in header-two.html
-// import { Cart } from '../widgets/cart/cart';
-// import { Search } from '../widgets/search/search';
-// import { UserProfile } from '../widgets/user-profile/user-profile';
+import { Cart } from '../widgets/cart/cart';
 
 @Component({
   selector: 'app-header-two',
@@ -22,9 +19,7 @@ import { HeaderLogo } from '../widgets/header-logo/header-logo';
     TopBar,
     Menu,
     HeaderLogo,
-    // Cart,
-    // Search,
-    // UserProfile,
+    Cart,
   ],
   templateUrl: './header-two.html',
   styleUrl: './header-two.scss',

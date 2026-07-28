@@ -11,12 +11,11 @@
       <i class="ri-star-s-fill"></i> <span>{{ product()?.reviews_count }}</span>
     </div>
     -->
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-cart-button [product]="product()" [selectedVariation]="selectedVariation" />
       <app-product-hover-action [product]="product()" />
     </div>
-    -->
+
     <ul class="trending-label">
       @if(product()?.stock_status === 'out_of_stock'){
       <li class="out_of_stock">{{ 'sold_out' | translate }}</li>

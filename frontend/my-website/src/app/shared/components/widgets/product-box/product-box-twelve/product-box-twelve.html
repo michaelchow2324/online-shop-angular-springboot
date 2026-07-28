@@ -5,11 +5,10 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+        <div class="cart-info">
       <app-product-hover-action [product]="product()" />
     </div>
-    -->
+
 
     @if(product()?.is_trending || product()?.is_sale_enable || product()?.is_featured){
     <label class="trending-label-product11"
@@ -77,8 +76,7 @@
       [attributes]="product()?.attributes || []"
       (selectVariation)="selectedVariant($event)"
     />
-    <!-- Icon set disabled for now (cart)
-    <app-cart-button
+        <app-cart-button
       [text]="'Add To Cart'"
       [iconClass]="' '"
       [product]="product()"
@@ -86,6 +84,6 @@
       [selectedVariation]="selectedVariation"
       [enableModal]="true"
     />
-    -->
+
   </div>
 </div>

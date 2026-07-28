@@ -8,20 +8,18 @@
       [gallery_images]="product()?.product_galleries!"
       [product]="product()!"
     />
-    <!-- Icon set disabled for now (cart)
-    <app-cart-button
+        <app-cart-button
       [product]="product()"
       [class]="'addto-cart-bottom'"
       [text]="'Add to cart'"
       [enableModal]="!selectedVariation ? true : false"
       [selectedVariation]="selectedVariation"
     />
-    -->
-    <!-- Icon set disabled for now (wishlist, cart, quick view, compare)
-    <div class="cart-info">
+
+        <div class="cart-info">
       <app-product-hover-action [product]="product()" />
     </div>
-    -->
+
   </div>
   <div class="product-detail">
     @if(product()?.brand){

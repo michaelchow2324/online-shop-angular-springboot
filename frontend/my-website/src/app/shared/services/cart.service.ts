@@ -1,21 +1,63 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import { ICartModel } from '../interface/cart.interface';
+import { ICart, ICartModel } from '../interface/cart.interface';
+
+const CART_STORAGE_KEY = 'cart';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
   private subjectQty = new Subject<boolean>();
 
+  /** Load cart from localStorage (no demo cart.json). */
   getCartItems(): Observable<ICartModel> {
-    return this.http.get<ICartModel>(`${environment.URL}/cart.json`);
+    return of(this.readLocalCart());
+  }
+
+  saveLocalCart(cart: Pick<ICartModel, 'items' | 'total' | 'is_digital_only'>): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const payload: ICartModel = {
+      items: cart.items ?? [],
+      total: cart.total ?? 0,
+      is_digital_only: cart.is_digital_only ?? false,
+    };
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(payload));
+  }
+
+  clearLocalCart(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    localStorage.removeItem(CART_STORAGE_KEY);
+  }
+
+  private readLocalCart(): ICartModel {
+    const empty: ICartModel = { items: [], total: 0, is_digital_only: false };
+    if (!isPlatformBrowser(this.platformId)) {
+      return empty;
+    }
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if (!raw) {
+        return empty;
+      }
+      const parsed = JSON.parse(raw) as ICartModel;
+      return {
+        items: Array.isArray(parsed?.items) ? (parsed.items as ICart[]) : [],
+        total: Number(parsed?.total) || 0,
+        is_digital_only: !!parsed?.is_digital_only,
+      };
+    } catch {
+      return empty;
+    }
   }
 
   updateQty() {

@@ -75,13 +75,9 @@ export class CartState {
 
   @Action(GetCartItemsAction)
   getCartItems(ctx: StateContext<CartStateModel>) {
-    // if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-    //   return;
-    // }
     return this.cartService.getCartItems().pipe(
       tap({
         next: result => {
-          // Set Selected Variant
           result.items.filter((item: ICart) => {
             if (item?.variation) {
               item.variation.selected_variation = item?.variation?.attribute_values
@@ -89,7 +85,11 @@ export class CartState {
                 ?.join('/');
             }
           });
-          ctx.patchState(result);
+          ctx.patchState({
+            items: result.items ?? [],
+            total: result.total ?? 0,
+            is_digital_only: result.is_digital_only ?? false,
+          });
         },
         error: err => {
           throw new Error(err?.error?.message);
@@ -111,7 +111,7 @@ export class CartState {
   addToLocalStorage(ctx: StateContext<CartStateModel>, action: AddToCartLocalStorageAction) {
     let salePrice = action.payload.variation
       ? action.payload.variation.sale_price
-      : action.payload.product?.sale_price;
+      : action.payload.product?.sale_price ?? action.payload.product?.price;
     let result: ICartModel = {
       is_digital_only: false,
       items: [
@@ -208,6 +208,8 @@ export class CartState {
 
     ctx.patchState(output);
 
+    this.persistCart(output);
+
     setTimeout(() => {
       this.store.dispatch(new CloseStickyCartAction());
     }, 1500);
@@ -296,22 +298,20 @@ export class CartState {
 
     ctx.patchState({
       ...state,
+      items: cart,
       is_digital_only: cart
         .map(item => item.product && item?.product?.product_type)
         .every(item => item == 'digital'),
       total: total,
     });
 
-    if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      return;
-    }
-    // return this.cartService.updateCart(action.payload).pipe(
-    //   tap({
-    //     error: err => {
-    //       throw new Error(err?.error?.message);
-    //     }
-    //   })
-    // );
+    this.persistCart({
+      items: cart,
+      total,
+      is_digital_only: cart
+        .map(item => item.product && item?.product?.product_type)
+        .every(item => item == 'digital'),
+    });
   }
 
   @Action(ReplaceCartAction)
@@ -365,12 +365,11 @@ export class CartState {
 
     ctx.patchState({
       ...state,
+      items: cart,
       total: total,
     });
 
-    if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      return;
-    }
+    this.persistCart({ items: cart, total, is_digital_only: state.is_digital_only });
   }
 
   @Action(DeleteCartAction)
@@ -382,17 +381,17 @@ export class CartState {
       return prev + Number(curr.sub_total);
     }, 0);
 
+    const isDigitalOnly = cart
+      .map(item => item.product && item?.product?.product_type)
+      .every(item => item == 'digital');
+
     ctx.patchState({
       items: cart,
-      is_digital_only: state.items
-        .map(item => item.product && item?.product?.product_type)
-        .every(item => item == 'digital'),
+      is_digital_only: isDigitalOnly,
       total: total,
     });
 
-    if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      return;
-    }
+    this.persistCart({ items: cart, total, is_digital_only: isDigitalOnly });
   }
 
   @Action(SyncCartAction)
@@ -420,16 +419,23 @@ export class CartState {
 
   @Action(ClearCartAction)
   clearCart(ctx: StateContext<CartStateModel>) {
-    if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      return ctx.patchState({
-        items: [],
-        total: 0,
-      });
-    } else {
-      return ctx.patchState({
-        items: [],
-        total: 0,
-      });
-    }
+    ctx.patchState({
+      items: [],
+      total: 0,
+      is_digital_only: false,
+    });
+    this.cartService.clearLocalCart();
+  }
+
+  private persistCart(cart: {
+    items: ICart[];
+    total: number;
+    is_digital_only: boolean | number | null;
+  }) {
+    this.cartService.saveLocalCart({
+      items: cart.items,
+      total: cart.total,
+      is_digital_only: !!cart.is_digital_only,
+    });
   }
 }
