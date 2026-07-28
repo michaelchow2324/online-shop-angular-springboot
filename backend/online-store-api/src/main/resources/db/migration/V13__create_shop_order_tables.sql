@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS shop_order (
   updated_at                  TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );
 
+-- Orders need a snapshot of what was bought at checkout time
+-- so we capture the product name, price, and quantity at that time.
+-- line_total = unit_price × quantity for that row (e.g. $25 × 2 = $50). Storing it avoids recalculating and keeps a clear record of what the customer was charged for that line, even if pricing rules change later.
 CREATE TABLE IF NOT EXISTS shop_order_item (
   id            BIGSERIAL PRIMARY KEY,
   order_id      BIGINT        NOT NULL REFERENCES shop_order(id),
@@ -40,7 +43,7 @@ CREATE TABLE IF NOT EXISTS shop_order_item (
   line_total    NUMERIC(12,2) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_shop_order_email        ON shop_order (email);
-CREATE INDEX IF NOT EXISTS idx_shop_order_user_id      ON shop_order (user_id);
-CREATE INDEX IF NOT EXISTS idx_shop_order_status       ON shop_order (status);
-CREATE INDEX IF NOT EXISTS idx_shop_order_item_order   ON shop_order_item (order_id);
+CREATE INDEX IF NOT EXISTS idx_shop_order_email        ON shop_order (email); -- find orders by email
+CREATE INDEX IF NOT EXISTS idx_shop_order_user_id      ON shop_order (user_id); -- find orders by user ID (my orders)
+CREATE INDEX IF NOT EXISTS idx_shop_order_status       ON shop_order (status); -- find orders by status (pending, paid, shipped, etc.) (by admin)
+CREATE INDEX IF NOT EXISTS idx_shop_order_item_order   ON shop_order_item (order_id); -- find items by order ID (for order details) (load line items for this order)

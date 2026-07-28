@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
-import { of, tap } from 'rxjs';
+import { of } from 'rxjs';
 
 import { ICart, ICartModel } from '../../interface/cart.interface';
-import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import {
   AddToCartAction,
@@ -39,7 +38,6 @@ export interface CartStateModel {
 })
 @Injectable()
 export class CartState {
-  private cartService = inject(CartService);
   private notificationService = inject(NotificationService);
   private store = inject(Store);
 
@@ -73,29 +71,13 @@ export class CartState {
     return state.sidebarCartOpen;
   }
 
+  /**
+   * No API / cart.json load. Cart is kept in NGXS memory and rehydrated by
+   * NgxsStoragePlugin (app.config.ts → keys includes 'cart').
+   */
   @Action(GetCartItemsAction)
-  getCartItems(ctx: StateContext<CartStateModel>) {
-    return this.cartService.getCartItems().pipe(
-      tap({
-        next: result => {
-          result.items.filter((item: ICart) => {
-            if (item?.variation) {
-              item.variation.selected_variation = item?.variation?.attribute_values
-                ?.map(values => values.value)
-                ?.join('/');
-            }
-          });
-          ctx.patchState({
-            items: result.items ?? [],
-            total: result.total ?? 0,
-            is_digital_only: result.is_digital_only ?? false,
-          });
-        },
-        error: err => {
-          throw new Error(err?.error?.message);
-        },
-      }),
-    );
+  getCartItems(_ctx: StateContext<CartStateModel>) {
+    return;
   }
 
   @Action(AddToCartAction)
@@ -111,7 +93,7 @@ export class CartState {
   addToLocalStorage(ctx: StateContext<CartStateModel>, action: AddToCartLocalStorageAction) {
     let salePrice = action.payload.variation
       ? action.payload.variation.sale_price
-      : action.payload.product?.sale_price ?? action.payload.product?.price;
+      : (action.payload.product?.sale_price ?? action.payload.product?.price);
     let result: ICartModel = {
       is_digital_only: false,
       items: [
@@ -120,7 +102,7 @@ export class CartState {
             Math.floor(Math.random() * 10000)
               .toString()
               .padStart(4, '0'),
-          ), // Generate Random Id
+          ),
           quantity: action.payload.quantity,
           sub_total: salePrice ? salePrice * action.payload.quantity : 0,
           product: action.payload.product!,
@@ -186,7 +168,6 @@ export class CartState {
       }
     }
 
-    // Set Selected Variant
     output.items.filter(item => {
       if (item?.variation) {
         item.variation.selected_variation = item?.variation?.attribute_values
@@ -195,7 +176,6 @@ export class CartState {
       }
     });
 
-    // Calculate Total
     output.total = output.items.reduce((prev, curr: ICart) => {
       return prev + Number(curr.sub_total);
     }, 0);
@@ -207,8 +187,6 @@ export class CartState {
       .every(item => item == 'digital');
 
     ctx.patchState(output);
-
-    this.persistCart(output);
 
     setTimeout(() => {
       this.store.dispatch(new CloseStickyCartAction());
@@ -304,14 +282,6 @@ export class CartState {
         .every(item => item == 'digital'),
       total: total,
     });
-
-    this.persistCart({
-      items: cart,
-      total,
-      is_digital_only: cart
-        .map(item => item.product && item?.product?.product_type)
-        .every(item => item == 'digital'),
-    });
   }
 
   @Action(ReplaceCartAction)
@@ -320,7 +290,6 @@ export class CartState {
     const cart = [...state.items];
     const index = cart.findIndex(item => Number(item.id) === Number(action.payload.id));
 
-    // Update Cart If cart id same but variant id is different
     if (
       cart[index]?.variation &&
       action.payload.variation_id &&
@@ -368,8 +337,6 @@ export class CartState {
       items: cart,
       total: total,
     });
-
-    this.persistCart({ items: cart, total, is_digital_only: state.is_digital_only });
   }
 
   @Action(DeleteCartAction)
@@ -381,17 +348,13 @@ export class CartState {
       return prev + Number(curr.sub_total);
     }, 0);
 
-    const isDigitalOnly = cart
-      .map(item => item.product && item?.product?.product_type)
-      .every(item => item == 'digital');
-
     ctx.patchState({
       items: cart,
-      is_digital_only: isDigitalOnly,
+      is_digital_only: cart
+        .map(item => item.product && item?.product?.product_type)
+        .every(item => item == 'digital'),
       total: total,
     });
-
-    this.persistCart({ items: cart, total, is_digital_only: isDigitalOnly });
   }
 
   @Action(SyncCartAction)
@@ -423,19 +386,6 @@ export class CartState {
       items: [],
       total: 0,
       is_digital_only: false,
-    });
-    this.cartService.clearLocalCart();
-  }
-
-  private persistCart(cart: {
-    items: ICart[];
-    total: number;
-    is_digital_only: boolean | number | null;
-  }) {
-    this.cartService.saveLocalCart({
-      items: cart.items,
-      total: cart.total,
-      is_digital_only: !!cart.is_digital_only,
     });
   }
 }
