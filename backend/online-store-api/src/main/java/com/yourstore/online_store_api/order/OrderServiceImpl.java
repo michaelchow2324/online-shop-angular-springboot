@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yourstore.common.NotFoundException;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
@@ -121,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
     //how orderitem is loaded:
     // 1. orderRepository.findByOrderNumber(orderNumber) -> order is loaded
     // 2. order.getItems().size(); -> First use of items triggers load in the same transaction (SELECT * FROM shop_order_item WHERE order_id = ?)
-    // Because of 
+    // Because of this field we declared in the Order Entity:
     // @OneToMany(mappedBy = "order", ...)
     // private List<ShopOrderItem> items;
     // Hibernate already knows: “items for this order = rows where order_id = order.id.”
@@ -137,11 +138,14 @@ public class OrderServiceImpl implements OrderService {
     // Lazy by default (JPA/@OneToMany default is LAZY)
     // therefore, loading the order does not load line items yet. Hibernate loads them only when you first use the collection.
     // order.getItems().size() is a common “touch” to force that load while the @Transactional session is still open.
+    // after touching , Hibernate loads the item from the db by running the query like this: SELECT * FROM shop_order_item WHERE order_id = ?
+    // next time when we call order.getItems(), it will not run the query again, it will use the cached items
+
     @Override
     @Transactional(readOnly = true) //read only transaction, no changes to the database (advantage: better performance)
     public OrderDTO findOrderByOrderNumber(String orderNumber) {
         ShopOrder order = orderRepository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderNumber));
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
         // touch items inside the transaction so mapping is safe with LAZY fetch
         order.getItems().size();
         return toDto(order);
