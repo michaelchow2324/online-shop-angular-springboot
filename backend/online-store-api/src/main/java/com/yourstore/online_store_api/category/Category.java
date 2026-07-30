@@ -53,6 +53,8 @@ public class Category {
 
     
 
+    // A many-to-many relationship only has one join table in the database, so only one side should define how that table is created.
+    
     // owning side is the entity that defines and updates the join table mapping
     // If you add/remove a product from category.products, JPA updates category_product through the owning side.
     @ManyToMany
