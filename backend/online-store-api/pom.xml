@@ -83,6 +83,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Embedded DB for @DataJpaTest (no Postgres required for repository slice tests) -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- MinIO Java client for generating presigned URLs securely -->
 		<dependency>
 			<groupId>io.minio</groupId>

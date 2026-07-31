@@ -23,15 +23,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Use patterns (not exact origins) so local IDE clients work.
-        // REST Client / Cursor send Origin: vscode-file://vscode-app which would
-        // otherwise fail as "Invalid CORS request" → HTTP 403.
-        List<String> patterns = new java.util.ArrayList<>(parseOrigins(allowedOrigins));
-        patterns.add("vscode-file://*");
-        patterns.add("vscode-webview://*");
-        patterns.add("http://localhost:*");
-        patterns.add("http://127.0.0.1:*");
-        config.setAllowedOriginPatterns(patterns);
+        config.setAllowedOrigins(parseOrigins(allowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -55,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/**",
+                                "/error",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
