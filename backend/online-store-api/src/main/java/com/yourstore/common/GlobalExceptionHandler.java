@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(NotFoundException ex, WebRequest request) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request, List.of());
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request, List.of()); //return a 404 response with the not found error
     }
 
     private ResponseEntity<ApiError> build(

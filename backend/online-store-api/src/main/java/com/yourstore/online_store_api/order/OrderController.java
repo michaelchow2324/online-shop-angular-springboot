@@ -27,6 +27,10 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    // @RequestBody: Spring will automatically deserialize the JSON request body into a CreateOrderRequest object
+    // @Valid: Spring will automatically validate the request body using the constraints defined in the CreateOrderRequest class
+    // if Spring finds that the fields deserialized from the request body does not match the fields defined in the CreateOrderRequest class, it will throw a MethodArgumentNotValidException
+    // and GlobalExceptionHandler will handle it and return a 400 response with the validation errors
     @PostMapping
     public ResponseEntity<OrderDTO> create(@Valid @RequestBody CreateOrderRequest request) {
         OrderDTO created = orderService.createPendingOrder(request);
