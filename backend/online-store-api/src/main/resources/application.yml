@@ -1,0 +1,15 @@
+# Default shipping zones (guide 02). Override per profile if needed.
+# YAML is nicer for nested maps; Spring Boot merges this with application.properties.
+
+app:
+  shipping:
+    zones:
+      ON:
+        fee: 9.95
+        free-threshold: 75
+      ROC:
+        fee: 16.95
+        free-threshold: 120
+      REMOTE:
+        fee: 24.95
+        free-threshold: 150

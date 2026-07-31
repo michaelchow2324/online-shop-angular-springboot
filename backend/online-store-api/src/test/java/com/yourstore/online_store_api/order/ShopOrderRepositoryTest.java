@@ -11,6 +11,22 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
 /**
+ * ShopOrderRepositoryTest asks: “If we save a ShopOrder with items, does Hibernate actually write and reload them correctly?”
+ * 
+Specifically it proves:
+
+cascade = ALL works — you only save(order); the item row is inserted too
+addItem wired both sides — item has order_id / item.getOrder() points back
+findByOrderNumber works — custom query returns the order
+Items load after save — loaded.getItems() has the snapshotted name / line total
+So it’s a safety net for entity annotations (@OneToMany, @ManyToOne, column names, cascade). If those were wrong, the service unit test could still pass (mocks don’t hit the DB), but checkout would fail in real Postgres.
+ */
+
+
+
+
+
+/**
  * Slice test: persists {@link ShopOrder} + cascaded {@link ShopOrderItem}s.
  * Uses H2 (test scope); Flyway is off so Hibernate creates tables from entities.
  */

@@ -20,3 +20,5 @@ storage.minio.bucket=YOUR_BUCKET_NAME
 # Generate a token from: https://developers.facebook.com/apps/YOUR_APP_ID/instagram-api/
 # The backend auto-refreshes this token every 50 days — no manual renewal needed.
 instagram.access-token=YOUR_INSTAGRAM_ACCESS_TOKEN
+
+# Shipping zone rates live in application.yml (app.shipping.zones) — see guide 02.
