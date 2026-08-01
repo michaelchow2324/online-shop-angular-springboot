@@ -27,12 +27,18 @@ public class ShippingQuoteRequest {
     private String shippingCountry;
 
     @NotEmpty(message = "At least one item is required")
-    @Valid
+    @Valid 
     private List<QuoteItemRequest> items;
+    // @Valid on @RequestBody ShippingQuoteRequest — start validation on the request object: its own field constraints (@NotBlank on province, @NotEmpty on items, etc.).
+    // @Valid on the nested items field — cascade into each QuoteItemRequest so their annotations (@NotNull, @Min, …) run too.
 
     @Getter
     @Setter
     @NoArgsConstructor
+    //Jackson(Spring's json mapper) build the body like this: 
+//     1. new QuoteItemRequest() — empty object
+//     2. setProductId(...) / setQuantity(...) from the JSON fields
+// therefore we need getter, setter, no-args constructor
     public static class QuoteItemRequest {
 
         @NotNull(message = "Product id is required")

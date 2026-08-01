@@ -49,10 +49,12 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void stubOrderNumberUniqueness() {
-        // lenient: error-path tests may throw before save / order-number checks
-        lenient().when(orderRepository.existsByOrderNumber(anyString())).thenReturn(false);
-        lenient().when(orderRepository.save(any(ShopOrder.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        lenient().when(shippingService.quote(anyString(), anyString(), any(BigDecimal.class)))
+        // By default, Mockito is strict: if you stub a method and that test never calls it, Mockito fails the test with “unnecessary stubbing.”
+        // lenient: tells Mockito to ignore this stubbing if it’s never called.(tells Mockito it is ok if this method is never called)
+
+        lenient().when(orderRepository.existsByOrderNumber(anyString())).thenReturn(false); // fake order number check, always return false
+        lenient().when(orderRepository.save(any(ShopOrder.class))).thenAnswer(invocation -> invocation.getArgument(0)); //fake persists, return what was passed in
+        lenient().when(shippingService.quote(anyString(), anyString(), any(BigDecimal.class))) 
                 .thenReturn(new ShippingQuoteDTO(
                         "ON",
                         "regular",
@@ -60,7 +62,7 @@ class OrderServiceImplTest {
                         new BigDecimal("75.00"),
                         new BigDecimal("25.00"),
                         1,
-                        3));
+                        3)); // fake shipping quote, always return the ON shipping quote, thershold, amount to free shipping.
     }
 
     @Test

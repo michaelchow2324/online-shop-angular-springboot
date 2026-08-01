@@ -23,6 +23,7 @@ public class ShippingController {
         this.shippingService = shippingService;
     }
 
+    // @Valid tells Spring to run Bean Validation on that object (the @NotBlank, @NotNull, @Min, etc. annotations).
     @PostMapping("/quote")
     public ResponseEntity<ShippingQuoteDTO> createQuote(
             @Valid @RequestBody ShippingQuoteRequest request) {
