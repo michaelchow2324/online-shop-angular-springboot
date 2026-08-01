@@ -5,7 +5,12 @@ import java.math.BigDecimal;
 public interface ShippingService {
 
     /**
-     * Zone-based shipping quote for Canada.
+     * Quote from cart lines — loads product prices from DB (do not trust client subtotal).
+     */
+    ShippingQuoteDTO quote(ShippingQuoteRequest request);
+
+    /**
+     * Zone-based quote when subtotal is already known (e.g. order create).
      *
      * @param country  must be CA (after normalize)
      * @param province e.g. ON, BC, YT (case-insensitive)

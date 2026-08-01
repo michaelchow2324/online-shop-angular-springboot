@@ -6,7 +6,10 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.yourstore.online_store_api.product.Product;
+import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingProperties.ZoneRate;
+import com.yourstore.online_store_api.shipping.ShippingQuoteRequest.QuoteItemRequest;
 
 /**
  * Implements guide 02 shipping rules:
@@ -26,9 +29,35 @@ public class ShippingServiceImpl implements ShippingService {
     private static final Set<String> REMOTE_PROVINCES = Set.of("NL", "NT", "NU", "YT");
 
     private final ShippingProperties shippingProperties;
+    private final ProductRepository productRepository;
 
-    ShippingServiceImpl(ShippingProperties shippingProperties) {
+    ShippingServiceImpl(ShippingProperties shippingProperties, ProductRepository productRepository) {
         this.shippingProperties = shippingProperties;
+        this.productRepository = productRepository;
+    }
+
+    @Override
+    public ShippingQuoteDTO quote(ShippingQuoteRequest request) {
+        String country = (request.getShippingCountry() == null || request.getShippingCountry().isBlank())
+                ? CANADA
+                : request.getShippingCountry();
+
+        BigDecimal subtotal = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        for (QuoteItemRequest item : request.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Product not found: " + item.getProductId()));
+            if (!product.isActive()) {
+                throw new IllegalArgumentException(
+                        "Product is not active: " + item.getProductId());
+            }
+            BigDecimal lineTotal = product.getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity()))
+                    .setScale(2, RoundingMode.HALF_UP);
+            subtotal = subtotal.add(lineTotal);
+        }
+
+        return quote(country, request.getShippingProvince(), subtotal);
     }
 
     @Override
