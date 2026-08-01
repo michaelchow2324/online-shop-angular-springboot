@@ -15,6 +15,8 @@ import com.yourstore.common.NotFoundException;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
+import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
+import com.yourstore.online_store_api.shipping.ShippingService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -25,10 +27,12 @@ public class OrderServiceImpl implements OrderService {
 
     private final ShopOrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ShippingService shippingService;
 
-    OrderServiceImpl(ShopOrderRepository orderRepository, ProductRepository productRepository) {
+    OrderServiceImpl(ShopOrderRepository orderRepository, ProductRepository productRepository, ShippingService shippingService) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.shippingService = shippingService;
     }
 
     @Override
@@ -41,12 +45,14 @@ public class OrderServiceImpl implements OrderService {
     // MANDATORY: join the current transaction, throw an exception if no transaction exists
     public OrderDTO createPendingOrder(CreateOrderRequest req) {
         // currently only supports Canada
-        String country = (req.getShippingCountry() == null || req.getShippingCountry().isBlank())
+        String normalizedCountry = (req.getShippingCountry() == null || req.getShippingCountry().isBlank())
                 ? DEFAULT_COUNTRY
                 : req.getShippingCountry().trim().toUpperCase();
-        if (!DEFAULT_COUNTRY.equals(country)) {
+        if (!DEFAULT_COUNTRY.equals(normalizedCountry)) {
             throw new IllegalArgumentException("Shipping country must be CA");
         }
+
+        String normalizedProvince = req.getShippingProvince().trim().toUpperCase();
 
         ShopOrder order = new ShopOrder();
         order.setOrderNumber(generateUniqueOrderNumber());
@@ -60,9 +66,9 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingLine1(req.getShippingLine1());
         order.setShippingLine2(req.getShippingLine2());
         order.setShippingCity(req.getShippingCity());
-        order.setShippingProvince(req.getShippingProvince().trim().toUpperCase());
+        order.setShippingProvince(normalizedProvince);
         order.setShippingPostal(req.getShippingPostal().trim().toUpperCase());
-        order.setShippingCountry(country);
+        order.setShippingCountry(normalizedCountry);
         order.setShippingMethod(DEFAULT_SHIPPING_METHOD);
 
         // It builds a money value of 0.00 as a BigDecimal.
@@ -96,8 +102,12 @@ public class OrderServiceImpl implements OrderService {
             subtotal = subtotal.add(lineTotal);
         }
 
-        // Guide 02 will replace shippingFee with zone-based quote
-        BigDecimal shippingFee = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        // Guide 02: zone-based quote (do not take shippingFee from the client)
+        ShippingQuoteDTO quoteDTO = shippingService.quote(normalizedCountry, normalizedProvince, subtotal);
+        BigDecimal shippingFee = quoteDTO.getFee();
+        order.setShippingZone(quoteDTO.getZone());
+        order.setShippingMethod(quoteDTO.getMethod());
+
         BigDecimal tax = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal total = subtotal.add(shippingFee).add(tax);
 

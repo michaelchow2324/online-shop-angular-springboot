@@ -23,6 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
+import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
+import com.yourstore.online_store_api.shipping.ShippingService;
 
 // command to run this test: ./mvnw "-Dtest=OrderServiceImplTest,ShopOrderRepositoryTest" test
 /**
@@ -38,7 +40,10 @@ class OrderServiceImplTest {
     @Mock
     private ProductRepository productRepository;
 
-    // injectMocks: inject the mock dependencies(orderRepository and productRepository) into the orderService
+    @Mock
+    private ShippingService shippingService;
+
+    // injectMocks: inject the mock dependencies into the orderService
     @InjectMocks
     private OrderServiceImpl orderService;
 
@@ -47,6 +52,15 @@ class OrderServiceImplTest {
         // lenient: error-path tests may throw before save / order-number checks
         lenient().when(orderRepository.existsByOrderNumber(anyString())).thenReturn(false);
         lenient().when(orderRepository.save(any(ShopOrder.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(shippingService.quote(anyString(), anyString(), any(BigDecimal.class)))
+                .thenReturn(new ShippingQuoteDTO(
+                        "ON",
+                        "regular",
+                        new BigDecimal("9.95"),
+                        new BigDecimal("75.00"),
+                        new BigDecimal("25.00"),
+                        1,
+                        3));
     }
 
     @Test
@@ -66,9 +80,10 @@ class OrderServiceImplTest {
         assertThat(dto.getStatus()).isEqualTo(OrderStatus.PENDING_PAYMENT);
         assertThat(dto.getCurrency()).isEqualTo("CAD");
         assertThat(dto.getSubtotal()).isEqualByComparingTo("50.00"); // 25 * 2
-        assertThat(dto.getShippingFee()).isEqualByComparingTo("0.00");
+        assertThat(dto.getShippingFee()).isEqualByComparingTo("9.95"); // from shippingService mock
+        assertThat(dto.getShippingZone()).isEqualTo("ON");
         assertThat(dto.getTax()).isEqualByComparingTo("0.00");
-        assertThat(dto.getTotal()).isEqualByComparingTo("50.00");
+        assertThat(dto.getTotal()).isEqualByComparingTo("59.95"); // 50 + 9.95
         assertThat(dto.getOrderNumber()).startsWith("OS-");
 
         assertThat(dto.getItems()).hasSize(1);
@@ -110,7 +125,8 @@ class OrderServiceImplTest {
         OrderDTO dto = orderService.createPendingOrder(req);
 
         assertThat(dto.getSubtotal()).isEqualByComparingTo("45.00");
-        assertThat(dto.getTotal()).isEqualByComparingTo("45.00");
+        assertThat(dto.getShippingFee()).isEqualByComparingTo("9.95");
+        assertThat(dto.getTotal()).isEqualByComparingTo("54.95"); // 45 + 9.95
         assertThat(dto.getItems()).hasSize(2);
     }
 

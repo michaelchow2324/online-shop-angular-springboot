@@ -1,5 +1,7 @@
 # Default shipping zones (guide 02). Override per profile if needed.
 # YAML is nicer for nested maps; Spring Boot merges this with application.properties.
+# ROC: Rest of Canada
+# REMOTE: Remote areas (NL, NT, NU, YT) Yukon, Northwest Territories, Nunavut 
 
 app:
   shipping:
