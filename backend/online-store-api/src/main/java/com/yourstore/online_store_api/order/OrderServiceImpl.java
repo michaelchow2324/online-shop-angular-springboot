@@ -125,6 +125,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
+    public void attachStripeCheckoutSession(String orderNumber, String stripeCheckoutSessionId) {
+        ShopOrder order = orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
+        order.setStripeCheckoutSessionId(stripeCheckoutSessionId);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
+    }
+
+    @Override
     public OrderDTO findOrderById(Long id) {
         throw new UnsupportedOperationException("Unimplemented method 'findOrderById'");
     }

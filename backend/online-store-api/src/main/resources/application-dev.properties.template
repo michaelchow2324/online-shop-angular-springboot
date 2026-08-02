@@ -22,3 +22,9 @@ storage.minio.bucket=YOUR_BUCKET_NAME
 instagram.access-token=YOUR_INSTAGRAM_ACCESS_TOKEN
 
 # Shipping zone rates live in application.yml (app.shipping.zones) — see guide 02.
+
+# Stripe (test mode) — see guide 03. Never commit real keys.
+stripe.secret-key=${STRIPE_SECRET_KEY:sk_test_replace_me}
+stripe.webhook-secret=${STRIPE_WEBHOOK_SECRET:whsec_replace_me}
+app.checkout.success-url=http://localhost:4200/checkout/success
+app.checkout.cancel-url=http://localhost:4200/cart
