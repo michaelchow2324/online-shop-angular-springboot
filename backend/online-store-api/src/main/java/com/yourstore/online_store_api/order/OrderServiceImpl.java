@@ -6,8 +6,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +30,17 @@ public class OrderServiceImpl implements OrderService {
     private final ShopOrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ShippingService shippingService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    OrderServiceImpl(ShopOrderRepository orderRepository, ProductRepository productRepository, ShippingService shippingService) {
+    OrderServiceImpl(
+            ShopOrderRepository orderRepository,
+            ProductRepository productRepository,
+            ShippingService shippingService,
+            ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.shippingService = shippingService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -132,6 +140,41 @@ public class OrderServiceImpl implements OrderService {
         order.setStripeCheckoutSessionId(stripeCheckoutSessionId);
         order.setUpdatedAt(LocalDateTime.now());
         orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public void markPaidFromStripeCheckout(
+            String stripeCheckoutSessionId,
+            String stripePaymentIntentId,
+            String orderNumber) {
+        ShopOrder order = orderRepository.findByStripeCheckoutSessionId(stripeCheckoutSessionId)
+                .or(() -> {
+                    if (orderNumber == null || orderNumber.isBlank()) {
+                        return Optional.empty();
+                    }
+                    return orderRepository.findByOrderNumber(orderNumber);
+                })
+                .orElseThrow(() -> new NotFoundException(
+                        "Order not found for Stripe session: " + stripeCheckoutSessionId));
+
+        // Idempotent: webhook retries / CLI resend must not fail or double-process
+        if (order.getStatus() == OrderStatus.PAID) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setStatus(OrderStatus.PAID);
+        order.setPaidAt(now);
+        order.setStripePaymentIntentId(stripePaymentIntentId);
+        if (order.getStripeCheckoutSessionId() == null) {
+            order.setStripeCheckoutSessionId(stripeCheckoutSessionId);
+        }
+        order.setUpdatedAt(now);
+        orderRepository.save(order);
+
+        // Guide 06 will listen; do not send email here
+        eventPublisher.publishEvent(new OrderPaidEvent(order.getId()));
     }
 
     @Override

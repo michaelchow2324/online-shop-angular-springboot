@@ -12,5 +12,7 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
     
     Optional<ShopOrder> findByOrderNumber(String orderNumber);
 
+    Optional<ShopOrder> findByStripeCheckoutSessionId(String stripeCheckoutSessionId);
+
     boolean existsByOrderNumber(String orderNumber);
 }

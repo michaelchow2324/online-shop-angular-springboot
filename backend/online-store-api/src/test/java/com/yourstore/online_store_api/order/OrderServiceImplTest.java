@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
@@ -42,6 +45,9 @@ class OrderServiceImplTest {
 
     @Mock
     private ShippingService shippingService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     // injectMocks: inject the mock dependencies into the orderService
     @InjectMocks
@@ -176,6 +182,42 @@ class OrderServiceImplTest {
         assertThatThrownBy(() -> orderService.createPendingOrder(req))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Shipping country must be CA");
+    }
+
+    @Test
+    void markPaidFromStripeCheckout_setsPaidAndPublishesEvent() {
+        ShopOrder order = pendingOrderWithSession("cs_test_1", "OS-TEST-1");
+        when(orderRepository.findByStripeCheckoutSessionId("cs_test_1")).thenReturn(Optional.of(order));
+
+        orderService.markPaidFromStripeCheckout("cs_test_1", "pi_test_1", "OS-TEST-1");
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(order.getPaidAt()).isNotNull();
+        assertThat(order.getStripePaymentIntentId()).isEqualTo("pi_test_1");
+        verify(eventPublisher).publishEvent(new OrderPaidEvent(order.getId()));
+    }
+
+    @Test
+    void markPaidFromStripeCheckout_secondCallIsIdempotent() {
+        ShopOrder order = pendingOrderWithSession("cs_test_1", "OS-TEST-1");
+        order.setStatus(OrderStatus.PAID);
+        order.setPaidAt(LocalDateTime.now());
+        order.setStripePaymentIntentId("pi_test_1");
+        when(orderRepository.findByStripeCheckoutSessionId("cs_test_1")).thenReturn(Optional.of(order));
+
+        orderService.markPaidFromStripeCheckout("cs_test_1", "pi_test_1", "OS-TEST-1");
+
+        verify(orderRepository, never()).save(any(ShopOrder.class));
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    private static ShopOrder pendingOrderWithSession(String sessionId, String orderNumber) {
+        ShopOrder order = new ShopOrder();
+        order.setId(42L);
+        order.setOrderNumber(orderNumber);
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setStripeCheckoutSessionId(sessionId);
+        return order;
     }
 
     private static CreateOrderRequest baseRequest() {

@@ -12,6 +12,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// in spring boot 3, we can use record for request dto because it is simple and immutable.
+
+// Before spring boot 3, we use class for request dto because jackson need to call no-args constructor and setters to create instance.
+// With a class, Jackson used to do:
+
+// 1. new CreateOrderRequest()          // no-args constructor
+// 2. setEmail(...), setItems(...)      // setters from JSON fields
+
+// With a record, there are no setters. Jackson does:
+// 1. Read JSON fields
+// 2. Call the record’s canonical constructor with those values
+// 3. Done — immutable instance
+
+
 /**
  * Request DTO for {@code POST /api/orders}.
  *

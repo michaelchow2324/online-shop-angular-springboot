@@ -32,4 +32,6 @@ public class CheckoutController {
         CheckoutSessionResponse response = paymentService.createCheckoutSession(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    
 }
