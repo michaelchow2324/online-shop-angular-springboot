@@ -6,7 +6,8 @@
 app:
   shipping:
     zones:
-      ON:
+      # Quote ON — YAML 1.1 treats bare ON/OFF/YES/NO as booleans (key would become "true")
+      "ON":
         fee: 9.95
         free-threshold: 75
       ROC:

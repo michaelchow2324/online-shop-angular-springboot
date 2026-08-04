@@ -42,7 +42,7 @@ perfect for Constructor Binding, and less code
 public record ShippingProperties(Map<String, ZoneRate> zones) {
 
     public ShippingProperties {
-        zones = zones == null ? Map.of() : Map.copyOf(zones);
+         zones = zones == null ? Map.of() : Map.copyOf(zones);
 
         // // Parameter "zones" is the value Spring (or a caller) passed in.
         // if (zones == null) {
@@ -55,6 +55,9 @@ public record ShippingProperties(Map<String, ZoneRate> zones) {
         //     zones = Map.copyOf(zones);
         // }
         // // Assigning to "zones" here sets the record's final component field.
+        // if we just assign zones = zones, the record is mutable.
+        // later if someone do thatMap.put("ON", new ZoneRate(...));, it will change the record. (although record is immutable, it only freezes the map reference, not the value inside)
+        // with Map.copyOf, it will make the new map unmodifiable
     }
 
     public record ZoneRate(BigDecimal fee, BigDecimal freeThreshold) {
