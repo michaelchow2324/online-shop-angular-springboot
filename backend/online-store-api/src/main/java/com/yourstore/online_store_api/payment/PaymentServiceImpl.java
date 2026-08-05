@@ -15,6 +15,7 @@ import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.yourstore.online_store_api.auth.CustomerPrincipal;
 import com.yourstore.online_store_api.order.CreateOrderRequest;
 import com.yourstore.online_store_api.order.OrderDTO;
 import com.yourstore.online_store_api.order.OrderService;
@@ -48,9 +49,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public CheckoutSessionResponse createCheckoutSession(CreateOrderRequest request) {
+    public CheckoutSessionResponse createCheckoutSession(
+            CreateOrderRequest request,
+            CustomerPrincipal principal) {
         // 1. Server recomputes money (products + shipping) — never trust client totals
-        OrderDTO order = orderService.createPendingOrder(request);
+        // JWT present → attach user_id + force account email; guest → user_id null
+        OrderDTO order = principal != null
+                ? orderService.createPendingOrder(request, principal.id(), principal.email())
+                : orderService.createPendingOrder(request);
 
         // 2. Create Stripe Checkout Session (network call — outside order DB transaction)
         Session session;

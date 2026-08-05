@@ -27,6 +27,7 @@ import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.yourstore.online_store_api.auth.CustomerPrincipal;
 import com.yourstore.online_store_api.order.CreateOrderRequest;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.order.OrderDTO;
@@ -83,7 +84,7 @@ class PaymentServiceImplTest {
 
             // Runs real PaymentServiceImpl (no Stripe network — create is stubbed).
             // orderservice.creatependingorder is called and mock will return the pending order
-            CheckoutSessionResponse response = paymentService.createCheckoutSession(baseRequest());
+            CheckoutSessionResponse response = paymentService.createCheckoutSession(baseRequest(), null);
 
             // Response built from the mocked Session instance (orderNumber from OrderDTO, url from getUrl()).
             assertThat(response.orderNumber()).isEqualTo("OS-TEST-1");
@@ -104,6 +105,33 @@ class PaymentServiceImplTest {
             // verify if these methods with these parameters are called once
             verify(orderService).createPendingOrder(any(CreateOrderRequest.class));
             verify(orderService).attachStripeCheckoutSession("OS-TEST-1", "cs_test_abc");
+        }
+    }
+
+    @Test
+    void createCheckoutSession_withJwt_attachesUserAndForcesAccountEmail() {
+        OrderDTO pending = samplePendingOrder("OS-TEST-2", "59.95");
+        when(orderService.createPendingOrder(
+                any(CreateOrderRequest.class), eq(42L), eq("account@example.com")))
+                .thenReturn(pending);
+
+        Session stripeSession = mock(Session.class);
+        when(stripeSession.getId()).thenReturn("cs_test_logged_in");
+        when(stripeSession.getUrl()).thenReturn("https://checkout.stripe.com/c/pay/cs_test_logged_in");
+
+        try (MockedStatic<Session> sessionStatic = mockStatic(Session.class)) {
+            sessionStatic.when(() -> Session.create(any(SessionCreateParams.class))).thenReturn(stripeSession);
+
+            CustomerPrincipal principal = new CustomerPrincipal(42L, "account@example.com", "USER");
+            CreateOrderRequest req = baseRequest();
+            req.setEmail("someone-else@example.com"); // must be ignored when JWT present
+
+            CheckoutSessionResponse response = paymentService.createCheckoutSession(req, principal);
+
+            assertThat(response.orderNumber()).isEqualTo("OS-TEST-2");
+            verify(orderService).createPendingOrder(
+                    any(CreateOrderRequest.class), eq(42L), eq("account@example.com"));
+            verify(orderService).attachStripeCheckoutSession("OS-TEST-2", "cs_test_logged_in");
         }
     }
 

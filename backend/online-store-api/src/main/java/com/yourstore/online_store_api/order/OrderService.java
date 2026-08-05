@@ -4,7 +4,15 @@ import java.util.List;
 
 public interface OrderService {
 
+   /** Guest checkout: {@code user_id} stays null; email from the request. */
    OrderDTO createPendingOrder(CreateOrderRequest req);
+
+   /**
+    * Create pending order, optionally attached to a logged-in customer (guide 05 step 6).
+    * When {@code userId} is non-null, sets {@code user_id} and forces {@code accountEmail}
+    * (ignores request email) so the order belongs to the account.
+    */
+   OrderDTO createPendingOrder(CreateOrderRequest req, Long userId, String accountEmail);
 
    /** Persist Stripe Checkout Session id after Session.create (guide 03). */
    void attachStripeCheckoutSession(String orderNumber, String stripeCheckoutSessionId);

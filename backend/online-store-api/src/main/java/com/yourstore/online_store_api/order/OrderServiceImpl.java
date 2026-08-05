@@ -52,6 +52,12 @@ public class OrderServiceImpl implements OrderService {
     // NEVER: do not create a new transaction
     // MANDATORY: join the current transaction, throw an exception if no transaction exists
     public OrderDTO createPendingOrder(CreateOrderRequest req) {
+        return createPendingOrder(req, null, null);
+    }
+
+    @Override
+    @Transactional
+    public OrderDTO createPendingOrder(CreateOrderRequest req, Long userId, String accountEmail) {
         // currently only supports Canada
         String normalizedCountry = (req.getShippingCountry() == null || req.getShippingCountry().isBlank())
                 ? DEFAULT_COUNTRY
@@ -64,8 +70,19 @@ public class OrderServiceImpl implements OrderService {
 
         ShopOrder order = new ShopOrder();
         order.setOrderNumber(generateUniqueOrderNumber());
-        // leading/trailing space is trimmed
-        order.setEmail(req.getEmail().trim());
+
+        // Logged-in (JWT): attach user_id and force account email.
+        // Guest: user_id null, email from the checkout form.
+        if (userId != null) {
+            if (accountEmail == null || accountEmail.isBlank()) {
+                throw new IllegalArgumentException("Account email is required when attaching a user");
+            }
+            order.setUserId(userId);
+            order.setEmail(accountEmail.trim());
+        } else {
+            order.setEmail(req.getEmail().trim());
+        }
+
         order.setStatus(OrderStatus.PENDING_PAYMENT);
         order.setCurrency(DEFAULT_CURRENCY);
 
