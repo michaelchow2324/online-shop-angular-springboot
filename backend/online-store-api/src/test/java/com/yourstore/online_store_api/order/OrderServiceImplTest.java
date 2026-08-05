@@ -114,6 +114,30 @@ class OrderServiceImplTest {
         assertThat(saved.getValue().getSubtotal()).isEqualByComparingTo("50.00");
     }
 
+    /**
+     * Guide 03 Step 6 — tampered totals: request has no price fields; even a huge qty
+     * still prices each unit from the Product row in the DB.
+     * this test is redundant because the request has no price fields
+     */
+    @Test
+    void createPendingOrder_hugeQuantity_stillUsesDbUnitPrice() {
+        when(productRepository.findById(10L))
+                .thenReturn(Optional.of(activeProduct(10L, "Makeup Bag", "BAG-001", "25.00")));
+
+        CreateOrderRequest req = baseRequest();
+        OrderItemRequest line = new OrderItemRequest();
+        line.setProductId(10L);
+        line.setQuantity(999); // client could try to game qty; unit price must still be DB $25
+        req.setItems(List.of(line));
+
+        OrderDTO dto = orderService.createPendingOrder(req);
+
+        assertThat(dto.getItems()).hasSize(1);
+        assertThat(dto.getItems().get(0).getUnitPrice()).isEqualByComparingTo("25.00");
+        assertThat(dto.getItems().get(0).getLineTotal()).isEqualByComparingTo("24975.00"); // 25 * 999
+        assertThat(dto.getSubtotal()).isEqualByComparingTo("24975.00");
+    }
+
     @Test
     void createPendingOrder_sumsMultipleLines() {
         when(productRepository.findById(1L))
