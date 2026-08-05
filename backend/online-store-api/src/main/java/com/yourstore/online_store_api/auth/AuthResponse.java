@@ -1,7 +1,7 @@
 package com.yourstore.online_store_api.auth;
 
 /**
- * Login response. {@code accessToken} is filled once JWT (guide step 3) is wired.
+ * Login / register response: JWT access token plus basic identity.
  */
 public record AuthResponse(String accessToken, String email, String role) {
 }

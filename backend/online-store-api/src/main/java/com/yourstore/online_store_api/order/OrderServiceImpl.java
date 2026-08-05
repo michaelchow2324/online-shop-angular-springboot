@@ -215,8 +215,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderDTO> findOrdersByUserId(Long userId) {
-        throw new UnsupportedOperationException("Unimplemented method 'findOrdersByUserId'");
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(order -> {
+                    order.getItems().size(); // touch items inside the transaction so mapping is safe with LAZY fetch
+                    return toDto(order);
+                })
+                .toList();
     }
 
     private OrderDTO toDto(ShopOrder order) {

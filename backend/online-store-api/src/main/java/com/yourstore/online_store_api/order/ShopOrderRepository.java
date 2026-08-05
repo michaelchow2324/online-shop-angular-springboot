@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
 
-    // find all orders for a user
-    Optional<List<ShopOrder>> findByUserId(Long userId);
+    // find all orders for a user (newest first)
+    List<ShopOrder> findByUserIdOrderByCreatedAtDesc(Long userId);
     
     Optional<ShopOrder> findByOrderNumber(String orderNumber);
 

@@ -23,16 +23,19 @@ public class AuthService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final ShopOrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     AuthService(
             CustomerUserRepository userRepository,
             EmailVerificationTokenRepository tokenRepository,
             ShopOrderRepository orderRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.orderRepository = orderRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -57,7 +60,7 @@ public class AuthService {
     }
 
     /**
-     * Validates credentials. {@code accessToken} is null until JwtService (step 3) is wired.
+     * Validates credentials and returns a JWT access token.
      */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest req) {
@@ -68,7 +71,15 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        return new AuthResponse(null, user.getEmail(), user.getRole());
+        String accessToken = jwtService.createToken(user);
+        return new AuthResponse(accessToken, user.getEmail(), user.getRole());
+    }
+
+    @Transactional(readOnly = true)
+    public MeDTO me(Long userId) {
+        CustomerUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        return toMeDTO(user);
     }
 
     @Transactional
