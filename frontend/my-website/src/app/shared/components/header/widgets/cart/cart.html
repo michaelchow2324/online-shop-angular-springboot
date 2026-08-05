@@ -24,37 +24,6 @@
     </div>
 
     @if((cartItem$ | async)?.length){
-    <div class="pere-text-box success-box">
-      @if(shippingFreeAmt > cartTotal){
-      <p>
-        {{ 'spend' | translate }}
-        <span class="shipping">{{ (shippingFreeAmt - cartTotal) | currencySymbol }}</span> {{
-        'more_and_enjoy' | translate }}
-        <span class="shipping">{{ 'free_shipping' | translate }}!</span>
-      </p>
-      }@else {
-      <p>
-        <span class="shipping">{{ 'congratulations' | translate }}!</span> {{
-        'enjoy_free_shipping_on_us' | translate }}!
-      </p>
-      }
-      <div
-        class="progress"
-        [class]="{ 'danger-progress': shippingCal <= 30, 'warning-progress': shippingCal >= 31 && shippingCal <= 80 }"
-      >
-        <div
-          class="progress-bar progress-bar-striped progress-bar-animated"
-          role="progressbar"
-          aria-valuenow="75"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          [style.width]="shippingCal+'%'"
-        >
-          <i class="ri-truck-line"></i>
-        </div>
-      </div>
-    </div>
-    } @if((cartItem$ | async)?.length){
     <div class="sidebar-title">
       <a href="javascript:void(0)" (click)="clearCart()">{{ 'clear_cart' | translate }}</a>
     </div>
@@ -188,12 +157,3 @@
   </div>
 </div>
 <!-- Add to cart bar end-->
-
-<!-- Free Shipping Celebration -->
-@if((themeOption$ | async)?.general?.celebration_effect) {
-<div class="confetti-wrapper" [class.show]="confetti === 1 && (sidebarCartOpen$ | async)">
-  @for(item of confettiItems; track item) {
-  <div class="confetti-{{item}}"></div>
-  }
-</div>
-}

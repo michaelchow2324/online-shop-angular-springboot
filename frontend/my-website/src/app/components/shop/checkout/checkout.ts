@@ -1,428 +1,271 @@
-import { isPlatformBrowser, AsyncPipe, SlicePipe } from '@angular/common';
-import { Component, ElementRef, inject, PLATFORM_ID, viewChild } from '@angular/core';
+import { CurrencyPipe, isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
-  FormArray,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
   FormBuilder,
-  FormControl,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
-import { Select2Data, Select2Module, Select2UpdateEvent } from 'ng-select2-component';
-import { map, Observable, of } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  of,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 
-import { AddressBlock } from './address-block/address-block';
-import { DeliveryBlock } from './delivery-block/delivery-block';
-import { PaymentBlock } from './payment-block/payment-block';
 import { Breadcrumb } from '../../../shared/components/widgets/breadcrumb/breadcrumb';
-import { Button } from '../../../shared/components/widgets/button/button';
-import { Loader } from '../../../shared/components/widgets/loader/loader';
-import { AddressModal } from '../../../shared/components/widgets/modal/address-modal/address-modal';
-import { CouponModal } from '../../../shared/components/widgets/modal/coupon-modal/coupon-modal';
+import { LoginModal } from '../../../shared/components/widgets/modal/login-modal/login-modal';
 import { NoData } from '../../../shared/components/widgets/no-data/no-data';
-import { countryCodes } from '../../../shared/data/country-code';
-import { IAccountUser } from '../../../shared/interface/account.interface';
+import { CA_POSTAL_PATTERN, CANADIAN_PROVINCES } from '../../../shared/data/canadian-provinces';
 import { IBreadcrumb } from '../../../shared/interface/breadcrumb.interface';
 import { ICart } from '../../../shared/interface/cart.interface';
-import { ICouponModel } from '../../../shared/interface/coupon.interface';
-import { IOrderCheckout } from '../../../shared/interface/order.interface';
-import { IDeliveryBlock, IValues } from '../../../shared/interface/setting.interface';
-import { CurrencySymbolPipe } from '../../../shared/pipe/currency.pipe';
-import { CartService } from '../../../shared/services/cart.service';
-import { ClearCartAction } from '../../../shared/store/action/cart.action';
-import { GetCouponsAction } from '../../../shared/store/action/coupon.action';
-import { CheckoutAction, PlaceOrderAction } from '../../../shared/store/action/order.action';
-import { GetSettingOptionAction } from '../../../shared/store/action/setting.action';
-import { AccountState } from '../../../shared/store/state/account.state';
-import { AuthState } from '../../../shared/store/state/auth.state';
+import {
+  ApiErrorBody,
+  CreateShopOrderRequest,
+  ShippingQuote,
+  ShopOrderItemRequest,
+} from '../../../shared/interface/shop-order.interface';
+import { AuthService } from '../../../shared/services/auth.service';
+import { CheckoutService } from '../../../shared/services/checkout.service';
+import { ShippingService } from '../../../shared/services/shipping.service';
 import { CartState } from '../../../shared/store/state/cart.state';
-import { CountryState } from '../../../shared/store/state/country.state';
-import { CouponState } from '../../../shared/store/state/coupon.state';
-import { OrderState } from '../../../shared/store/state/order.state';
-import { SettingState } from '../../../shared/store/state/setting.state';
-import { StateState } from '../../../shared/store/state/state.state';
 
 @Component({
   selector: 'app-checkout',
   imports: [
     TranslateModule,
-    CurrencySymbolPipe,
-    FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     Breadcrumb,
-    AddressBlock,
-    DeliveryBlock,
-    PaymentBlock,
     NoData,
-    Loader,
-    Select2Module,
-    Button,
-    AsyncPipe,
-    SlicePipe,
+    LoginModal,
+    CurrencyPipe,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })
-export class Checkout {
+export class Checkout implements OnInit {
   private store = inject(Store);
   private formBuilder = inject(FormBuilder);
-  cartService = inject(CartService);
-  private modal = inject(NgbModal);
+  private shippingService = inject(ShippingService);
+  private checkoutService = inject(CheckoutService);
+  private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+  private platformId = inject(PLATFORM_ID);
+
+  readonly loginModal = viewChild<LoginModal>('loginModal');
 
   public breadcrumb: IBreadcrumb = {
     title: 'Check-out',
     items: [{ label: 'Check-out', active: true }],
   };
 
-  user$: Observable<IAccountUser> = inject(Store).select(
-    AccountState.user,
-  ) as Observable<IAccountUser>;
-  accessToken$: Observable<String> = inject(Store).select(
-    AuthState.accessToken,
-  ) as Observable<String>;
-  cartItem$: Observable<ICart[]> = inject(Store).select(CartState.cartItems);
-  checkout$: Observable<IOrderCheckout> = inject(Store).select(
-    OrderState.checkout,
-  ) as Observable<IOrderCheckout>;
-  setting$: Observable<IValues> = inject(Store).select(SettingState.setting) as Observable<IValues>;
-  cartDigital$: Observable<boolean | number> = inject(Store).select(
-    CartState.cartHasDigital,
-  ) as Observable<boolean | number>;
-  countries$: Observable<Select2Data> = inject(Store).select(CountryState.countries);
-  coupon$: Observable<ICouponModel> = inject(Store).select(CouponState.coupon);
-
-  readonly cpnRef = viewChild<ElementRef<HTMLInputElement>>('cpn');
-
+  public provinces = CANADIAN_PROVINCES;
   public form: FormGroup;
-  public coupon: boolean = true;
-  public couponCode: string;
-  public appliedCoupon: boolean = false;
-  public couponError: string | null;
-  public checkoutTotal: IOrderCheckout;
-  public loading: boolean = false;
+  public cartItems: ICart[] = [];
+  public cartSubtotal = 0;
 
-  public shippingStates$: Observable<Select2Data>;
-  public billingStates$: Observable<Select2Data>;
-  public codes = countryCodes;
-  public isBrowser: boolean;
+  public quote: ShippingQuote | null = null;
+  public quoteLoading = false;
+  public quoteError: string | null = null;
+
+  public placingOrder = false;
+  public placeOrderError: string | null = null;
+  public submitted = false;
 
   constructor() {
-    const platformId = inject(PLATFORM_ID);
-
-    this.isBrowser = isPlatformBrowser(platformId);
-    this.store.dispatch(new GetSettingOptionAction());
-    this.store.dispatch(new GetCouponsAction({ status: 1 }));
-
     this.form = this.formBuilder.group({
-      products: this.formBuilder.array([], [Validators.required]),
-      shipping_address_id: new FormControl('', [Validators.required]),
-      billing_address_id: new FormControl('', [Validators.required]),
-      points_amount: new FormControl(false),
-      wallet_balance: new FormControl(false),
-      coupon: new FormControl(),
-      delivery_description: new FormControl('', [Validators.required]),
-      delivery_interval: new FormControl(),
-      payment_method: new FormControl('', [Validators.required]),
-      create_account: new FormControl(false),
-      name: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      country_code: new FormControl('91', [Validators.required]),
-      phone: new FormControl('', [Validators.required]),
-      password: new FormControl(),
-      shipping_address: new FormGroup({
-        title: new FormControl('', [Validators.required]),
-        street: new FormControl('', [Validators.required]),
-        city: new FormControl('', [Validators.required]),
-        phone: new FormControl('', [Validators.required]),
-        pincode: new FormControl('', [Validators.required]),
-        country_code: new FormControl('91', [Validators.required]),
-        country_id: new FormControl('', [Validators.required]),
-        state_id: new FormControl('', [Validators.required]),
-      }),
-      billing_address: new FormGroup({
-        same_shipping: new FormControl(false),
-        title: new FormControl('', [Validators.required]),
-        street: new FormControl('', [Validators.required]),
-        city: new FormControl('', [Validators.required]),
-        phone: new FormControl('', [Validators.required]),
-        pincode: new FormControl('', [Validators.required]),
-        country_code: new FormControl('91', [Validators.required]),
-        country_id: new FormControl('', [Validators.required]),
-        state_id: new FormControl('', [Validators.required]),
-      }),
+      email: ['', [Validators.required, Validators.email]],
+      shippingName: ['', [Validators.required, Validators.maxLength(120)]],
+      shippingPhone: ['', [Validators.required, Validators.maxLength(40)]],
+      shippingLine1: ['', [Validators.required, Validators.maxLength(200)]],
+      shippingLine2: ['', [Validators.maxLength(200)]],
+      shippingCity: ['', [Validators.required, Validators.maxLength(100)]],
+      shippingProvince: ['', [Validators.required]],
+      shippingPostal: ['', [Validators.required, Validators.pattern(CA_POSTAL_PATTERN)]],
+      // Country is fixed to CA for now — backend rejects non-CA.
+      shippingCountry: [{ value: 'CA', disabled: true }],
     });
+  }
 
-    this.store.selectSnapshot(state => state.setting).setting.activation.guest_checkout = true;
-
-    if (this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      this.form.removeControl('create_account');
-      this.form.removeControl('name');
-      this.form.removeControl('email');
-      this.form.removeControl('country_code');
-      this.form.removeControl('phone');
-      this.form.removeControl('password');
-      this.form.removeControl('password_confirmation');
-      this.form.removeControl('shipping_address');
-      this.form.removeControl('billing_address');
-
-      this.cartDigital$.subscribe(value => {
-        if (value == 1) {
-          this.form.controls['shipping_address_id'].clearValidators();
-          this.form.controls['delivery_description'].clearValidators();
-        } else {
-          this.form.controls['shipping_address_id'].setValidators([Validators.required]);
-          this.form.controls['delivery_description'].setValidators([Validators.required]);
-        }
-        this.form.controls['shipping_address_id'].updateValueAndValidity();
-        this.form.controls['delivery_description'].updateValueAndValidity();
+  ngOnInit(): void {
+    this.store
+      .select(CartState.cartItems)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(items => {
+        this.cartItems = items ?? [];
+        this.cartSubtotal = this.store.selectSnapshot(CartState.cartTotal) ?? 0;
       });
-    } else {
-      if (this.store.selectSnapshot(state => state.setting).setting.activation.guest_checkout) {
-        this.form.removeControl('shipping_address_id');
-        this.form.removeControl('billing_address_id');
-        this.form.removeControl('points_amount');
-        this.form.removeControl('wallet_balance');
 
-        this.form.controls['create_account'].valueChanges.subscribe(value => {
-          if (value) {
-            this.form.controls['name'].setValidators([Validators.required]);
-            this.form.controls['password'].setValidators([Validators.required]);
-          } else {
-            this.form.controls['name'].clearValidators();
-            this.form.controls['password'].clearValidators();
-          }
-          this.form.controls['name'].updateValueAndValidity();
-          this.form.controls['password'].updateValueAndValidity();
-        });
+    // One stream: province OR cart fingerprint changes → debounced quote refresh.
+    // Server recomputes subtotal from DB prices; we only send productId + quantity.
+    const province$ = this.form.get('shippingProvince')!.valueChanges.pipe(
+      startWith(this.form.get('shippingProvince')!.value as string),
+    );
+    const cartFingerprint$ = this.store.select(CartState.cartItems).pipe(
+      map(items =>
+        (items ?? [])
+          .map(i => `${i.product_id}:${i.quantity}`)
+          .join('|'),
+      ),
+      distinctUntilChanged(),
+    );
 
-        this.form.statusChanges.subscribe(value => {
-          if (value == 'VALID') {
-            this.checkout();
-          }
-        });
-      }
-    }
-
-    this.form.get('billing_address.same_shipping')?.valueChanges.subscribe(value => {
-      if (value) {
-        this.form
-          .get('billing_address.title')
-          ?.setValue(this.form.get('shipping_address.title')?.value);
-        this.form
-          .get('billing_address.street')
-          ?.setValue(this.form.get('shipping_address.street')?.value);
-        this.form
-          .get('billing_address.country_id')
-          ?.setValue(this.form.get('shipping_address.country_id')?.value);
-        this.form
-          .get('billing_address.state_id')
-          ?.setValue(this.form.get('shipping_address.state_id')?.value);
-        this.form
-          .get('billing_address.city')
-          ?.setValue(this.form.get('shipping_address.city')?.value);
-        this.form
-          .get('billing_address.pincode')
-          ?.setValue(this.form.get('shipping_address.pincode')?.value);
-        this.form
-          .get('billing_address.country_code')
-          ?.setValue(this.form.get('shipping_address.country_code')?.value);
-        this.form
-          .get('billing_address.phone')
-          ?.setValue(this.form.get('shipping_address.phone')?.value);
-      } else {
-        this.form.get('billing_address.title')?.setValue('');
-        this.form.get('billing_address.street')?.setValue('');
-        this.form.get('billing_address.country_id')?.setValue('');
-        this.form.get('billing_address.state_id')?.setValue('');
-        this.form.get('billing_address.city')?.setValue('');
-        this.form.get('billing_address.pincode')?.setValue('');
-        this.form.get('billing_address.country_code')?.setValue('');
-        this.form.get('billing_address.phone')?.setValue('');
-      }
-    });
-
-    this.cartService.getUpdateQtyClickEvent().subscribe(() => {
-      this.products();
-      this.checkout();
-    });
-  }
-
-  get productControl(): FormArray {
-    return this.form.get('products') as FormArray;
-  }
-
-  ngOnInit() {
-    this.checkout$.subscribe(data => (this.checkoutTotal = data));
-    this.products();
-  }
-
-  products() {
-    this.cartItem$.subscribe(items => {
-      this.productControl.clear();
-      items.forEach((item: ICart) =>
-        this.productControl.push(
-          this.formBuilder.group({
-            product_id: new FormControl(item?.product_id, [Validators.required]),
-            variation_id: new FormControl(item?.variation_id ? item?.variation_id : ''),
-            quantity: new FormControl(item?.quantity),
-          }),
+    combineLatest([province$, cartFingerprint$])
+      .pipe(
+        debounceTime(300),
+        filter(([province]) => !!province && this.cartItems.length > 0),
+        tap(() => {
+          this.quoteLoading = true;
+          this.quoteError = null;
+        }),
+        switchMap(([province]) =>
+          this.shippingService
+            .quote({
+              shippingProvince: province,
+              shippingCountry: 'CA',
+              items: this.toItemPayload(),
+            })
+            .pipe(
+              catchError((err: HttpErrorResponse) => {
+                this.quote = null;
+                this.quoteError = this.readApiMessage(err);
+                return of(null);
+              }),
+            ),
         ),
-      );
-    });
-  }
-
-  selectShippingAddress(id: number) {
-    if (id) {
-      this.form.controls['shipping_address_id'].setValue(Number(id));
-      this.checkout();
-    }
-  }
-
-  selectBillingAddress(id: number) {
-    if (id) {
-      this.form.controls['billing_address_id'].setValue(Number(id));
-      this.checkout();
-    }
-  }
-
-  selectDelivery(value: IDeliveryBlock) {
-    this.form.controls['delivery_description'].setValue(value?.delivery_description);
-    this.form.controls['delivery_interval'].setValue(value?.delivery_interval);
-    this.checkout();
-  }
-
-  selectPaymentMethod(value: string) {
-    this.form.controls['payment_method'].setValue(value);
-    this.checkout();
-  }
-
-  togglePoint(event: Event) {
-    this.form.controls['points_amount'].setValue((<HTMLInputElement>event.target)?.checked);
-    this.checkout();
-  }
-
-  toggleWallet(event: Event) {
-    this.form.controls['wallet_balance'].setValue((<HTMLInputElement>event.target)?.checked);
-    this.checkout();
-  }
-
-  showCoupon() {
-    this.coupon = true;
-  }
-
-  setCoupon(value?: string) {
-    this.couponError = null;
-
-    if (value) this.form.controls['coupon'].setValue(value);
-    else this.form.controls['coupon'].reset();
-
-    this.store.dispatch(new CheckoutAction(this.form.value)).subscribe({
-      error: err => {
-        this.couponError = err.message;
-      },
-      complete: () => {
-        this.appliedCoupon = value ? true : false;
-        this.couponError = null;
-      },
-    });
-  }
-
-  couponRemove() {
-    this.setCoupon();
-  }
-
-  shippingCountryChange(data: Select2UpdateEvent) {
-    if (data && data?.value) {
-      this.shippingStates$ = this.store
-        .select(StateState.states)
-        .pipe(map(filterFn => filterFn(+data?.value)));
-    } else {
-      this.form.get('shipping_address.state_id')?.setValue('');
-      this.shippingStates$ = of();
-    }
-  }
-
-  billingCountryChange(data: Select2UpdateEvent) {
-    if (data && data?.value) {
-      this.billingStates$ = this.store
-        .select(StateState.states)
-        .pipe(map(filterFn => filterFn(+data?.value)));
-      if (this.form.get('billing_address.same_shipping')?.value) {
-        setTimeout(() => {
-          this.form
-            .get('billing_address.state_id')
-            ?.setValue(this.form.get('shipping_address.state_id')?.value);
-        }, 200);
-      }
-    } else {
-      this.form.get('billing_address.state_id')?.setValue('');
-      this.billingStates$ = of();
-    }
-  }
-
-  checkout() {
-    // If has coupon error while checkout
-    if (this.couponError) {
-      this.couponError = null;
-      this.cpnRef()!.nativeElement.value = '';
-      this.form.controls['coupon'].reset();
-    }
-
-    if (this.form.valid) {
-      this.loading = true;
-      this.store.dispatch(new CheckoutAction(this.form.value)).subscribe({
-        error: err => {
-          this.loading = false;
-          throw new Error(err);
-        },
-        complete: () => {
-          this.loading = false;
-        },
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(quote => {
+        this.quoteLoading = false;
+        if (quote) {
+          this.quote = quote;
+        }
       });
-    } else {
-      Object?.keys(this.form?.controls).filter(key => this.form.controls[key].invalid);
+  }
+
+  get estimatedTotal(): number {
+    const fee = this.quote?.fee ?? 0;
+    return this.cartSubtotal + Number(fee);
+  }
+
+  openLogin(): void {
+    // Theme login modal — real JWT wiring lands in guide 05; this does not block checkout.
+    this.authService.redirectUrl = '/checkout';
+    void this.loginModal()?.openModal();
+  }
+
+  placeOrder(): void {
+    this.submitted = true;
+    this.placeOrderError = null;
+    this.form.markAllAsTouched();
+
+    if (this.cartItems.length === 0) {
+      this.placeOrderError = 'Your cart is empty.';
+      return;
     }
-  }
 
-  placeorder() {
-    if (this.form.valid) {
-      const cpnRef = this.cpnRef();
-      if (cpnRef && !cpnRef.nativeElement.value) {
-        this.form.controls['coupon'].reset();
-      }
-      this.store.dispatch(new PlaceOrderAction(this.form.value));
+    if (this.form.invalid) {
+      this.placeOrderError = 'Please fix the highlighted fields.';
+      return;
     }
-  }
 
-  clearCart() {
-    this.store.dispatch(new ClearCartAction());
-  }
+    if (this.placingOrder) {
+      return;
+    }
 
-  openModal() {
-    this.modal.open(AddressModal, { centered: true, windowClass: 'theme-modal-2' });
-  }
+    const raw = this.form.getRawValue();
+    const payload: CreateShopOrderRequest = {
+      email: String(raw.email).trim(),
+      shippingName: String(raw.shippingName).trim(),
+      shippingPhone: String(raw.shippingPhone).trim() || null,
+      shippingLine1: String(raw.shippingLine1).trim(),
+      shippingLine2: String(raw.shippingLine2 || '').trim() || null,
+      shippingCity: String(raw.shippingCity).trim(),
+      shippingProvince: String(raw.shippingProvince).trim().toUpperCase(),
+      shippingPostal: this.normalizePostal(String(raw.shippingPostal)),
+      shippingCountry: 'CA',
+      // Authoritative prices live on the server — only ids + quantities leave the browser.
+      items: this.toItemPayload(),
+    };
 
-  couponModal() {
-    this.modal.open(CouponModal, {
-      centered: true,
-      windowClass: 'theme-modal-2 coupon-modal',
-      size: 'lg',
+    this.placingOrder = true;
+    this.checkoutService.createSession(payload).subscribe({
+      next: session => {
+        // Full-page navigation to Stripe-hosted Checkout (no Stripe.js required for redirect).
+        if (isPlatformBrowser(this.platformId) && session.checkoutUrl) {
+          window.location.href = session.checkoutUrl;
+          return;
+        }
+        this.placingOrder = false;
+        this.placeOrderError = 'Could not start payment. Please try again.';
+      },
+      error: (err: HttpErrorResponse) => {
+        this.placingOrder = false;
+        this.placeOrderError = this.readApiMessage(err);
+      },
     });
   }
 
-  copyFunction(txt: string) {
-    void navigator.clipboard.writeText(txt);
+  controlInvalid(name: string): boolean {
+    const control = this.form.get(name);
+    return !!(control && control.invalid && (control.touched || this.submitted));
   }
 
-  ngOnDestroy() {
-    if (this.isBrowser) {
-      this.store.dispatch(new ClearCartAction());
-      this.form.reset();
+  isZero(value: number | string | null | undefined): boolean {
+    return Number(value ?? 0) === 0;
+  }
+
+  private toItemPayload(): ShopOrderItemRequest[] {
+    return this.cartItems.map(item => ({
+      productId: item.product_id ?? item.product?.id,
+      quantity: item.quantity,
+    }));
+  }
+
+  private normalizePostal(postal: string): string {
+    const compact = postal.replace(/\s+/g, '').toUpperCase();
+    if (compact.length === 6) {
+      return `${compact.slice(0, 3)} ${compact.slice(3)}`;
     }
+    return postal.trim().toUpperCase();
+  }
+
+  private readApiMessage(err: HttpErrorResponse): string {
+    const body = err.error as ApiErrorBody | string | null;
+    if (body && typeof body === 'object') {
+      if (body.fieldErrors?.length) {
+        return body.fieldErrors.map(f => f.message).join(' ');
+      }
+      if (body.message) {
+        return body.message;
+      }
+    }
+    if (typeof body === 'string' && body.trim()) {
+      return body;
+    }
+    if (err.status === 0) {
+      return 'Cannot reach the store server. Check that the API is running.';
+    }
+    return err.message || 'Something went wrong. Please try again.';
   }
 }

@@ -1,0 +1,15 @@
+.free-shipping-hint {
+  color: #2d6a4f;
+}
+
+.checkout-right-box .order-box .qty li,
+.checkout-right-box .order-box .sub-total li,
+.checkout-right-box .order-box .total li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.form-select.form-control {
+  appearance: auto;
+}

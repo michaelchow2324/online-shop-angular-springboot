@@ -1,0 +1,113 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+<section class="section-b-space">
+  <div class="container checkout-success">
+    @if (loading) {
+      <div class="text-center py-5">
+        <p class="mb-0">Confirming your order…</p>
+      </div>
+    } @else if (error) {
+      <app-no-data
+        [class]="'no-data-added'"
+        [image]="'assets/svg/empty-items.svg'"
+        [text]="'Order not found'"
+        [description]="error"
+      />
+      <div class="text-center mt-3">
+        <a class="btn btn-solid" routerLink="/collections">Continue shopping</a>
+      </div>
+    } @else if (order) {
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="success-card">
+            <h2 class="mb-2">Thank you for your order</h2>
+            <p class="mb-4">
+              Order <strong>{{ order.orderNumber }}</strong>
+              @if (order.email) {
+                — confirmation will go to <strong>{{ order.email }}</strong>
+              }
+            </p>
+
+            <p class="status-line mb-3">
+              Status:
+              <span class="status-badge" [class.paid]="order.status === 'PAID'">
+                {{ statusLabel(order.status) }}
+              </span>
+            </p>
+
+            @if (pendingPaymentHint) {
+              <div class="alert alert-info" role="status">
+                Payment received; confirmation pending. This usually updates within a few seconds
+                once Stripe notifies our server. Refresh this page if it still looks pending.
+              </div>
+            }
+
+            <h3 class="h5 mt-4">Items</h3>
+            <ul class="order-items">
+              @for (item of order.items; track item.productId + '-' + item.sku) {
+                <li>
+                  <span>
+                    {{ item.productName }}
+                    @if (item.sku) {
+                      <small class="text-muted">({{ item.sku }})</small>
+                    }
+                    × {{ item.quantity }}
+                  </span>
+                  <span>{{ item.lineTotal | currency: (order.currency || 'CAD') }}</span>
+                </li>
+              }
+            </ul>
+
+            <dl class="totals">
+              <div>
+                <dt>Subtotal</dt>
+                <dd>{{ order.subtotal | currency: (order.currency || 'CAD') }}</dd>
+              </div>
+              <div>
+                <dt>Shipping</dt>
+                <dd>
+                  @if (isZero(order.shippingFee)) {
+                    Free
+                  } @else {
+                    {{ order.shippingFee | currency: (order.currency || 'CAD') }}
+                  }
+                </dd>
+              </div>
+              @if (order.tax != null && !isZero(order.tax)) {
+                <div>
+                  <dt>Tax</dt>
+                  <dd>{{ order.tax | currency: (order.currency || 'CAD') }}</dd>
+                </div>
+              }
+              <div class="grand">
+                <dt>Total</dt>
+                <dd>{{ order.total | currency: (order.currency || 'CAD') }}</dd>
+              </div>
+            </dl>
+
+            <h3 class="h5 mt-4">Ship to</h3>
+            <address class="mb-4">
+              {{ order.shippingName }}<br />
+              {{ order.shippingLine1 }}
+              @if (order.shippingLine2) {
+                <br />{{ order.shippingLine2 }}
+              }
+              <br />
+              {{ order.shippingCity }}, {{ order.shippingProvince }}
+              {{ order.shippingPostal }}<br />
+              {{ order.shippingCountry }}
+            </address>
+
+            @if (order.createdAt) {
+              <p class="text-muted small">
+                Placed {{ order.createdAt | date: 'medium' }}
+              </p>
+            }
+
+            <a class="btn btn-solid" routerLink="/collections">Continue shopping</a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

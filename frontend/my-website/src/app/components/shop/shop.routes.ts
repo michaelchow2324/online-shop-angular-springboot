@@ -33,6 +33,12 @@ export const shop: Routes = [
     loadComponent: () => import('./compare/compare').then(m => m.Compare),
     canActivate: [AuthGuard],
   },
+  // More specific path first so /checkout/success is not confused with /checkout.
+  {
+    path: 'checkout/success',
+    loadComponent: () =>
+      import('./checkout/checkout-success/checkout-success').then(m => m.CheckoutSuccess),
+  },
   {
     path: 'checkout',
     loadComponent: () => import('./checkout/checkout').then(m => m.Checkout),

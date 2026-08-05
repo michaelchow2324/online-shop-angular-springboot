@@ -120,6 +120,7 @@ class PaymentServiceImplTest {
                     .thenReturn(event);
 
             // Production path: verify signature → deserialize Session → markPaidFromStripeCheckout(...)
+            // call the method, dont need to run from controller
             paymentService.handleStripeWebhook("payload", "sig_header");
 
             // Prove we forwarded the right ids from the Session inside the Event.
@@ -137,6 +138,7 @@ class PaymentServiceImplTest {
                     .when(() -> Webhook.constructEvent(eq("payload"), eq("sig_header"), eq("whsec_test_x")))
                     .thenReturn(event);
 
+            // mock when stripe sends the same event to our webhook controller twice
             paymentService.handleStripeWebhook("payload", "sig_header");
             paymentService.handleStripeWebhook("payload", "sig_header");
 
@@ -155,6 +157,7 @@ class PaymentServiceImplTest {
 
         try (MockedStatic<Webhook> webhookStatic = mockStatic(Webhook.class)) {
             // any() matchers: we don't care about payload/sig here — only that constructEvent returns this event.
+            // mock stripe sends other event types, we ignore them
             webhookStatic
                     .when(() -> Webhook.constructEvent(any(), any(), any()))
                     .thenReturn(event);

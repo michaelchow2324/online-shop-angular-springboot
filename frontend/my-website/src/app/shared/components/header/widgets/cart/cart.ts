@@ -1,5 +1,5 @@
-import { AsyncPipe, isPlatformBrowser, NgClass } from '@angular/common';
-import { Component, HostListener, inject, input, PLATFORM_ID } from '@angular/core';
+import { AsyncPipe, NgClass } from '@angular/common';
+import { Component, HostListener, inject, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,7 +8,6 @@ import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 
 import { ICart, ICartAddOrUpdate } from '../../../../interface/cart.interface';
-import { IValues } from '../../../../interface/setting.interface';
 import { IOption } from '../../../../interface/theme-option.interface';
 import { CurrencySymbolPipe } from '../../../../pipe/currency.pipe';
 import { CartService } from '../../../../services/cart.service';
@@ -19,7 +18,6 @@ import {
   UpdateCartAction,
 } from '../../../../store/action/cart.action';
 import { CartState } from '../../../../store/state/cart.state';
-import { SettingState } from '../../../../store/state/setting.state';
 import { ThemeOptionState } from '../../../../store/state/theme-option.state';
 import { Button } from '../../../widgets/button/button';
 import { VariationModal } from '../../../widgets/modal/variation-modal/variation-modal';
@@ -41,17 +39,11 @@ export class Cart {
   themeOption$: Observable<IOption> = inject(Store).select(
     ThemeOptionState.themeOptions,
   ) as Observable<IOption>;
-  setting$: Observable<IValues> = inject(Store).select(SettingState.setting) as Observable<IValues>;
 
   readonly style = input<string>('basic');
 
   public cartStyle: string = 'cart_sidebar';
   public cart: string;
-  public shippingFreeAmt: number = 0;
-  public cartTotal: number = 0;
-  public shippingCal: number = 0;
-  public confettiItems = Array.from({ length: 150 }, (_, index) => index);
-  public confetti: number = 0;
   public loader: boolean = false;
   public width: number;
 
@@ -59,26 +51,6 @@ export class Cart {
     this.themeOption$.subscribe(option => {
       this.cartStyle = option?.general?.cart_style;
       this.cart = this.cartStyle;
-    });
-
-    // Calculation
-    this.cartTotal$.subscribe(total => {
-      this.setting$.subscribe(
-        setting => (this.shippingFreeAmt = setting?.general?.min_order_free_shipping),
-      );
-      this.cartTotal = total;
-      this.shippingCal = (this.cartTotal * 100) / this.shippingFreeAmt;
-      if (this.shippingCal > 100) {
-        this.shippingCal = 100;
-        if (this.confetti == 0) {
-          this.confetti = 1;
-          setTimeout(() => {
-            this.confetti = 2;
-          }, 4500);
-        }
-      } else {
-        this.confetti = 0;
-      }
     });
   }
 
