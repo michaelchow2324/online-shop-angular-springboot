@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yourstore.common.NotFoundException;
+import com.yourstore.online_store_api.notification.MailService;
 import com.yourstore.online_store_api.order.ShopOrderRepository;
 
 @Service
@@ -24,18 +25,21 @@ public class AuthService {
     private final ShopOrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final MailService mailService;
 
     AuthService(
             CustomerUserRepository userRepository,
             EmailVerificationTokenRepository tokenRepository,
             ShopOrderRepository orderRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
+            JwtService jwtService,
+            MailService mailService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.orderRepository = orderRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.mailService = mailService;
     }
 
     @Transactional
@@ -53,8 +57,7 @@ public class AuthService {
         user = userRepository.save(user);
 
         String rawToken = createVerificationToken(user);
-        // Guide 06 will email this; until then log for local testing.
-        log.info("Email verification token for {}: {}", email, rawToken);
+        sendVerifyEmailSafely(email, rawToken);
 
         return toMeDTO(user);
     }
@@ -135,5 +138,18 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusHours(VERIFY_TOKEN_HOURS));
         tokenRepository.save(token);
         return token.getToken();
+    }
+
+    /**
+     * Mail failure must not roll back registration (account is already saved).
+     * User can request a resend later; link is logged at debug for local troubleshooting.
+     */
+    private void sendVerifyEmailSafely(String email, String rawToken) {
+        try {
+            mailService.sendVerifyEmail(email, rawToken);
+        } catch (Exception ex) {
+            log.error("Failed to send verify-email to {}: {}", email, ex.getMessage());
+            log.debug("Verify link token for {} (mail failed): {}", email, rawToken);
+        }
     }
 }

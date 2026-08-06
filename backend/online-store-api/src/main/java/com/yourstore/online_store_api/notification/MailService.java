@@ -15,8 +15,8 @@ import com.yourstore.online_store_api.order.ShopOrder;
 import com.yourstore.online_store_api.order.ShopOrderItem;
 
 /**
- * Plain-text order emails via {@link JavaMailSender} (Mailhog locally, real SMTP in prod).
- * Listeners call these methods — do not invoke from payment transactions directly.
+ * Plain-text emails via {@link JavaMailSender} (Mailhog locally, real SMTP in prod).
+ * Order listeners and auth call these methods — do not send mail from payment code directly.
  */
 @Service
 public class MailService {
@@ -29,10 +29,15 @@ public class MailService {
 
     private final JavaMailSender mailSender;
     private final String from;
+    private final String publicWebBaseUrl;
 
-    MailService(JavaMailSender mailSender, @Value("${app.mail.from}") String from) {
+    MailService(
+            JavaMailSender mailSender,
+            @Value("${app.mail.from}") String from,
+            @Value("${app.public-web-base-url:http://localhost:4200}") String publicWebBaseUrl) {
         this.mailSender = mailSender;
         this.from = from;
+        this.publicWebBaseUrl = trimTrailingSlash(publicWebBaseUrl);
     }
 
     /** Paid confirmation: items, total, “we’ll email when shipped”. */
@@ -47,6 +52,24 @@ public class MailService {
         String subject = "Order " + order.getOrderNumber() + " shipped";
         String body = buildShippedBody(order);
         send(order.getEmail(), subject, body);
+    }
+
+    /**
+     * Guide 06 Step 5 — replace console token log with a clickable verify link.
+     * Link shape: {@code {publicWebBaseUrl}/verify-email?token=...}
+     */
+    public void sendVerifyEmail(String toEmail, String rawToken) {
+        String link = publicWebBaseUrl + "/verify-email?token=" + rawToken;
+        String subject = "Verify your email";
+        String body = """
+                Welcome!
+
+                Please verify your email by opening this link:
+                %s
+
+                If you did not create an account, you can ignore this message.
+                """.formatted(link);
+        send(toEmail, subject, body);
     }
 
     /** Build Canada Post / Chit Chats tracking link from carrier + tracking number. */
@@ -151,5 +174,16 @@ public class MailService {
             case "chit_chats", "chitchats", "chit-chats" -> "Chit Chats";
             default -> carrier.trim();
         };
+    }
+
+    private static String trimTrailingSlash(String url) {
+        if (url == null || url.isBlank()) {
+            return "http://localhost:4200";
+        }
+        String trimmed = url.trim();
+        while (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed;
     }
 }

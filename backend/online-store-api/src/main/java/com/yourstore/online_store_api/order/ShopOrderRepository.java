@@ -30,4 +30,18 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
               AND LOWER(o.email) = LOWER(:email)
             """)
     int claimGuestOrders(@Param("userId") Long userId, @Param("email") String email);
+
+    /** Load order + line items for notification emails (items are LAZY). */
+    @Query("""
+            SELECT o FROM ShopOrder o
+            LEFT JOIN FETCH o.items
+            WHERE o.id = :id
+            """)
+    Optional<ShopOrder> findByIdWithItems(@Param("id") Long id);
+
+    // roughly equivalent:
+//     SELECT shop_order.*, shop_order_item.*
+//         FROM shop_order o
+//         LEFT JOIN shop_order_item i ON i.order_id = o.id
+//         WHERE o.id = :id
 }

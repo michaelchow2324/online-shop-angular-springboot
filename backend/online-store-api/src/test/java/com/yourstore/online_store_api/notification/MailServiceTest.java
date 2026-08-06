@@ -29,7 +29,7 @@ class MailServiceTest {
 
     @BeforeEach
     void setUp() {
-        mailService = new MailService(mailSender, "orders@localhost");
+        mailService = new MailService(mailSender, "orders@localhost", "http://localhost:4200");
     }
 
     @Test
@@ -67,6 +67,18 @@ class MailServiceTest {
                 .contains("1234567890123456")
                 .contains(
                         "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=1234567890123456");
+    }
+
+    @Test
+    void sendVerifyEmail_containsFrontendLinkWithToken() {
+        mailService.sendVerifyEmail("new@example.com", "abc123token");
+
+        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender).send(captor.capture());
+        SimpleMailMessage msg = captor.getValue();
+        assertThat(msg.getSubject()).isEqualTo("Verify your email");
+        assertThat(msg.getTo()).containsExactly("new@example.com");
+        assertThat(msg.getText()).contains("http://localhost:4200/verify-email?token=abc123token");
     }
 
     @Test
