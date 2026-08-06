@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Params, RouterModule } from '@angular/router';
 
@@ -23,7 +23,7 @@ import { OrderState } from '../../../shared/store/state/order.state';
     NoData,
     AsyncPipe,
     DatePipe,
-    TitleCasePipe,
+    UpperCasePipe,
   ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
@@ -36,8 +36,8 @@ export class Orders {
   ) as Observable<IOrderModel>;
 
   public filter: Params = {
-    page: 1, // Current page number
-    paginate: 10, // Display per page,
+    page: 1,
+    paginate: 10,
   };
 
   constructor() {

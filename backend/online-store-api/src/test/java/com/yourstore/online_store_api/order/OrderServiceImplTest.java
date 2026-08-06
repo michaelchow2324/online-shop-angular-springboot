@@ -24,10 +24,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
+import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
 import com.yourstore.online_store_api.shipping.ShippingService;
+import com.yourstore.online_store_api.storage.ImageStorageService;
 
 // command to run this test: ./mvnw "-Dtest=OrderServiceImplTest,ShopOrderRepositoryTest" test
 /**
@@ -42,6 +44,12 @@ class OrderServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private MediaRepository mediaRepository;
+
+    @Mock
+    private ImageStorageService imageStorageService;
 
     @Mock
     private ShippingService shippingService;
@@ -60,6 +68,8 @@ class OrderServiceImplTest {
 
         lenient().when(orderRepository.existsByOrderNumber(anyString())).thenReturn(false); // fake order number check, always return false
         lenient().when(orderRepository.save(any(ShopOrder.class))).thenAnswer(invocation -> invocation.getArgument(0)); //fake persists, return what was passed in
+        lenient().when(mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc(anyString(), any()))
+                .thenReturn(List.of());
         lenient().when(shippingService.quote(anyString(), anyString(), any(BigDecimal.class))) 
                 .thenReturn(new ShippingQuoteDTO(
                         "ON",

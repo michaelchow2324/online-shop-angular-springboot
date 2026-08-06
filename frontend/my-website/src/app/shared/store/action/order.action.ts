@@ -8,7 +8,8 @@ export class GetOrdersAction {
 
 export class ViewOrderAction {
   static readonly type = '[Order] View';
-  constructor(public id: number) {}
+  /** Order number string from Spring (e.g. OS-20260806-A1B2), not Multikart numeric id. */
+  constructor(public id: string) {}
 }
 
 export class CheckoutAction {

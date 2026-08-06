@@ -115,6 +115,13 @@ export class CheckoutSuccess implements OnInit {
     return Number(value ?? 0) === 0;
   }
 
+  hideBrokenImage(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (img) {
+      img.style.display = 'none';
+    }
+  }
+
   private readApiMessage(err: HttpErrorResponse): string {
     const body = err.error as ApiErrorBody | string | null;
     if (body && typeof body === 'object' && body.message) {

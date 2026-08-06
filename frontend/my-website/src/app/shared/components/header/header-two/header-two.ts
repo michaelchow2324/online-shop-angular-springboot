@@ -10,6 +10,7 @@ import { Menu } from '../../widgets/menu/menu';
 import { TopBar } from '../../widgets/top-bar/top-bar';
 import { HeaderLogo } from '../widgets/header-logo/header-logo';
 import { Cart } from '../widgets/cart/cart';
+import { UserProfile } from '../widgets/user-profile/user-profile';
 
 @Component({
   selector: 'app-header-two',
@@ -20,6 +21,7 @@ import { Cart } from '../widgets/cart/cart';
     Menu,
     HeaderLogo,
     Cart,
+    UserProfile,
   ],
   templateUrl: './header-two.html',
   styleUrl: './header-two.scss',

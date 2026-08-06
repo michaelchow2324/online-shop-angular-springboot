@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,5 +80,53 @@ class ShopOrderRepositoryTest {
         assertThat(loaded.getItems().get(0).getProductName()).isEqualTo("Makeup Bag");
         assertThat(loaded.getItems().get(0).getLineTotal()).isEqualByComparingTo("50.00");
         assertThat(loaded.getItems().get(0).getOrder().getId()).isEqualTo(loaded.getId());
+    }
+
+    /** Guide 05 Step 8 — verified claim attaches guest orders (same email, user_id null). */
+    @Test
+    void claimGuestOrders_attachesMatchingGuestOrdersByEmail() {
+        ShopOrder guestMatch = guestOrder("OS-GUEST-MATCH", "Guest@Example.com", null);
+        ShopOrder guestOther = guestOrder("OS-GUEST-OTHER", "other@example.com", null);
+        ShopOrder alreadyOwned = guestOrder("OS-OWNED", "guest@example.com", 99L);
+        orderRepository.saveAll(List.of(guestMatch, guestOther, alreadyOwned));
+        orderRepository.flush();
+
+        int claimed = orderRepository.claimGuestOrders(7L, "guest@example.com");
+        orderRepository.flush();
+
+        assertThat(claimed).isEqualTo(1);
+        assertThat(orderRepository.findByOrderNumber("OS-GUEST-MATCH").orElseThrow().getUserId())
+                .isEqualTo(7L);
+        assertThat(orderRepository.findByOrderNumber("OS-GUEST-OTHER").orElseThrow().getUserId())
+                .isNull();
+        assertThat(orderRepository.findByOrderNumber("OS-OWNED").orElseThrow().getUserId())
+                .isEqualTo(99L);
+        assertThat(orderRepository.findByUserIdOrderByCreatedAtDesc(7L))
+                .extracting(ShopOrder::getOrderNumber)
+                .containsExactly("OS-GUEST-MATCH");
+    }
+
+    private static ShopOrder guestOrder(String orderNumber, String email, Long userId) {
+        ShopOrder order = new ShopOrder();
+        order.setOrderNumber(orderNumber);
+        order.setUserId(userId);
+        order.setEmail(email);
+        order.setStatus(OrderStatus.PAID);
+        order.setCurrency("CAD");
+        order.setSubtotal(new BigDecimal("50.00"));
+        order.setShippingFee(new BigDecimal("0.00"));
+        order.setTax(new BigDecimal("0.00"));
+        order.setTotal(new BigDecimal("50.00"));
+        order.setShippingName("Alex Guest");
+        order.setShippingLine1("123 King St W");
+        order.setShippingCity("Toronto");
+        order.setShippingProvince("ON");
+        order.setShippingPostal("M5H 1A1");
+        order.setShippingCountry("CA");
+        order.setShippingMethod("regular");
+        LocalDateTime now = LocalDateTime.now();
+        order.setCreatedAt(now);
+        order.setUpdatedAt(now);
+        return order;
     }
 }

@@ -2,7 +2,7 @@
   <div class="modal-body">
     <div class="modal-content open">
       <div class="d-flex">
-        <div class="right-content w-lg-50 w-100">
+        <div class="right-content w-100">
           @if(activeForm === 'login'){
           <app-login (activeForm)="nextForm($event)" />
           } @if(activeForm === 'email'){
@@ -18,11 +18,6 @@
           } @if(activeForm === 'numberOtp'){
           <app-otp (activeForm)="nextForm($event)" [type]="'number'" />
           }
-        </div>
-        <div class="left-img w-lg-50 d-lg-block d-none">
-          <img
-            [src]="themeOption.popup.auth.image_url ? storageURL+themeOption.popup.auth.image_url : 'assets/images/placeholder/auth.png'" alt="img"
-          />
         </div>
       </div>
     </div>

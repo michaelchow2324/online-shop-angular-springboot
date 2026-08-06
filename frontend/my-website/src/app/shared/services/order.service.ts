@@ -20,6 +20,11 @@ export class OrderService {
     return this.http.get<IOrderModel>(`${environment.URL}/order.json`, { params: payload });
   }
 
+  /** Logged-in customer orders (guide 05). Requires JWT via AuthInterceptor. */
+  getMyOrders(): Observable<ShopOrder[]> {
+    return this.http.get<ShopOrder[]>(`${environment.apiUrl}/me/orders`);
+  }
+
   viewOrder(id: number): Observable<IOrder> {
     return this.http.get<IOrder>(`${environment.URL}/order/${id}`);
   }

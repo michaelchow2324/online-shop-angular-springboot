@@ -47,6 +47,7 @@ import {
 import { AuthService } from '../../../shared/services/auth.service';
 import { CheckoutService } from '../../../shared/services/checkout.service';
 import { ShippingService } from '../../../shared/services/shipping.service';
+import { AuthState } from '../../../shared/store/state/auth.state';
 import { CartState } from '../../../shared/store/state/cart.state';
 
 @Component({
@@ -91,6 +92,9 @@ export class Checkout implements OnInit {
   public placingOrder = false;
   public placeOrderError: string | null = null;
   public submitted = false;
+  /** True when JWT is present — email is forced from the account. */
+  public isLoggedIn = false;
+  public accountEmail: string | null = null;
 
   constructor() {
     this.form = this.formBuilder.group({
@@ -114,6 +118,22 @@ export class Checkout implements OnInit {
       .subscribe(items => {
         this.cartItems = items ?? [];
         this.cartSubtotal = this.store.selectSnapshot(CartState.cartTotal) ?? 0;
+      });
+
+    // Prefill / lock email when JWT is present (backend also forces account email).
+    this.store
+      .select(AuthState.accessToken)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(token => {
+        this.isLoggedIn = !!token;
+        const email = String(this.store.selectSnapshot(AuthState.email) || '');
+        this.accountEmail = email || null;
+        if (this.isLoggedIn && email) {
+          this.form.patchValue({ email });
+          this.form.get('email')?.disable({ emitEvent: false });
+        } else {
+          this.form.get('email')?.enable({ emitEvent: false });
+        }
       });
 
     // One stream: province OR cart fingerprint changes → debounced quote refresh.
@@ -169,7 +189,6 @@ export class Checkout implements OnInit {
   }
 
   openLogin(): void {
-    // Theme login modal — real JWT wiring lands in guide 05; this does not block checkout.
     this.authService.redirectUrl = '/checkout';
     void this.loginModal()?.openModal();
   }

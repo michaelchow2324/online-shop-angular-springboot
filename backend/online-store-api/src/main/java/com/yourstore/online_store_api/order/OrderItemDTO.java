@@ -13,6 +13,9 @@ import lombok.Setter;
  * Mirrors the checkout snapshot on {@link ShopOrderItem}: name/sku/unitPrice are
  * copied at order time so later product catalog changes do not rewrite history.
  *
+ * {@code imageUrl} is resolved live from the current product media (not snapshotted).
+ * May be null if the product or media was removed.
+ *
  * {@code lineTotal} = unitPrice × quantity (also stored on the entity, not only derived).
  * Used only in responses — create requests use {@link CreateOrderRequest.OrderItemRequest}
  * (productId + quantity only).
@@ -29,4 +32,6 @@ public class OrderItemDTO {
     private BigDecimal unitPrice;
     private Integer quantity;
     private BigDecimal lineTotal;
+    /** Live catalog image URL; null if product/media missing. */
+    private String imageUrl;
 }

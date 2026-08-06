@@ -1,126 +1,102 @@
-import {
-  DatePipe,
-  Location,
-  AsyncPipe,
-  NgClass,
-  TitleCasePipe,
-  UpperCasePipe,
-} from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { CurrencyPipe, DatePipe, Location } from '@angular/common';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
-import { Observable, Subject, mergeMap, of, switchMap, takeUntil } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 
-import { PayModal } from '../../../../shared/components/widgets/modal/pay-modal/pay-modal';
-import { RefundModal } from '../../../../shared/components/widgets/modal/refund-modal/refund-modal';
-import { IOrderStatusModel } from '../../../../shared/interface/order-status.interface';
-import { IOrder } from '../../../../shared/interface/order.interface';
-import { IProduct } from '../../../../shared/interface/product.interface';
-import { CurrencySymbolPipe } from '../../../../shared/pipe/currency.pipe';
-import { TextConverterPipe } from '../../../../shared/pipe/text-converter.pipe';
-import { GetOrderStatusAction } from '../../../../shared/store/action/order-status.action';
-import {
-  DownloadInvoiceAction,
-  ViewOrderAction,
-} from '../../../../shared/store/action/order.action';
-import { OrderStatusState } from '../../../../shared/store/state/order-status.state';
+import { NoData } from '../../../../shared/components/widgets/no-data/no-data';
+import { ShopOrder, ShopOrderStatus } from '../../../../shared/interface/shop-order.interface';
+import { ViewOrderAction } from '../../../../shared/store/action/order.action';
 import { OrderState } from '../../../../shared/store/state/order.state';
 
+/**
+ * Account order detail — loads Spring {@code GET /api/orders/{orderNumber}}.
+ * (Multikart mock detail UI replaced for guide 05.)
+ */
 @Component({
   selector: 'app-details',
-  imports: [
-    TranslateModule,
-    RouterModule,
-    CurrencySymbolPipe,
-    NgbModule,
-    TextConverterPipe,
-    AsyncPipe,
-    DatePipe,
-    NgClass,
-    TitleCasePipe,
-    UpperCasePipe,
-  ],
-  providers: [DatePipe],
+  imports: [TranslateModule, RouterModule, NoData, CurrencyPipe, DatePipe],
   templateUrl: './details.html',
   styleUrl: './details.scss',
 })
-export class Details {
+export class Details implements OnInit {
   private store = inject(Store);
   private route = inject(ActivatedRoute);
-  private modal = inject(NgbModal);
-  private datePipe = inject(DatePipe);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
-  orderStatus$: Observable<IOrderStatusModel> = inject(Store).select(OrderStatusState.orderStatus);
+  public order: ShopOrder | null = null;
+  public loading = true;
+  public error: string | null = null;
 
-  private destroy$ = new Subject<void>();
-
-  public order: IOrder;
-  public isLogin: boolean;
-
-  constructor() {
-    this.store.dispatch(new GetOrderStatusAction());
-  }
-
-  ngOnInit() {
-    this.isLogin = !!this.store.selectSnapshot(state => state.auth && state.auth.access_token);
-    this.route.params
+  ngOnInit(): void {
+    this.route.paramMap
       .pipe(
         switchMap(params => {
-          if (!params['id']) return of();
-          return this.store
-            .dispatch(new ViewOrderAction(params['id']))
-            .pipe(mergeMap(() => this.store.select(OrderState.selectedOrder)));
+          const orderNumber = params.get('id');
+          if (!orderNumber) {
+            this.loading = false;
+            this.error = 'Missing order number.';
+            return of(null);
+          }
+          this.loading = true;
+          this.error = null;
+          return this.store.dispatch(new ViewOrderAction(orderNumber)).pipe(
+            switchMap(() => of(this.store.selectSnapshot(OrderState.selectedShopOrder))),
+          );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(order => {
-        this.order = order!;
-        if (this.order && this.order?.order_status_activities) {
-          this.order?.order_status_activities?.map(actStatus => {
-            this.orderStatus$.subscribe(res => {
-              res.data.map(status => {
-                if (actStatus.status == status.name) {
-                  let convertDate = this.datePipe.transform(
-                    actStatus?.changed_at,
-                    'dd MMM yyyy hh:mm:a',
-                  )!;
-                  status['activities_date'] = convertDate;
-                }
-              });
-            });
-          });
-        }
+      .subscribe({
+        next: order => {
+          this.loading = false;
+          this.order = order;
+          if (!order) {
+            this.error = this.error ?? 'Order not found.';
+          }
+        },
+        error: (err: Error) => {
+          this.loading = false;
+          this.order = null;
+          this.error = err?.message || 'Failed to load order.';
+        },
       });
   }
 
-  openPayModal(order: IOrder) {
-    const modal = this.modal.open(PayModal, { centered: true });
-    modal.componentInstance.orderDetails = order;
-  }
-
-  openRefundModal(product: IProduct, order_id: number) {
-    const modal = this.modal.open(RefundModal, {
-      centered: true,
-      windowClass: 'theme-modal-2 refund-modal',
-    });
-    modal.componentInstance.productDetails = product;
-    modal.componentInstance.orderId = order_id;
-  }
-
-  download(id: number) {
-    this.store.dispatch(new DownloadInvoiceAction({ order_number: id }));
-  }
-
-  back() {
+  back(): void {
     this.location.back();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  statusLabel(status: ShopOrderStatus): string {
+    switch (status) {
+      case 'PENDING_PAYMENT':
+        return 'Pending payment';
+      case 'PAID':
+        return 'Paid';
+      case 'FULFILLING':
+        return 'Preparing';
+      case 'SHIPPED':
+        return 'Shipped';
+      case 'CANCELLED':
+        return 'Cancelled';
+      case 'REFUNDED':
+        return 'Refunded';
+      default:
+        return status;
+    }
+  }
+
+  isZero(value: number | string | null | undefined): boolean {
+    return Number(value ?? 0) === 0;
+  }
+
+  hideBrokenImage(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (img) {
+      img.style.display = 'none';
+    }
   }
 }

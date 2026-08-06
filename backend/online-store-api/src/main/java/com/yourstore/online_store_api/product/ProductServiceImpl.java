@@ -189,15 +189,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductImage resolvePrimaryImage(Product p) {
-        // we seed primary image id into product table when we seed the images into the media table.
-        // getImageMediaId contains the id of the primary image.
+        // Two lookups, same reason as OrderServiceImpl.resolveLiveImageUrl:
+        // 1) product.image_media_id = preferred primary thumbnail (seeded / admin-chosen)
+        // 2) media gallery by entity = fallback if that id is null or the media row is gone
         if (p.getImageMediaId() != null) {
             Media media = mediaRepository.findById(p.getImageMediaId()).orElse(null);
             if (media != null) {
                 return toProductImage(media);
             }
         }
-        // if the primary image id is not set, we get the first image from the media table.
+        // if the primary image id is not set (or stale), use the first gallery image
         return mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc("product", p.getId())
                 .stream()
                 .findFirst()

@@ -51,7 +51,7 @@ export class AccountState {
         next: result => {
           ctx.patchState({
             user: result,
-            permissions: result.permission,
+            permissions: (result as { permission?: [] }).permission ?? [],
           });
         },
         error: err => {

@@ -21,17 +21,15 @@
             <tbody>
               @for(order of (order$ | async)?.data ;track order; let i = $index){
               <tr>
-                <td><span class="fw-bolder">#{{order.order_number}}</span></td>
+                <td><span class="fw-bolder">{{ order.order_number }}</span></td>
                 <td>{{ order?.created_at | date: 'dd MMM yyyy hh:mm:a' }}</td>
                 <td>{{ order?.total | currencySymbol }}</td>
                 <td>
-                  <div
-                    class="badge rounded-0 bg-{{order?.payment_status?.toLowerCase()}} custom-badge"
-                  >
-                    <span>{{ order?.payment_status | titlecase }}</span>
+                  <div class="badge rounded-0 custom-badge">
+                    <span>{{ order?.payment_status }}</span>
                   </div>
                 </td>
-                <td>{{ order?.payment_method?.toUpperCase() }}</td>
+                <td>{{ order?.payment_method | uppercase }}</td>
                 <td>
                   <a [routerLink]="['/account/order/details', order.order_number]"
                     ><i class="ri-eye-line"></i

@@ -3,6 +3,21 @@ export interface IAuthUserState {
   password: string;
 }
 
+/** POST /api/auth/login response */
+export interface AuthResponse {
+  accessToken: string;
+  email: string;
+  role: string;
+}
+
+/** GET /api/auth/me, register, verify-email response */
+export interface MeDTO {
+  id: number;
+  email: string;
+  role: string;
+  emailVerifiedAt: string | null;
+}
+
 export interface IAuthStateModal {
   email: string;
   token: String | Number;

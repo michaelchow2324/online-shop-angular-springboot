@@ -19,22 +19,30 @@
             <div class="col-lg-7">
               <div class="left-sidebar-checkout">
                 <div class="checkout-detail-box">
-                  <!-- Guest checkout is the default; login is optional (real auth in guide 05). -->
+                  <!-- Guest checkout is default; JWT attaches user_id on the server (guide 05). -->
                   <div class="checkout-form-section mb-3">
                     <div class="checkbox-main-box">
                       <div class="checkout-title1 d-flex flex-wrap align-items-center justify-content-between gap-2">
                         <h2>Checkout</h2>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline"
-                          (click)="openLogin()"
-                        >
-                          Log in
-                        </button>
+                        @if (!isLoggedIn) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline"
+                            (click)="openLogin()"
+                          >
+                            Log in
+                          </button>
+                        }
                       </div>
-                      <p class="mb-0 text-muted small">
-                        Checking out as a guest. Have an account? Log in is optional.
-                      </p>
+                      @if (isLoggedIn) {
+                        <p class="mb-0 text-muted small">
+                          Signed in as <strong>{{ accountEmail }}</strong>. Order will be saved to your account.
+                        </p>
+                      } @else {
+                        <p class="mb-0 text-muted small">
+                          Checking out as a guest. Have an account? Log in is optional.
+                        </p>
+                      }
                     </div>
                   </div>
 
@@ -237,10 +245,28 @@
 
                     <ul class="qty">
                       @for (item of cartItems; track item.id) {
-                        <li>
-                          <span>
-                            {{ item.product.name || 'Product' }} × {{ item.quantity }}
-                          </span>
+                        <li class="qty-line">
+                          <div class="qty-line-main">
+                            <div class="qty-thumb">
+                              @if (
+                                item?.variation?.variation_image?.original_url ||
+                                item?.product?.product_thumbnail?.original_url
+                              ) {
+                                <img
+                                  [src]="
+                                    item?.variation?.variation_image?.original_url ??
+                                    item?.product?.product_thumbnail?.original_url
+                                  "
+                                  [alt]="item.product?.name || 'Product'"
+                                />
+                              } @else {
+                                <div class="qty-thumb-placeholder" aria-hidden="true"></div>
+                              }
+                            </div>
+                            <span>
+                              {{ item.product.name || 'Product' }} × {{ item.quantity }}
+                            </span>
+                          </div>
                           <span>{{ item.sub_total | currency: 'CAD' }}</span>
                         </li>
                       }

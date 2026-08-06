@@ -42,21 +42,7 @@
   >
 </form>
 }
-<div class="divider">
-  <span>{{ 'or' | translate }}</span>
-</div>
 <p class="create">
   {{ 'no_account' | translate }}?
   <a href="javascript:void(0)" (click)="action('register')">{{ 'register_here' | translate }}</a>
 </p>
-
-@if((setting$ | async)?.activation?.login_number){
-<app-button
-  [class]="'btn number-btn'"
-  [id]="'login_btn'"
-  [iconClass]="'ri-smartphone-line'"
-  [spinner]="true"
-  (click)="loginWithNumber()"
-  >{{'login_with_number' | translate}}</app-button
->
-}

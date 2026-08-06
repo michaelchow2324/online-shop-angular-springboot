@@ -41,6 +41,8 @@ export interface ShopOrderItem {
   unitPrice: number;
   quantity: number;
   lineTotal: number;
+  /** Live catalog image from API; may be null if product/media missing. */
+  imageUrl?: string | null;
 }
 
 export interface ShopOrder {

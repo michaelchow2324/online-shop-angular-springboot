@@ -5,6 +5,7 @@ import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { tap } from 'rxjs';
 
 import { IOrder, IOrderCheckout } from '../../interface/order.interface';
+import { ShopOrder } from '../../interface/shop-order.interface';
 import { NotificationService } from '../../services/notification.service';
 import { OrderService } from '../../services/order.service';
 import {
@@ -23,6 +24,8 @@ export class OrderStateModel {
     total: 0,
   };
   selectedOrder: IOrder | null;
+  /** Real Spring order for account detail (guide 05). */
+  selectedShopOrder: ShopOrder | null;
   checkout: IOrderCheckout | null;
 }
 
@@ -34,6 +37,7 @@ export class OrderStateModel {
       total: 0,
     },
     selectedOrder: null,
+    selectedShopOrder: null,
     checkout: null,
   },
 })
@@ -54,24 +58,38 @@ export class OrderState {
   }
 
   @Selector()
+  static selectedShopOrder(state: OrderStateModel) {
+    return state.selectedShopOrder;
+  }
+
+  @Selector()
   static checkout(state: OrderStateModel) {
     return state.checkout;
   }
 
   @Action(GetOrdersAction)
-  getOrders(ctx: StateContext<OrderStateModel>, action: GetOrdersAction) {
-    return this.orderService.getOrders(action?.payload).pipe(
+  getOrders(ctx: StateContext<OrderStateModel>, _action: GetOrdersAction) {
+    // Guide 05: real API is a flat list of ShopOrder — map into Multikart table fields.
+    return this.orderService.getMyOrders().pipe(
       tap({
         next: result => {
+          const data = (result ?? []).map(o => ({
+            order_number: o.orderNumber,
+            created_at: o.createdAt,
+            total: o.total,
+            payment_status: o.status,
+            payment_method: 'stripe',
+          })) as unknown as IOrder[];
+
           ctx.patchState({
             order: {
-              data: result.data,
-              total: result?.total ? result?.total : result.data?.length,
+              data,
+              total: data.length,
             },
           });
         },
         error: err => {
-          throw new Error(err?.error?.message);
+          throw new Error(err?.error?.message || 'Failed to load orders');
         },
       }),
     );
@@ -80,20 +98,15 @@ export class OrderState {
   @Action(ViewOrderAction)
   viewOrder(ctx: StateContext<OrderStateModel>, { id }: ViewOrderAction) {
     this.orderService.skeletonLoader = true;
-    return this.orderService.getOrders().pipe(
+    // id is orderNumber (e.g. OS-20260806-A1B2) from /account/order/details/:id
+    return this.orderService.getByOrderNumber(String(id)).pipe(
       tap({
-        next: results => {
-          if (results && results.data) {
-            const state = ctx.getState();
-            const result = results.data.find(order => order.order_number == id);
-            ctx.patchState({
-              ...state,
-              selectedOrder: result,
-            });
-          }
+        next: shopOrder => {
+          ctx.patchState({ selectedShopOrder: shopOrder });
         },
         error: err => {
-          throw new Error(err?.error?.message);
+          ctx.patchState({ selectedShopOrder: null });
+          throw new Error(err?.error?.message || 'Order not found');
         },
         complete: () => {
           this.orderService.skeletonLoader = false;

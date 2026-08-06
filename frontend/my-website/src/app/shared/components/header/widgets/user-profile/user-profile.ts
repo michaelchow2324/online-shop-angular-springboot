@@ -50,7 +50,6 @@ export class UserProfile {
   }
 
   logout() {
-    alert(this.authService.isLogin);
     if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
       this.authService.isLogin = true;
     } else {

@@ -46,13 +46,26 @@
             <ul class="order-items">
               @for (item of order.items; track item.productId + '-' + item.sku) {
                 <li>
-                  <span>
-                    {{ item.productName }}
-                    @if (item.sku) {
-                      <small class="text-muted">({{ item.sku }})</small>
-                    }
-                    × {{ item.quantity }}
-                  </span>
+                  <div class="item-main">
+                    <div class="item-thumb">
+                      @if (item.imageUrl) {
+                        <img
+                          [src]="item.imageUrl"
+                          [alt]="item.productName"
+                          (error)="hideBrokenImage($event)"
+                        />
+                      } @else {
+                        <div class="item-thumb-placeholder" aria-hidden="true"></div>
+                      }
+                    </div>
+                    <span>
+                      {{ item.productName }}
+                      @if (item.sku) {
+                        <small class="text-muted">({{ item.sku }})</small>
+                      }
+                      × {{ item.quantity }}
+                    </span>
+                  </div>
                   <span>{{ item.lineTotal | currency: (order.currency || 'CAD') }}</span>
                 </li>
               }

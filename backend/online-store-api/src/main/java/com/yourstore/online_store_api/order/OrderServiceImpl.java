@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yourstore.common.NotFoundException;
+import com.yourstore.online_store_api.media.Media;
+import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
 import com.yourstore.online_store_api.shipping.ShippingService;
+import com.yourstore.online_store_api.storage.ImageStorageService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -29,16 +32,22 @@ public class OrderServiceImpl implements OrderService {
 
     private final ShopOrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final MediaRepository mediaRepository;
+    private final ImageStorageService imageStorageService;
     private final ShippingService shippingService;
     private final ApplicationEventPublisher eventPublisher;
 
     OrderServiceImpl(
             ShopOrderRepository orderRepository,
             ProductRepository productRepository,
+            MediaRepository mediaRepository,
+            ImageStorageService imageStorageService,
             ShippingService shippingService,
             ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.mediaRepository = mediaRepository;
+        this.imageStorageService = imageStorageService;
         this.shippingService = shippingService;
         this.eventPublisher = eventPublisher;
     }
@@ -251,7 +260,8 @@ public class OrderServiceImpl implements OrderService {
                         item.getProductName(),
                         item.getUnitPrice(),
                         item.getQuantity(),
-                        item.getLineTotal()))
+                        item.getLineTotal(),
+                        resolveLiveImageUrl(item.getProductId())))
                 .toList();
 
         return new OrderDTO(
@@ -279,6 +289,49 @@ public class OrderServiceImpl implements OrderService {
                 order.getShippedAt(),
                 order.getCreatedAt(),
                 itemDtos);
+    }
+
+    /**
+     * Live catalog image for order line display (not snapshotted on the order row).
+     * Returns null if the product or media is gone — UI should show a placeholder.
+     *
+     * Why two lookups (same idea as ProductServiceImpl.resolvePrimaryImage)?
+     *
+     * 1) {@code product.image_media_id} — fast path: seeded/chosen primary thumbnail id on the
+     *    product row. One PK lookup on {@code media}.
+     *
+     * 2) Query {@code media} by entity_type=product + entity_id — fallback when image_media_id
+     *    is null, or that media row was deleted. Uses is_primary ordering so we still get a
+     *    sensible thumbnail from whatever images remain.
+     *
+     * Not two different “image systems” — just preferred pointer, then gallery fallback.
+     */
+    private String resolveLiveImageUrl(Long productId) {
+        if (productId == null) {
+            return null;
+        }
+        Optional<Product> productOpt = productRepository.findById(productId);
+        if (productOpt.isEmpty()) {
+            return null;
+        }
+        Product product = productOpt.get();
+
+        // 1) Preferred: denormalized primary media id on product table
+        if (product.getImageMediaId() != null) {
+            Media media = mediaRepository.findById(product.getImageMediaId()).orElse(null);
+            if (media != null) {
+                return imageStorageService.publicUrl(media.getStorageKey());
+            }
+            // image_media_id pointed at a missing row — fall through to gallery query
+        }
+
+        // 2) Fallback: any media linked to this product (primary first)
+        return mediaRepository
+                .findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc("product", productId)
+                .stream()
+                .findFirst()
+                .map(media -> imageStorageService.publicUrl(media.getStorageKey()))
+                .orElse(null);
     }
 
     /**

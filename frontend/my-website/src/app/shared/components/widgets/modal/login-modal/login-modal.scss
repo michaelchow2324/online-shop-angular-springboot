@@ -1,0 +1,20 @@
+/* Compact auth modal — form only, no side image (guide 05). */
+.auth-modal.auth-modal-compact {
+  .modal-dialog {
+    max-width: 520px;
+  }
+
+  .modal-content {
+    .right-content {
+      /* Theme default translate(50%) was for split layout with the image */
+      transform: none;
+      width: 100%;
+      padding: 2rem 1.75rem;
+    }
+
+    &.open .right-content {
+      animation: none;
+      transform: none;
+    }
+  }
+}

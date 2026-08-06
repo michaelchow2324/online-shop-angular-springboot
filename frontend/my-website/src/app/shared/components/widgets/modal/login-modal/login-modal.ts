@@ -1,5 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  PLATFORM_ID,
+  TemplateRef,
+  ViewEncapsulation,
+  viewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -47,6 +54,8 @@ import { ThemeOptionState } from '../../../../store/state/theme-option.state';
   ],
   templateUrl: './login-modal.html',
   styleUrl: './login-modal.scss',
+  // Modal is attached to body; styles must not be encapsulated.
+  encapsulation: ViewEncapsulation.None,
 })
 export class LoginModal {
   private modalService = inject(NgbModal);
@@ -149,7 +158,7 @@ export class LoginModal {
         .open(this.LoginModal(), {
           ariaLabelledBy: 'Login-Modal',
           centered: true,
-          windowClass: 'modal-xl modal-dialog-centered auth-modal',
+          windowClass: 'modal-dialog-centered auth-modal auth-modal-compact',
         })
         .result.then(
           result => {
