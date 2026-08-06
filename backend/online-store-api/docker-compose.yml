@@ -36,6 +36,14 @@ services:
     depends_on:
       - db
 
+  # Local SMTP catcher (guide 06) — no real email account needed
+  # UI: http://localhost:8025  ·  SMTP: localhost:1025
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # UI
+
 volumes:
   db-data:
   minio-data:

@@ -28,3 +28,10 @@ stripe.secret-key=${STRIPE_SECRET_KEY:sk_test_replace_me}
 stripe.webhook-secret=${STRIPE_WEBHOOK_SECRET:whsec_replace_me}
 app.checkout.success-url=http://localhost:4200/checkout/success
 app.checkout.cancel-url=http://localhost:4200/cart
+
+# Local mail via Mailhog (guide 06) — UI http://localhost:8025
+spring.mail.host=localhost
+spring.mail.port=1025
+spring.mail.username=
+spring.mail.password=
+app.mail.from=orders@localhost

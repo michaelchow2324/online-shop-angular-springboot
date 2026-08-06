@@ -40,7 +40,8 @@ class AuthServiceTest {
     @Mock
     private JwtService jwtService;
 
-    @InjectMocks
+    // note that injectmock only injects mock we declared with @mock. the dependencies will get null if we don't declare them with @mock.
+    @InjectMocks // authservice is a real class, but we are injecting the mock dependencies: CustomerUserRepository userRepository, EmailVerificationTokenRepository tokenRepository, ShopOrderRepository orderRepository, PasswordEncoder passwordEncoder, JwtService jwtService
     private AuthService authService;
 
     @Test
