@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.yourstore.common.NotFoundException;
 import com.yourstore.online_store_api.media.Media;
 import com.yourstore.online_store_api.media.MediaRepository;
+import com.yourstore.online_store_api.notification.OrderPaidEvent;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
@@ -199,7 +200,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdatedAt(now);
         orderRepository.save(order);
 
-        // Guide 06 will listen; do not send email here
+        // Publish inside this @Transactional method so @TransactionalEventListener(AFTER_COMMIT)
+        // runs only after PAID is durable (guide 06). Do not send email here.
         eventPublisher.publishEvent(new OrderPaidEvent(order.getId()));
     }
 

@@ -87,12 +87,12 @@ public class PaymentServiceImpl implements PaymentService {
     // 1. Stripe Event (webhook)
     // Stripe’s JSON notification: “checkout finished.” 
 
-    // 2. Spring / Java app event (your OrderPaidEvent)
+    // 2. Spring / Java app event (OrderPaidEvent in notification package)
     // An object your app publishes inside the JVM so other code can react:
 
     // order marked PAID
-    // → eventPublisher.publishEvent(new OrderPaidEvent(orderId)) (java event)
-    // → later a listener sends email (guide 06)
+    // → eventPublisher.publishEvent(new OrderPaidEvent(orderId)) inside @Transactional
+    // → @TransactionalEventListener(AFTER_COMMIT) sends email (guide 06)
 
     @Override
     public void handleStripeWebhook(String payload, String sigHeader) throws SignatureVerificationException {

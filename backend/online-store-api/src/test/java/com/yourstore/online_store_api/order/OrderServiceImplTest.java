@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.media.MediaRepository;
+import com.yourstore.online_store_api.notification.OrderPaidEvent;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
