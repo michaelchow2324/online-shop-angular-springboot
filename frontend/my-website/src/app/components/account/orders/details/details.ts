@@ -11,6 +11,7 @@ import { NoData } from '../../../../shared/components/widgets/no-data/no-data';
 import { ShopOrder, ShopOrderStatus } from '../../../../shared/interface/shop-order.interface';
 import { ViewOrderAction } from '../../../../shared/store/action/order.action';
 import { OrderState } from '../../../../shared/store/state/order.state';
+import { displayCarrier, trackingUrl } from '../../../../shared/utils/tracking-url';
 
 /**
  * Account order detail — loads Spring {@code GET /api/orders/{orderNumber}}.
@@ -91,6 +92,14 @@ export class Details implements OnInit {
 
   isZero(value: number | string | null | undefined): boolean {
     return Number(value ?? 0) === 0;
+  }
+
+  trackPackageUrl(order: ShopOrder): string | null {
+    return trackingUrl(order.carrier, order.trackingNumber);
+  }
+
+  carrierLabel(carrier: string | null | undefined): string {
+    return displayCarrier(carrier);
   }
 
   hideBrokenImage(event: Event): void {

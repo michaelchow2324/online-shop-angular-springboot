@@ -3,6 +3,7 @@ package com.yourstore.online_store_api.notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -32,10 +33,16 @@ public class OrderNotificationListener {
     }
     
     // when an OrderPaidEvent is published, this method will be called.
-    // AFTER_COMMIT: After the transaction has committed, the method will be called.
-    // readOnly = true: The method will not modify the database. (increases performance)
+    // AFTER_COMMIT: After the transaction has committed, the method will be called. (transaction already separated by this annotation)
+    // REQUIRES_NEW: Spring forbids default @Transactional on @TransactionalEventListener;
+    // open a fresh read-only tx to reload the order after the payment tx committed.
+
+    // @TransactionalEventListener(AFTER_COMMIT) means: “run after the publishing transaction is already finished.”
+    // Default @Transactional (REQUIRED) means: “join the current transaction if one exists.”
+    // so spring dont know whether the transaction should be committed or joined.
+    // so we need to use REQUIRES_NEW to open a fresh read-only tx to reload the order after the payment tx committed.
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public void onPaid(OrderPaidEvent event) {
         try {
             orderRepository.findByIdWithItems(event.orderId()).ifPresentOrElse(
@@ -47,7 +54,7 @@ public class OrderNotificationListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public void onShipped(OrderShippedEvent event) {
         try {
             orderRepository.findByIdWithItems(event.orderId()).ifPresentOrElse(

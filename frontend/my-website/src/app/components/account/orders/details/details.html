@@ -45,10 +45,14 @@
         @if (order.carrier || order.trackingNumber) {
           <p class="mb-0">
             @if (order.carrier) {
-              Carrier: <strong>{{ order.carrier }}</strong>
+              Carrier: <strong>{{ carrierLabel(order.carrier) }}</strong>
             }
             @if (order.trackingNumber) {
               · Tracking: <strong>{{ order.trackingNumber }}</strong>
+            }
+            @if (trackPackageUrl(order); as url) {
+              ·
+              <a [href]="url" target="_blank" rel="noopener noreferrer">Track package</a>
             }
           </p>
         }

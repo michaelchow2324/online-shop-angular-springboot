@@ -7,6 +7,7 @@ import { tap } from 'rxjs';
 import { IAuthNumberLoginState } from '../../interface/auth.interface';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { roleFromJwt } from '../../utils/jwt-role';
 import { AccountClearAction, GetUserDetailsAction } from '../action/account.action';
 import {
   AuthClearAction,
@@ -25,6 +26,7 @@ export interface AuthStateModel {
   number: IAuthNumberLoginState | null;
   token: String | Number;
   access_token: String | null;
+  role: string | null;
   permissions: [];
 }
 
@@ -35,6 +37,7 @@ export interface AuthStateModel {
     token: '',
     number: null,
     access_token: '',
+    role: null,
     permissions: [],
   },
 })
@@ -58,6 +61,11 @@ export class AuthState {
   @Selector()
   static email(state: AuthStateModel): String {
     return state.email;
+  }
+
+  @Selector()
+  static role(state: AuthStateModel): string | null {
+    return state.role;
   }
 
   @Selector()
@@ -96,21 +104,21 @@ export class AuthState {
   login(ctx: StateContext<AuthStateModel>, action: LoginAction) {
     // JWT is persisted via NgxsStoragePlugin (keys includes 'auth') → localStorage.
     // AuthInterceptor reads access_token and sets Authorization: Bearer …
+    // Post-login navigation is handled by the login modal (avoid double navigate).
     return this.authService.login(action.payload).pipe(
       tap({
         next: res => {
+          const role =
+            (res.role || roleFromJwt(res.accessToken) || '').toString().toUpperCase() || null;
           ctx.patchState({
             email: res.email,
             token: '',
             access_token: res.accessToken,
+            role,
           });
+          // Drop previous account cache (e.g. USER) before loading the new session
+          this.store.dispatch(new AccountClearAction());
           this.store.dispatch(new GetUserDetailsAction());
-
-          const redirect = this.authService.redirectUrl;
-          if (redirect) {
-            this.authService.redirectUrl = undefined;
-            void this.router.navigateByUrl(redirect);
-          }
         },
         error: err => {
           throw new Error(err?.error?.message || 'Invalid email or password');
@@ -156,6 +164,7 @@ export class AuthState {
       email: '',
       token: '',
       access_token: null,
+      role: null,
       permissions: [],
     });
     this.authService.redirectUrl = undefined;

@@ -43,4 +43,22 @@ export class OrderService {
       `${environment.apiUrl}/orders/${encodeURIComponent(orderNumber)}`,
     );
   }
+
+  /** Admin: list orders by status (guide 07). Requires ADMIN JWT. */
+  adminListOrders(status: string = 'paid'): Observable<ShopOrder[]> {
+    return this.http.get<ShopOrder[]>(`${environment.apiUrl}/admin/orders`, {
+      params: { status },
+    });
+  }
+
+  /** Admin: mark order shipped with carrier + tracking. */
+  adminShipOrder(
+    orderNumber: string,
+    body: { carrier: string; trackingNumber: string },
+  ): Observable<ShopOrder> {
+    return this.http.post<ShopOrder>(
+      `${environment.apiUrl}/admin/orders/${encodeURIComponent(orderNumber)}/ship`,
+      body,
+    );
+  }
 }

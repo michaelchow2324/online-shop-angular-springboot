@@ -27,4 +27,14 @@ public interface OrderService {
    OrderDTO findOrderByOrderNumber(String orderNumber);
    List<OrderDTO> findOrdersByUserId(Long userId);
 
+   /** Admin list by status, newest first (guide 07). */
+   List<OrderDTO> findOrdersByStatus(OrderStatus status);
+
+   /**
+    * Mark order shipped with carrier + tracking (guide 07).
+    * Allowed from {@code PAID} or {@code FULFILLING}. Already-shipped with the same
+    * tracking is idempotent; different tracking is rejected.
+    */
+   OrderDTO shipOrder(String orderNumber, ShipOrderRequest request);
+
 }

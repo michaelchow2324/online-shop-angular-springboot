@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
+import com.yourstore.online_store_api.notification.OrderShippedEvent;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
@@ -246,12 +247,134 @@ class OrderServiceImplTest {
         verify(eventPublisher, never()).publishEvent(any());
     }
 
+    @Test
+    void shipOrder_fromPaid_setsTrackingAndPublishesEvent() {
+        ShopOrder order = paidOrder("OS-SHIP-1");
+        when(orderRepository.findByOrderNumber("OS-SHIP-1")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("canada_post");
+        req.setTrackingNumber("1234567890123456");
+
+        OrderDTO dto = orderService.shipOrder("OS-SHIP-1", req);
+
+        assertThat(dto.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+        assertThat(dto.getCarrier()).isEqualTo("canada_post");
+        assertThat(dto.getTrackingNumber()).isEqualTo("1234567890123456");
+        assertThat(dto.getShippedAt()).isNotNull();
+        verify(eventPublisher).publishEvent(new OrderShippedEvent(order.getId()));
+    }
+
+    @Test
+    void shipOrder_fromFulfilling_allowed() {
+        ShopOrder order = paidOrder("OS-SHIP-2");
+        order.setStatus(OrderStatus.FULFILLING);
+        when(orderRepository.findByOrderNumber("OS-SHIP-2")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("chit_chats");
+        req.setTrackingNumber("CC-999");
+
+        OrderDTO dto = orderService.shipOrder("OS-SHIP-2", req);
+
+        assertThat(dto.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+        assertThat(dto.getCarrier()).isEqualTo("chit_chats");
+        verify(eventPublisher).publishEvent(new OrderShippedEvent(order.getId()));
+    }
+
+    @Test
+    void shipOrder_alreadyShippedSameTracking_isIdempotent() {
+        ShopOrder order = paidOrder("OS-SHIP-3");
+        order.setStatus(OrderStatus.SHIPPED);
+        order.setCarrier("canada_post");
+        order.setTrackingNumber("1234567890123456");
+        order.setShippedAt(LocalDateTime.now());
+        when(orderRepository.findByOrderNumber("OS-SHIP-3")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("canada_post");
+        req.setTrackingNumber("1234567890123456");
+
+        OrderDTO dto = orderService.shipOrder("OS-SHIP-3", req);
+
+        assertThat(dto.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+        verify(orderRepository, never()).save(any(ShopOrder.class));
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void shipOrder_alreadyShippedDifferentTracking_rejected() {
+        ShopOrder order = paidOrder("OS-SHIP-4");
+        order.setStatus(OrderStatus.SHIPPED);
+        order.setCarrier("canada_post");
+        order.setTrackingNumber("OLD-TRACK");
+        when(orderRepository.findByOrderNumber("OS-SHIP-4")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("canada_post");
+        req.setTrackingNumber("NEW-TRACK");
+
+        assertThatThrownBy(() -> orderService.shipOrder("OS-SHIP-4", req))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already shipped");
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void shipOrder_pendingPayment_rejected() {
+        ShopOrder order = paidOrder("OS-SHIP-5");
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        when(orderRepository.findByOrderNumber("OS-SHIP-5")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("canada_post");
+        req.setTrackingNumber("123");
+
+        assertThatThrownBy(() -> orderService.shipOrder("OS-SHIP-5", req))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must be paid or fulfilling");
+    }
+
+    @Test
+    void findOrdersByStatus_returnsNewestFirstMappedDtos() {
+        ShopOrder a = paidOrder("OS-A");
+        ShopOrder b = paidOrder("OS-B");
+        when(orderRepository.findByStatusOrderByCreatedAtDesc(OrderStatus.PAID))
+                .thenReturn(List.of(a, b));
+
+        List<OrderDTO> result = orderService.findOrdersByStatus(OrderStatus.PAID);
+
+        assertThat(result).extracting(OrderDTO::getOrderNumber).containsExactly("OS-A", "OS-B");
+    }
+
     private static ShopOrder pendingOrderWithSession(String sessionId, String orderNumber) {
         ShopOrder order = new ShopOrder();
         order.setId(42L);
         order.setOrderNumber(orderNumber);
         order.setStatus(OrderStatus.PENDING_PAYMENT);
         order.setStripeCheckoutSessionId(sessionId);
+        return order;
+    }
+
+    private static ShopOrder paidOrder(String orderNumber) {
+        ShopOrder order = new ShopOrder();
+        order.setId(99L);
+        order.setOrderNumber(orderNumber);
+        order.setStatus(OrderStatus.PAID);
+        order.setEmail("buyer@example.com");
+        order.setCurrency("CAD");
+        order.setSubtotal(new BigDecimal("50.00"));
+        order.setShippingFee(new BigDecimal("9.95"));
+        order.setTax(new BigDecimal("0.00"));
+        order.setTotal(new BigDecimal("59.95"));
+        order.setShippingName("Alex");
+        order.setShippingLine1("123 King");
+        order.setShippingCity("Toronto");
+        order.setShippingProvince("ON");
+        order.setShippingPostal("M5H 1A1");
+        order.setShippingCountry("CA");
+        order.setShippingMethod("regular");
+        order.setPaidAt(LocalDateTime.now());
         return order;
     }
 

@@ -1,67 +1,71 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe } from "@angular/common";
 import {
   HTTP_INTERCEPTORS,
   HttpClient,
   provideHttpClient,
   withFetch,
   withInterceptorsFromDi,
-} from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule, provideRouter } from '@angular/router';
+} from "@angular/common/http";
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  provideZoneChangeDetection,
+} from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { RouterModule, provideRouter } from "@angular/router";
 
-import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
-import { NgxsModule } from '@ngxs/store';
-import { CarouselModule } from 'ngx-owl-carousel-o';
-import { ToastrModule } from 'ngx-toastr';
+import { LoadingBarRouterModule } from "@ngx-loading-bar/router";
+import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { NgxsStoragePluginModule } from "@ngxs/storage-plugin";
+import { NgxsModule } from "@ngxs/store";
+import { CarouselModule } from "ngx-owl-carousel-o";
+import { ToastrModule } from "ngx-toastr";
 
-import { routes } from './app.routes';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { GlobalErrorHandlerInterceptor } from './core/interceptors/global-error-handler.interceptor';
-import { LoaderInterceptor } from './core/interceptors/loader.interceptor';
-import { ErrorService } from './shared/services/error.service';
-import { NotificationService } from './shared/services/notification.service';
-import { SeoService } from './shared/services/seo.service';
-import { AccountState } from './shared/store/state/account.state';
-import { AttributeState } from './shared/store/state/attribute.state';
-import { AuthState } from './shared/store/state/auth.state';
-import { BlogState } from './shared/store/state/blog.state';
-import { BrandState } from './shared/store/state/brand.state';
-import { CartState } from './shared/store/state/cart.state';
-import { CategoryState } from './shared/store/state/category.state';
-import { CompareState } from './shared/store/state/compare.state';
-import { CountryState } from './shared/store/state/country.state';
-import { CouponState } from './shared/store/state/coupon.state';
-import { CurrencyState } from './shared/store/state/currency.state';
-import { DownloadState } from './shared/store/state/download.state';
-import { LoaderState } from './shared/store/state/loader.state';
-import { MenuState } from './shared/store/state/menu.state';
-import { NotificationState } from './shared/store/state/notification.state';
-import { OrderStatusState } from './shared/store/state/order-status.state';
-import { OrderState } from './shared/store/state/order.state';
-import { PageState } from './shared/store/state/page.state';
-import { PaymentDetailsState } from './shared/store/state/payment-details.state';
-import { PointState } from './shared/store/state/point.state';
-import { ProductState } from './shared/store/state/product.state';
-import { QuestionAnswersState } from './shared/store/state/questions-answers.state';
-import { RefundState } from './shared/store/state/refund.state';
-import { ReviewState } from './shared/store/state/review.state';
-import { SettingState } from './shared/store/state/setting.state';
-import { StateState } from './shared/store/state/state.state';
-import { StoreState } from './shared/store/state/store.state';
-import { SubscriptionState } from './shared/store/state/subscription.state';
-import { TagState } from './shared/store/state/tag.state';
-import { ThemeOptionState } from './shared/store/state/theme-option.state';
-import { ThemeState } from './shared/store/state/theme.state';
-import { WalletState } from './shared/store/state/wallet.state';
-import { WishlistState } from './shared/store/state/wishlist.state';
+import { routes } from "./app.routes";
+import { AuthInterceptor } from "./core/interceptors/auth.interceptor";
+import { GlobalErrorHandlerInterceptor } from "./core/interceptors/global-error-handler.interceptor";
+import { LoaderInterceptor } from "./core/interceptors/loader.interceptor";
+import { ErrorService } from "./shared/services/error.service";
+import { NotificationService } from "./shared/services/notification.service";
+import { SeoService } from "./shared/services/seo.service";
+import { AccountState } from "./shared/store/state/account.state";
+import { AttributeState } from "./shared/store/state/attribute.state";
+import { AuthState } from "./shared/store/state/auth.state";
+import { BlogState } from "./shared/store/state/blog.state";
+import { BrandState } from "./shared/store/state/brand.state";
+import { CartState } from "./shared/store/state/cart.state";
+import { CategoryState } from "./shared/store/state/category.state";
+import { CompareState } from "./shared/store/state/compare.state";
+import { CountryState } from "./shared/store/state/country.state";
+import { CouponState } from "./shared/store/state/coupon.state";
+import { CurrencyState } from "./shared/store/state/currency.state";
+import { DownloadState } from "./shared/store/state/download.state";
+import { LoaderState } from "./shared/store/state/loader.state";
+import { MenuState } from "./shared/store/state/menu.state";
+import { NotificationState } from "./shared/store/state/notification.state";
+import { OrderStatusState } from "./shared/store/state/order-status.state";
+import { OrderState } from "./shared/store/state/order.state";
+import { PageState } from "./shared/store/state/page.state";
+import { PaymentDetailsState } from "./shared/store/state/payment-details.state";
+import { PointState } from "./shared/store/state/point.state";
+import { ProductState } from "./shared/store/state/product.state";
+import { QuestionAnswersState } from "./shared/store/state/questions-answers.state";
+import { RefundState } from "./shared/store/state/refund.state";
+import { ReviewState } from "./shared/store/state/review.state";
+import { SettingState } from "./shared/store/state/setting.state";
+import { StateState } from "./shared/store/state/state.state";
+import { StoreState } from "./shared/store/state/store.state";
+import { SubscriptionState } from "./shared/store/state/subscription.state";
+import { TagState } from "./shared/store/state/tag.state";
+import { ThemeOptionState } from "./shared/store/state/theme-option.state";
+import { ThemeState } from "./shared/store/state/theme.state";
+import { WalletState } from "./shared/store/state/wallet.state";
+import { WishlistState } from "./shared/store/state/wishlist.state";
 
 export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+  return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
 }
 
 export const appConfig: ApplicationConfig = {
@@ -96,7 +100,7 @@ export const appConfig: ApplicationConfig = {
       CarouselModule,
       LoadingBarRouterModule,
       ToastrModule.forRoot({
-        positionClass: 'toast-top-center',
+        positionClass: "toast-top-center",
         preventDuplicates: true,
       }),
       TranslateModule.forRoot({
@@ -105,11 +109,14 @@ export const appConfig: ApplicationConfig = {
           useFactory: HttpLoaderFactory,
           deps: [HttpClient],
         },
-        defaultLanguage: 'en',
+        defaultLanguage: "en",
       }),
 
       NgxsModule.forRoot([
         AccountState,
+        // Auth must be root (not forFeature) so NgxsStoragePlugin rehydrates
+        // the JWT before the first route guard runs (e.g. /admin/orders).
+        AuthState,
         AttributeState,
         BlogState,
         BrandState,
@@ -142,13 +149,12 @@ export const appConfig: ApplicationConfig = {
         WalletState,
         WishlistState,
       ]),
-      NgxsModule.forFeature([AuthState]),
       RouterModule.forRoot(routes, {
-        anchorScrolling: 'enabled',
-        scrollPositionRestoration: 'enabled',
+        anchorScrolling: "enabled",
+        scrollPositionRestoration: "enabled",
       }),
       NgxsStoragePluginModule.forRoot({
-        keys: ['auth', 'account', 'theme_option', 'theme', 'setting', 'cart'],
+        keys: ["auth", "account", "theme_option", "theme", "setting", "cart"],
       }),
     ),
     provideHttpClient(withInterceptorsFromDi(), withFetch()),

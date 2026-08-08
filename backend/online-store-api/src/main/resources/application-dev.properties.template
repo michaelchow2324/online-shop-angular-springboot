@@ -38,3 +38,7 @@ app.mail.from=orders@localhost
 
 # Frontend origin for links in email (verify / reset). Prod: https://yourshop.com
 app.public-web-base-url=http://localhost:4200
+
+# Dev admin seed (guide 07) — creates ADMIN user if missing. Leave blank / omit in prod.
+# app.admin.email=admin@localhost
+# app.admin.password=admin-dev-only

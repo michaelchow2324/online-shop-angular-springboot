@@ -17,6 +17,7 @@ import com.yourstore.common.NotFoundException;
 import com.yourstore.online_store_api.media.Media;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
+import com.yourstore.online_store_api.notification.OrderShippedEvent;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
@@ -251,6 +252,71 @@ public class OrderServiceImpl implements OrderService {
                     return toDto(order);
                 })
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderDTO> findOrdersByStatus(OrderStatus status) {
+        return orderRepository.findByStatusOrderByCreatedAtDesc(status).stream()
+                .map(order -> {
+                    order.getItems().size();
+                    return toDto(order);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public OrderDTO shipOrder(String orderNumber, ShipOrderRequest request) {
+        ShopOrder order = orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
+
+        String carrier = request.getCarrier().trim();
+        String tracking = request.getTrackingNumber().trim();
+
+        // Idempotent: already shipped with the same tracking → return current state
+        if (order.getStatus() == OrderStatus.SHIPPED) {
+            if (trackingEquals(order.getTrackingNumber(), tracking)
+                    && carrierEquals(order.getCarrier(), carrier)) {
+                order.getItems().size();
+                return toDto(order);
+            }
+            throw new IllegalArgumentException(
+                    "Order already shipped with different tracking: " + orderNumber);
+        }
+
+        if (order.getStatus() != OrderStatus.PAID && order.getStatus() != OrderStatus.FULFILLING) {
+            throw new IllegalArgumentException(
+                    "Order must be paid or fulfilling to ship (current: " + order.getStatus() + ")");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setCarrier(carrier);
+        order.setTrackingNumber(tracking);
+        order.setStatus(OrderStatus.SHIPPED);
+        order.setShippedAt(now);
+        order.setUpdatedAt(now);
+        orderRepository.save(order);
+
+        // AFTER_COMMIT listener sends shipped email (guide 06 / 07)
+        eventPublisher.publishEvent(new OrderShippedEvent(order.getId()));
+
+        order.getItems().size();
+        return toDto(order);
+    }
+
+    private static boolean trackingEquals(String existing, String incoming) {
+        if (existing == null || existing.isBlank()) {
+            return false;
+        }
+        return existing.trim().equalsIgnoreCase(incoming);
+    }
+
+    private static boolean carrierEquals(String existing, String incoming) {
+        if (existing == null || existing.isBlank()) {
+            return false;
+        }
+        return existing.trim().equalsIgnoreCase(incoming);
     }
 
     private OrderDTO toDto(ShopOrder order) {

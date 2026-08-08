@@ -14,6 +14,7 @@ import { IBreadcrumb } from '../../../../shared/interface/breadcrumb.interface';
 import { ApiErrorBody, ShopOrder } from '../../../../shared/interface/shop-order.interface';
 import { OrderService } from '../../../../shared/services/order.service';
 import { ClearCartAction } from '../../../../shared/store/action/cart.action';
+import { displayCarrier, trackingUrl } from '../../../../shared/utils/tracking-url';
 
 /**
  * Stripe success_url lands here with ?order=OS-...
@@ -113,6 +114,14 @@ export class CheckoutSuccess implements OnInit {
 
   isZero(value: number | string | null | undefined): boolean {
     return Number(value ?? 0) === 0;
+  }
+
+  trackPackageUrl(order: ShopOrder): string | null {
+    return trackingUrl(order.carrier, order.trackingNumber);
+  }
+
+  carrierLabel(carrier: string | null | undefined): string {
+    return displayCarrier(carrier);
   }
 
   hideBrokenImage(event: Event): void {

@@ -12,6 +12,9 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
 
     // find all orders for a user (newest first)
     List<ShopOrder> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    /** Admin fulfillment list (guide 07) — newest first. */
+    List<ShopOrder> findByStatusOrderByCreatedAtDesc(OrderStatus status);
     
     Optional<ShopOrder> findByOrderNumber(String orderNumber);
 
