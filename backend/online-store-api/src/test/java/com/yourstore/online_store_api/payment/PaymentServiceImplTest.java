@@ -236,6 +236,8 @@ class PaymentServiceImplTest {
                 new BigDecimal("50.00"),
                 new BigDecimal("9.95"),
                 new BigDecimal("0.00"),
+                new BigDecimal("0.13"),
+                "HST",
                 new BigDecimal(total),
                 "Alex Guest",
                 null,

@@ -295,6 +295,12 @@
                           }
                         </span>
                       </li>
+                      @if (quote && quote.tax != null) {
+                        <li>
+                          {{ quote.taxName || 'Tax' }}
+                          <span class="count">{{ quote.tax | currency: 'CAD' }}</span>
+                        </li>
+                      }
                     </ul>
 
                     @if (quoteError) {

@@ -10,6 +10,8 @@ import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingProperties.ZoneRate;
 import com.yourstore.online_store_api.shipping.ShippingQuoteRequest.QuoteItemRequest;
+import com.yourstore.online_store_api.tax.TaxQuote;
+import com.yourstore.online_store_api.tax.TaxService;
 
 /**
  * Implements guide 02 shipping rules:
@@ -30,10 +32,15 @@ public class ShippingServiceImpl implements ShippingService {
 
     private final ShippingProperties shippingProperties;
     private final ProductRepository productRepository;
+    private final TaxService taxService;
 
-    ShippingServiceImpl(ShippingProperties shippingProperties, ProductRepository productRepository) {
+    ShippingServiceImpl(
+            ShippingProperties shippingProperties,
+            ProductRepository productRepository,
+            TaxService taxService) {
         this.shippingProperties = shippingProperties;
         this.productRepository = productRepository;
+        this.taxService = taxService;
     }
 
     @Override
@@ -99,6 +106,11 @@ public class ShippingServiceImpl implements ShippingService {
                 .setScale(2, RoundingMode.HALF_UP);
 
         int[] eta = estimatedDays(zone);
+        TaxQuote tax = taxService.quote(normalizedProvince, normalizedSubtotal, chargedFee);
+        BigDecimal estimatedTotal = normalizedSubtotal
+                .add(chargedFee)
+                .add(tax.amount())
+                .setScale(2, RoundingMode.HALF_UP);
 
         return new ShippingQuoteDTO(
                 zone,
@@ -107,8 +119,11 @@ public class ShippingServiceImpl implements ShippingService {
                 freeThreshold,
                 amountToFree,
                 eta[0],
-                eta[1]
-        );
+                eta[1],
+                tax.amount(),
+                tax.rate(),
+                tax.name(),
+                estimatedTotal);
     }
 
     private static String resolveZone(String province) {

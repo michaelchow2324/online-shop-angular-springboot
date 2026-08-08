@@ -109,7 +109,7 @@ public class MailService {
         sb.append("\n");
         appendMoneyLine(sb, "Subtotal", order.getSubtotal(), order.getCurrency());
         appendMoneyLine(sb, "Shipping", order.getShippingFee(), order.getCurrency());
-        appendMoneyLine(sb, "Tax", order.getTax(), order.getCurrency());
+        appendMoneyLine(sb, taxLabel(order), order.getTax(), order.getCurrency());
         appendMoneyLine(sb, "Total", order.getTotal(), order.getCurrency());
         sb.append("\nWe'll email you again when your order ships.\n");
         return sb.toString();
@@ -160,6 +160,13 @@ public class MailService {
             return cur + " 0.00";
         }
         return cur + " " + amount.setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    private static String taxLabel(ShopOrder order) {
+        if (order.getTaxName() != null && !order.getTaxName().isBlank()) {
+            return order.getTaxName().trim();
+        }
+        return "Tax";
     }
 
     private static String displayCarrier(String carrier) {

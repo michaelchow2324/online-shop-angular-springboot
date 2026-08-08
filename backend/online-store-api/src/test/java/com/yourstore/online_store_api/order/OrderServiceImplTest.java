@@ -33,6 +33,8 @@ import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
 import com.yourstore.online_store_api.shipping.ShippingService;
 import com.yourstore.online_store_api.storage.ImageStorageService;
+import com.yourstore.online_store_api.tax.TaxQuote;
+import com.yourstore.online_store_api.tax.TaxService;
 
 // command to run this test: ./mvnw "-Dtest=OrderServiceImplTest,ShopOrderRepositoryTest" test
 /**
@@ -58,6 +60,9 @@ class OrderServiceImplTest {
     private ShippingService shippingService;
 
     @Mock
+    private TaxService taxService;
+
+    @Mock
     private ApplicationEventPublisher eventPublisher;
 
     // injectMocks: inject the mock dependencies into the orderService
@@ -81,7 +86,25 @@ class OrderServiceImplTest {
                         new BigDecimal("75.00"),
                         new BigDecimal("25.00"),
                         1,
-                        3)); // fake shipping quote, always return the ON shipping quote, thershold, amount to free shipping.
+                        3,
+                        new BigDecimal("7.79"),
+                        new BigDecimal("0.1300"),
+                        "HST",
+                        new BigDecimal("67.74")));
+        lenient().when(taxService.quote(anyString(), any(BigDecimal.class), any(BigDecimal.class)))
+                .thenAnswer(invocation -> {
+                    BigDecimal sub = invocation.getArgument(1);
+                    BigDecimal ship = invocation.getArgument(2);
+                    BigDecimal taxable = sub.add(ship);
+                    BigDecimal amount = taxable
+                            .multiply(new BigDecimal("0.13"))
+                            .setScale(2, java.math.RoundingMode.HALF_UP);
+                    return new TaxQuote(
+                            new BigDecimal("0.1300"),
+                            "HST",
+                            taxable.setScale(2, java.math.RoundingMode.HALF_UP),
+                            amount);
+                });
     }
 
     @Test
@@ -103,8 +126,10 @@ class OrderServiceImplTest {
         assertThat(dto.getSubtotal()).isEqualByComparingTo("50.00"); // 25 * 2
         assertThat(dto.getShippingFee()).isEqualByComparingTo("9.95"); // from shippingService mock
         assertThat(dto.getShippingZone()).isEqualTo("ON");
-        assertThat(dto.getTax()).isEqualByComparingTo("0.00");
-        assertThat(dto.getTotal()).isEqualByComparingTo("59.95"); // 50 + 9.95
+        assertThat(dto.getTax()).isEqualByComparingTo("7.79"); // 13% HST on 50 + 9.95
+        assertThat(dto.getTaxRate()).isEqualByComparingTo("0.1300");
+        assertThat(dto.getTaxName()).isEqualTo("HST");
+        assertThat(dto.getTotal()).isEqualByComparingTo("67.74"); // 50 + 9.95 + 7.79
         assertThat(dto.getOrderNumber()).startsWith("OS-");
 
         assertThat(dto.getItems()).hasSize(1);

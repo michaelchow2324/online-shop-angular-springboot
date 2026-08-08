@@ -107,7 +107,7 @@
           </div>
           @if (order.tax != null && !isZero(order.tax)) {
             <div>
-              <dt>Tax</dt>
+              <dt>{{ order.taxName || 'Tax' }}</dt>
               <dd>{{ order.tax | currency: (order.currency || 'CAD') }}</dd>
             </div>
           }

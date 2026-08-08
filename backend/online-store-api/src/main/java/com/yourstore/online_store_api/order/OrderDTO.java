@@ -37,6 +37,10 @@ public class OrderDTO {
     private BigDecimal subtotal;
     private BigDecimal shippingFee;
     private BigDecimal tax;
+    /** Rate applied at checkout (e.g. 0.13 for ON HST); null on legacy rows. */
+    private BigDecimal taxRate;
+    /** e.g. HST / GST; null on legacy rows. */
+    private String taxName;
     private BigDecimal total;
 
     private String shippingName;

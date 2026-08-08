@@ -19,3 +19,26 @@ app:
   # Guide 08 — abandon unpaid Stripe checkouts after this many hours
   orders:
     pending-payment-ttl-hours: 24
+  # Guide 08 — destination GST/HST (Ontario seller). Dual-tax provinces: GST only for now.
+  tax:
+    default-rate:
+      rate: 0.05
+      name: GST
+    rates:
+      # Quote ON — YAML 1.1 treats bare ON as boolean true (same as shipping.zones)
+      "ON":
+        rate: 0.13
+        name: HST
+      NB:
+        rate: 0.15
+        name: HST
+      NL:
+        rate: 0.15
+        name: HST
+      NS:
+        rate: 0.14
+        name: HST
+      PE:
+        rate: 0.15
+        name: HST
+      # BC/MB/SK/QC: no entry → default GST 5% only (PST/QST not collected yet)

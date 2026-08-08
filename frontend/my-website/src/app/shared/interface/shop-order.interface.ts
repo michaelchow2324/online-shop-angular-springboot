@@ -53,6 +53,10 @@ export interface ShopOrder {
   subtotal: number;
   shippingFee: number;
   tax: number;
+  /** Snapshot rate at checkout (e.g. 0.13); may be null on older orders. */
+  taxRate?: number | null;
+  /** e.g. HST / GST */
+  taxName?: string | null;
   total: number;
   shippingName: string;
   shippingPhone: string | null;
@@ -86,6 +90,10 @@ export interface ShippingQuote {
   amountToFreeShipping: number;
   estimatedDaysMin: number | null;
   estimatedDaysMax: number | null;
+  tax?: number | null;
+  taxRate?: number | null;
+  taxName?: string | null;
+  estimatedTotal?: number | null;
 }
 
 /** POST /api/checkout/sessions response — redirect browser to checkoutUrl. */

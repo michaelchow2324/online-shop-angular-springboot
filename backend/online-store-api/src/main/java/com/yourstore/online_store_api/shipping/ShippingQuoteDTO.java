@@ -9,7 +9,8 @@ import lombok.Setter;
 
 /**
  * Result of {@link ShippingService#quote}.
- * Used by checkout UI ({@code fee}, {@code amountToFreeShipping}) and order create ({@code fee}, {@code zone}).
+ * Used by checkout UI ({@code fee}, {@code amountToFreeShipping}, tax estimate)
+ * and order create ({@code fee}, {@code zone}).
  */
 @Getter
 @Setter
@@ -25,4 +26,11 @@ public class ShippingQuoteDTO {
     /** Optional ETA copy; null if unused. */
     private Integer estimatedDaysMin;
     private Integer estimatedDaysMax;
+
+    /** Estimated tax on (cart subtotal + shipping) for the destination province. */
+    private BigDecimal tax;
+    private BigDecimal taxRate;
+    private String taxName;
+    /** subtotal + fee + tax (server-side estimate for checkout UI). */
+    private BigDecimal estimatedTotal;
 }

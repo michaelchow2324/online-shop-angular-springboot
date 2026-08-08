@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingProperties.ZoneRate;
+import com.yourstore.online_store_api.tax.TaxProperties;
+import com.yourstore.online_store_api.tax.TaxService;
 
 /**
  * Pure unit tests for {@link ShippingServiceImpl#quote(String, String, BigDecimal)}.
@@ -34,7 +36,13 @@ class ShippingServiceImplTest {
                 "ON", new ZoneRate(new BigDecimal("9.95"), new BigDecimal("75")),
                 "ROC", new ZoneRate(new BigDecimal("16.95"), new BigDecimal("120")),
                 "REMOTE", new ZoneRate(new BigDecimal("24.95"), new BigDecimal("150"))));
-        shippingService = new ShippingServiceImpl(properties, productRepository);
+        TaxProperties taxProperties = new TaxProperties(
+                Map.of(
+                        "ON", new TaxProperties.ProvinceRate(new BigDecimal("0.13"), "HST"),
+                        "NB", new TaxProperties.ProvinceRate(new BigDecimal("0.15"), "HST")),
+                new TaxProperties.ProvinceRate(new BigDecimal("0.05"), "GST"));
+        TaxService taxService = new TaxService(taxProperties);
+        shippingService = new ShippingServiceImpl(properties, productRepository, taxService);
     }
 
     @Test
@@ -46,6 +54,11 @@ class ShippingServiceImplTest {
         assertThat(quote.getFee()).isEqualByComparingTo("9.95");
         assertThat(quote.getFreeThreshold()).isEqualByComparingTo("75.00");
         assertThat(quote.getAmountToFreeShipping()).isEqualByComparingTo("25.00");
+        // HST 13% on (50 + 9.95)
+        assertThat(quote.getTaxName()).isEqualTo("HST");
+        assertThat(quote.getTaxRate()).isEqualByComparingTo("0.1300");
+        assertThat(quote.getTax()).isEqualByComparingTo("7.79");
+        assertThat(quote.getEstimatedTotal()).isEqualByComparingTo("67.74");
     }
 
     @Test

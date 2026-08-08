@@ -25,6 +25,8 @@ import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
 import com.yourstore.online_store_api.shipping.ShippingService;
 import com.yourstore.online_store_api.storage.ImageStorageService;
+import com.yourstore.online_store_api.tax.TaxQuote;
+import com.yourstore.online_store_api.tax.TaxService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -38,6 +40,7 @@ public class OrderServiceImpl implements OrderService {
     private final MediaRepository mediaRepository;
     private final ImageStorageService imageStorageService;
     private final ShippingService shippingService;
+    private final TaxService taxService;
     private final ApplicationEventPublisher eventPublisher;
 
     OrderServiceImpl(
@@ -46,12 +49,14 @@ public class OrderServiceImpl implements OrderService {
             MediaRepository mediaRepository,
             ImageStorageService imageStorageService,
             ShippingService shippingService,
+            TaxService taxService,
             ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.mediaRepository = mediaRepository;
         this.imageStorageService = imageStorageService;
         this.shippingService = shippingService;
+        this.taxService = taxService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -145,12 +150,16 @@ public class OrderServiceImpl implements OrderService {
         order.setShippingZone(quoteDTO.getZone());
         order.setShippingMethod(quoteDTO.getMethod());
 
-        BigDecimal tax = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        // Guide 08: destination GST/HST on (subtotal + shipping); snapshot rate on the order
+        TaxQuote taxQuote = taxService.quote(normalizedProvince, subtotal, shippingFee);
+        BigDecimal tax = taxQuote.amount();
         BigDecimal total = subtotal.add(shippingFee).add(tax);
 
         order.setSubtotal(subtotal);
         order.setShippingFee(shippingFee);
         order.setTax(tax);
+        order.setTaxRate(taxQuote.rate());
+        order.setTaxName(taxQuote.name());
         order.setTotal(total);
 
         LocalDateTime now = LocalDateTime.now();
@@ -368,6 +377,8 @@ public class OrderServiceImpl implements OrderService {
                 order.getSubtotal(),
                 order.getShippingFee(),
                 order.getTax(),
+                order.getTaxRate(),
+                order.getTaxName(),
                 order.getTotal(),
                 order.getShippingName(),
                 order.getShippingPhone(),

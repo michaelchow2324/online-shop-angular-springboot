@@ -184,8 +184,12 @@ export class Checkout implements OnInit {
   }
 
   get estimatedTotal(): number {
+    if (this.quote?.estimatedTotal != null) {
+      return Number(this.quote.estimatedTotal);
+    }
     const fee = this.quote?.fee ?? 0;
-    return this.cartSubtotal + Number(fee);
+    const tax = this.quote?.tax ?? 0;
+    return this.cartSubtotal + Number(fee) + Number(tax);
   }
 
   openLogin(): void {

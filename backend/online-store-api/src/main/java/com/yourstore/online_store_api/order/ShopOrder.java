@@ -70,6 +70,14 @@ public class ShopOrder {
     @Column(nullable = false)
     private BigDecimal tax;
 
+    /** Snapshot of the GST/HST rate applied at checkout (e.g. 0.1300). */
+    @Column(name = "tax_rate", precision = 7, scale = 4)
+    private BigDecimal taxRate;
+
+    /** Label for the rate used (e.g. HST, GST). */
+    @Column(name = "tax_name", length = 32)
+    private String taxName;
+
     @NotNull(message = "Total is required")
     @Digits(integer = 10, fraction = 2)
     @Column(nullable = false)
