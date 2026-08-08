@@ -1,3 +1,6 @@
+# Merge with local infra:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+# See ../../DOCKER.md
 version: "3.8"
 services:
   app:

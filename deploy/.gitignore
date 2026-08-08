@@ -1,1 +1,8 @@
+# Local production secrets — never commit
 .env.prod
+.env.prod.*
+!.env.prod.*.example
+
+# Prefer tracked checklist: env.prod.example (no leading dot)
+.env
+.env.*

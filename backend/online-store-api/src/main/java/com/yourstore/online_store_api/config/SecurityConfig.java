@@ -84,9 +84,16 @@ public class SecurityConfig {
                                 "/error",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/actuator/**"
+                                "/swagger-ui.html"
                         ).permitAll()
+
+                        // Guide 08 — liveness only; keep env/beans/etc off the public internet
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/actuator/info"
+                        ).permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
 
                         // Auth entry points — must be public or nobody could register/login
                         .requestMatchers(HttpMethod.POST,

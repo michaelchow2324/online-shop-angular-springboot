@@ -6,6 +6,8 @@ Thumbs.db
 *.swp
 .idea/
 *.iml
+.vscode/
+*.code-workspace
 
 # Python (e.g. frontend/.venv for write_zh_hk.py)
 .venv/
@@ -13,13 +15,42 @@ venv/
 __pycache__/
 *.pyc
 
-# Env / secrets — never commit
+# =============================================================================
+# Secrets / local config — NEVER commit
+# Templates (*.template, env.*.example) stay tracked.
+# =============================================================================
+
+# Dotenv (all packages)
 .env
 .env.*
-!.env.*.example
-!.env.prod.example
-**/.env.prod
+**/.env
+**/.env.*
+!**/.env.*.example
+!**/env.*.example
+
+# Deploy local secrets (example without leading dot is OK to commit: env.prod.example)
+deploy/.env.prod
+deploy/.env.prod.example
+
+# Spring Boot local overrides (real DB / Stripe / JWT / MinIO)
+**/application.properties
 **/application-dev.properties
+**/application-local.properties
+**/application-secret.properties
+# Keep safe committed stubs + templates:
+#   application-prod.properties, application-staging.properties
+#   application*.properties.template
+
+# Keys, certs, credential dumps
+*.pem
+*.p12
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+**/credentials.json
+**/service-account*.json
+**/google-services.json
 
 # Node (frontend)
 **/node_modules/
@@ -32,9 +63,9 @@ __pycache__/
 # Logs & local tooling
 *.log
 .npm/
-deploy/.env.prod.example
+
+# Private deploy notes (optional local-only docs)
 deploy/Caddyfile
 deploy/GIT_MONOREPO_FIX.md
 deploy/HETZNER_SERVER_SETUP.md
 DEPLOYMENT_PLAN.md
-backend/online-store-api/src/main/resources/application.properties

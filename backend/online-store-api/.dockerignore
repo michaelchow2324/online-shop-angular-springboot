@@ -2,6 +2,8 @@ target/
 .git/
 .idea/
 *.iml
+# Never bake local secrets into the image
+application.properties
 application-dev.properties
 .env
 .env.*

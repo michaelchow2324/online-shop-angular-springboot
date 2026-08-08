@@ -1,0 +1,22 @@
+# Copy to application.properties for local defaults (gitignored).
+# Prefer profile files: application-dev.properties (local) / application-prod.properties (env).
+
+spring.application.name=online-store-api
+server.port=8080
+spring.jpa.hibernate.ddl-auto=none
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+
+# Secrets — override via env in any non-toy environment
+app.jwt.secret=${APP_JWT_SECRET:dev-only-change-me-use-a-long-secret-key!!}
+app.jwt.expiration-ms=86400000
+
+spring.mail.host=${SPRING_MAIL_HOST:localhost}
+spring.mail.port=${SPRING_MAIL_PORT:1025}
+spring.mail.username=${SPRING_MAIL_USERNAME:}
+spring.mail.password=${SPRING_MAIL_PASSWORD:}
+app.mail.from=${APP_MAIL_FROM:orders@localhost}
+
+app.public-web-base-url=${APP_PUBLIC_WEB_BASE_URL:http://localhost:4200}
+
+# Shipping / tax / actuator: see application.yml (@ConfigurationProperties)

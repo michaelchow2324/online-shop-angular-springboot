@@ -1,5 +1,6 @@
 # Copy this file to application-dev.properties and fill in the real values.
 # application-dev.properties is git-ignored and must NEVER be committed.
+# Prefer env vars for secrets when possible (see application-prod.properties).
 
 server.port=8080
 spring.datasource.url=jdbc:postgresql://localhost:5432/storedb
@@ -19,11 +20,15 @@ storage.minio.bucket=YOUR_BUCKET_NAME
 # Instagram Graph API
 # Generate a token from: https://developers.facebook.com/apps/YOUR_APP_ID/instagram-api/
 # The backend auto-refreshes this token every 50 days — no manual renewal needed.
-instagram.access-token=YOUR_INSTAGRAM_ACCESS_TOKEN
+instagram.access-token=${INSTAGRAM_ACCESS_TOKEN:YOUR_INSTAGRAM_ACCESS_TOKEN}
 
-# Shipping zone rates live in application.yml (app.shipping.zones) — see guide 02.
+# Shipping zone rates live in application.yml (app.shipping.zones) — ShippingProperties only (guide 02 / 08).
 
-# Stripe (test mode) — see guide 03. Never commit real keys.
+# JWT — override via APP_JWT_SECRET in shared/dev machines
+app.jwt.secret=${APP_JWT_SECRET:dev-only-change-me-use-a-long-secret-key!!}
+app.jwt.expiration-ms=86400000
+
+# Stripe (test mode) — see guide 03. Never commit sk_live_ or real secrets.
 stripe.secret-key=${STRIPE_SECRET_KEY:sk_test_replace_me}
 stripe.webhook-secret=${STRIPE_WEBHOOK_SECRET:whsec_replace_me}
 app.checkout.success-url=http://localhost:4200/checkout/success
