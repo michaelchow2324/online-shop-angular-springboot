@@ -12,6 +12,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 
+import { IAccountUserUpdatePassword } from '../../../../interface/account.interface';
 import { UpdateUserPasswordAction } from '../../../../store/action/account.action';
 import { CustomValidators } from '../../../../validator/password-match';
 import { Button } from '../../button/button';
@@ -33,7 +34,7 @@ export class ChangePasswordModal {
     this.form = this.formBuilder.group(
       {
         current_password: new FormControl('', [Validators.required]),
-        password: new FormControl('', [Validators.required]),
+        password: new FormControl('', [Validators.required, Validators.minLength(8)]),
         password_confirmation: new FormControl('', [Validators.required]),
       },
       { validator: CustomValidators.MatchValidator('password', 'password_confirmation') },
@@ -47,7 +48,13 @@ export class ChangePasswordModal {
   submit() {
     this.form.markAllAsTouched();
     if (this.form.valid) {
-      this.store.dispatch(new UpdateUserPasswordAction(this.form.value)).subscribe({
+      const raw = this.form.value;
+      const payload: IAccountUserUpdatePassword = {
+        current_password: raw.current_password,
+        new_password: raw.password,
+        confirm_password: raw.password_confirmation,
+      };
+      this.store.dispatch(new UpdateUserPasswordAction(payload)).subscribe({
         complete: () => {
           this.form.reset();
         },

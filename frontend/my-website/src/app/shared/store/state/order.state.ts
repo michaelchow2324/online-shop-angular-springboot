@@ -99,7 +99,7 @@ export class OrderState {
   viewOrder(ctx: StateContext<OrderStateModel>, { id }: ViewOrderAction) {
     this.orderService.skeletonLoader = true;
     // id is orderNumber (e.g. OS-20260806-A1B2) from /account/order/details/:id
-    return this.orderService.getByOrderNumber(String(id)).pipe(
+    return this.orderService.getMyOrder(String(id)).pipe(
       tap({
         next: shopOrder => {
           ctx.patchState({ selectedShopOrder: shopOrder });

@@ -1,5 +1,5 @@
 import { IAccountUserUpdatePassword } from '../../interface/account.interface';
-import { IUserAddress } from '../../interface/user.interface';
+import { UpsertAddressRequest } from '../../interface/customer-address.interface';
 
 export class GetUserDetailsAction {
   static readonly type = '[Account] User Get';
@@ -8,7 +8,7 @@ export class GetUserDetailsAction {
 
 export class UpdateUserProfileAction {
   static readonly type = '[Account] User Update';
-  constructor(public payload: any) {}
+  constructor(public payload: { displayName: string }) {}
 }
 
 export class UpdateUserPasswordAction {
@@ -16,21 +16,31 @@ export class UpdateUserPasswordAction {
   constructor(public payload: IAccountUserUpdatePassword) {}
 }
 
+export class GetAddressesAction {
+  static readonly type = '[Account] Address List';
+  constructor() {}
+}
+
 export class CreateAddressAction {
   static readonly type = '[Account] Address Create';
-  constructor(public payload: IUserAddress) {}
+  constructor(public payload: UpsertAddressRequest) {}
 }
 
 export class UpdateAddressAction {
   static readonly type = '[Account] Address Edit';
   constructor(
-    public payload: IUserAddress,
+    public payload: UpsertAddressRequest,
     public id: number,
   ) {}
 }
 
 export class DeleteAddressAction {
   static readonly type = '[Account] Address Delete';
+  constructor(public id: number) {}
+}
+
+export class SetDefaultAddressAction {
+  static readonly type = '[Account] Address Set Default';
   constructor(public id: number) {}
 }
 

@@ -9,131 +9,84 @@
     <i class="ri-close-line"></i>
   </app-button>
 </div>
-<form [formGroup]="form" class="" (ngSubmit)="submit()">
+<form [formGroup]="form" (ngSubmit)="submit()">
   <div class="modal-body">
     <div class="row g-sm-4 g-2">
-      <div class="col-xxl-12">
+      <div class="col-md-6">
         <div class="form-box">
-          <label class="form-label" for="pname">{{ 'title' | translate }}</label>
-          <input
-            class="form-control"
-            id="title"
-            type="text"
-            placeholder="{{ 'enter_title' | translate }}"
-            formControlName="title"
-          />
-          @if(form.controls['title'].touched && form.controls['title'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'title_is_required' | translate }}</div>
+          <label class="form-label" for="label">{{ 'title' | translate }}</label>
+          <input class="form-control" id="label" type="text" formControlName="label" />
+          @if (form.controls['label'].touched && form.controls['label'].errors?.['required']) {
+            <div class="invalid-feedback d-block">{{ 'title_is_required' | translate }}</div>
+          }
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-box">
+          <label class="form-label" for="recipientName">{{ 'name' | translate }}</label>
+          <input class="form-control" id="recipientName" type="text" formControlName="recipientName" />
+          @if (form.controls['recipientName'].touched && form.controls['recipientName'].errors?.['required']) {
+            <div class="invalid-feedback d-block">{{ 'name_is_required' | translate }}</div>
           }
         </div>
       </div>
       <div class="col-12">
         <div class="form-box">
-          <label class="form-label" for="address1">{{ 'address' | translate }}</label>
-          <input
-            class="form-control"
-            id="address"
-            type="text"
-            placeholder="{{ 'enter_address' | translate }}"
-            formControlName="street"
-          />
-          @if(form.controls['street'].touched && form.controls['street'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'street_address_is_required' | translate }}</div>
+          <label class="form-label" for="line1">{{ 'address' | translate }}</label>
+          <input class="form-control" id="line1" type="text" formControlName="line1" />
+          @if (form.controls['line1'].touched && form.controls['line1'].errors?.['required']) {
+            <div class="invalid-feedback d-block">{{ 'street_address_is_required' | translate }}</div>
           }
         </div>
       </div>
-      <div class="col-12 phone-field">
+      <div class="col-12">
         <div class="form-box">
-          <label class="form-label" for="address1">{{ 'phone_number' | translate }}</label>
-          <select2
-            class="custom-select intl-tel-input"
-            [templates]="template"
-            [data]="codes"
-            formControlName="country_code"
-          >
-            <ng-template #template let-data="data">
-              <div class="country">
-                <div class="flag-box">
-                  <div class="iti-flag {{data?.class}}"></div>
-                </div>
-                <span class="dial-code">{{data?.code}}</span>
-              </div>
-            </ng-template>
-          </select2>
-          <input
-            type="number"
-            class="form-control intl-input-padding"
-            formControlName="phone"
-            placeholder="{{ 'enter_phone' | translate }}"
-            name="phone"
-          />
-          @if(form.controls['phone'].touched && form.controls['phone'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'phone_number_is_required' | translate }}</div>
-          } @if(form.controls['phone'].touched && form.controls['phone'].errors?.['pattern']){
-          <div class="invalid-feedback">{{ 'phone_number_is_invalid' | translate }}</div>
-          }
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="form-box">
-          <label class="form-label" for="address1">{{ 'country' | translate }}</label>
-          <select2
-            class="custom-select"
-            [data]="(countries$ | async) ? (countries$ | async)! : []"
-            [placeholder]="'select_country' | translate"
-            formControlName="country_id"
-            (update)="countryChange($event)"
-            resettable
-          />
-          @if(form.controls['country_id'].touched &&
-          form.controls['country_id'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'country_is_required' | translate }}</div>
-          }
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="form-box">
-          <label class="form-label" for="state">{{ 'state' | translate }}</label>
-          <select2
-            class="custom-select"
-            [data]="(states$ | async) ? (states$ | async)! : []"
-            [placeholder]="'select_state' | translate"
-            formControlName="state_id"
-          />
-          @if(form.controls['state_id'].touched && form.controls['state_id'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'state_is_required' | translate }}</div>
-          }
+          <label class="form-label" for="line2">Address line 2</label>
+          <input class="form-control" id="line2" type="text" formControlName="line2" />
         </div>
       </div>
       <div class="col-sm-6">
         <div class="form-box">
           <label class="form-label" for="city">{{ 'city' | translate }}</label>
-          <input
-            class="form-control"
-            id="city"
-            type="text"
-            placeholder="{{ 'enter_city' | translate }}"
-            formControlName="city"
-          />
-          @if(form.controls['city'].touched && form.controls['city'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'city_is_required' | translate }}</div>
+          <input class="form-control" id="city" type="text" formControlName="city" />
+          @if (form.controls['city'].touched && form.controls['city'].errors?.['required']) {
+            <div class="invalid-feedback d-block">{{ 'city_is_required' | translate }}</div>
           }
         </div>
       </div>
       <div class="col-sm-6">
         <div class="form-box">
-          <label class="form-label" for="pincode">{{ 'pincode' | translate }}</label>
-          <input
-            class="form-control"
-            id="pincode"
-            type="text"
-            placeholder="{{ 'enter_pincode' | translate }}"
-            formControlName="pincode"
-            numbersOnly
-          />
-          @if(form.controls['pincode'].touched && form.controls['pincode'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'pincode_is_required' | translate }}</div>
+          <label class="form-label" for="province">{{ 'state' | translate }}</label>
+          <select class="form-control form-select" id="province" formControlName="province">
+            <option value="">Select province</option>
+            @for (p of provinces; track p.code) {
+              <option [value]="p.code">{{ p.name }}</option>
+            }
+          </select>
+          @if (form.controls['province'].touched && form.controls['province'].errors?.['required']) {
+            <div class="invalid-feedback d-block">{{ 'state_is_required' | translate }}</div>
           }
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-box">
+          <label class="form-label" for="postal">Postal code</label>
+          <input class="form-control" id="postal" type="text" formControlName="postal" placeholder="A1A 1A1" />
+          @if (form.controls['postal'].touched && form.controls['postal'].invalid) {
+            <div class="invalid-feedback d-block">Enter a valid Canadian postal code.</div>
+          }
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-box">
+          <label class="form-label" for="phone">{{ 'phone' | translate }}</label>
+          <input class="form-control" id="phone" type="tel" formControlName="phone" />
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="isDefault" formControlName="isDefault" />
+          <label class="form-check-label" for="isDefault">Set as default shipping address</label>
         </div>
       </div>
     </div>

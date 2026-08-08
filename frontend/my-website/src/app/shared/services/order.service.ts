@@ -25,6 +25,13 @@ export class OrderService {
     return this.http.get<ShopOrder[]>(`${environment.apiUrl}/me/orders`);
   }
 
+  /** Owner-scoped order detail (guide 09) — 404 if not yours. */
+  getMyOrder(orderNumber: string): Observable<ShopOrder> {
+    return this.http.get<ShopOrder>(
+      `${environment.apiUrl}/me/orders/${encodeURIComponent(orderNumber)}`,
+    );
+  }
+
   viewOrder(id: number): Observable<IOrder> {
     return this.http.get<IOrder>(`${environment.URL}/order/${id}`);
   }

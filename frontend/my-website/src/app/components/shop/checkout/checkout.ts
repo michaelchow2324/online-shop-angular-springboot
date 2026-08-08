@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -39,14 +40,21 @@ import { CA_POSTAL_PATTERN, CANADIAN_PROVINCES } from '../../../shared/data/cana
 import { IBreadcrumb } from '../../../shared/interface/breadcrumb.interface';
 import { ICart } from '../../../shared/interface/cart.interface';
 import {
+  CustomerAddress,
+  UpsertAddressRequest,
+} from '../../../shared/interface/customer-address.interface';
+import {
   ApiErrorBody,
   CreateShopOrderRequest,
   ShippingQuote,
   ShopOrderItemRequest,
 } from '../../../shared/interface/shop-order.interface';
+import { AccountService } from '../../../shared/services/account.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { CheckoutService } from '../../../shared/services/checkout.service';
 import { ShippingService } from '../../../shared/services/shipping.service';
+import { GetAddressesAction } from '../../../shared/store/action/account.action';
+import { AccountState } from '../../../shared/store/state/account.state';
 import { AuthState } from '../../../shared/store/state/auth.state';
 import { CartState } from '../../../shared/store/state/cart.state';
 
@@ -55,6 +63,7 @@ import { CartState } from '../../../shared/store/state/cart.state';
   imports: [
     TranslateModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterModule,
     Breadcrumb,
     NoData,
@@ -69,6 +78,7 @@ export class Checkout implements OnInit {
   private formBuilder = inject(FormBuilder);
   private shippingService = inject(ShippingService);
   private checkoutService = inject(CheckoutService);
+  private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
@@ -95,6 +105,11 @@ export class Checkout implements OnInit {
   /** True when JWT is present — email is forced from the account. */
   public isLoggedIn = false;
   public accountEmail: string | null = null;
+  public savedAddresses: CustomerAddress[] = [];
+  public selectedAddressId: number | 'new' | null = null;
+  /** Guide 09 optional UX — persist shipping address to the account book. */
+  public saveAddressToAccount = false;
+  public saveAddressAsDefault = true;
 
   constructor() {
     this.form = this.formBuilder.group({
@@ -131,8 +146,12 @@ export class Checkout implements OnInit {
         if (this.isLoggedIn && email) {
           this.form.patchValue({ email });
           this.form.get('email')?.disable({ emitEvent: false });
+          this.loadSavedAddresses();
         } else {
           this.form.get('email')?.enable({ emitEvent: false });
+          this.savedAddresses = [];
+          this.selectedAddressId = null;
+          this.saveAddressToAccount = false;
         }
       });
 
@@ -192,9 +211,28 @@ export class Checkout implements OnInit {
     return this.cartSubtotal + Number(fee) + Number(tax);
   }
 
+  /** Show save checkbox when logged in and entering a new / different address. */
+  get showSaveAddressOption(): boolean {
+    return this.isLoggedIn && (this.selectedAddressId === 'new' || !this.savedAddresses.length);
+  }
+
   openLogin(): void {
     this.authService.redirectUrl = '/checkout';
     void this.loginModal()?.openModal();
+  }
+
+  selectSavedAddress(addressId: number | 'new'): void {
+    this.selectedAddressId = addressId;
+    if (addressId === 'new') {
+      this.saveAddressToAccount = true;
+      this.saveAddressAsDefault = this.savedAddresses.length === 0;
+      return;
+    }
+    this.saveAddressToAccount = false;
+    const address = this.savedAddresses.find(a => a.id === addressId);
+    if (address) {
+      this.applyAddressToForm(address);
+    }
   }
 
   placeOrder(): void {
@@ -227,26 +265,34 @@ export class Checkout implements OnInit {
       shippingProvince: String(raw.shippingProvince).trim().toUpperCase(),
       shippingPostal: this.normalizePostal(String(raw.shippingPostal)),
       shippingCountry: 'CA',
-      // Authoritative prices live on the server — only ids + quantities leave the browser.
       items: this.toItemPayload(),
     };
 
     this.placingOrder = true;
-    this.checkoutService.createSession(payload).subscribe({
-      next: session => {
-        // Full-page navigation to Stripe-hosted Checkout (no Stripe.js required for redirect).
-        if (isPlatformBrowser(this.platformId) && session.checkoutUrl) {
-          window.location.href = session.checkoutUrl;
-          return;
-        }
-        this.placingOrder = false;
-        this.placeOrderError = 'Could not start payment. Please try again.';
-      },
-      error: (err: HttpErrorResponse) => {
-        this.placingOrder = false;
-        this.placeOrderError = this.readApiMessage(err);
-      },
-    });
+
+    const maybeSave$ =
+      this.showSaveAddressOption && this.saveAddressToAccount
+        ? this.accountService.createAddress(this.toUpsertAddress(payload)).pipe(
+            catchError(() => of(null)), // don't block checkout if address book save fails
+          )
+        : of(null);
+
+    maybeSave$
+      .pipe(switchMap(() => this.checkoutService.createSession(payload)))
+      .subscribe({
+        next: session => {
+          if (isPlatformBrowser(this.platformId) && session.checkoutUrl) {
+            window.location.href = session.checkoutUrl;
+            return;
+          }
+          this.placingOrder = false;
+          this.placeOrderError = 'Could not start payment. Please try again.';
+        },
+        error: (err: HttpErrorResponse) => {
+          this.placingOrder = false;
+          this.placeOrderError = this.readApiMessage(err);
+        },
+      });
   }
 
   controlInvalid(name: string): boolean {
@@ -256,6 +302,55 @@ export class Checkout implements OnInit {
 
   isZero(value: number | string | null | undefined): boolean {
     return Number(value ?? 0) === 0;
+  }
+
+  private loadSavedAddresses(): void {
+    this.store
+      .dispatch(new GetAddressesAction())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savedAddresses = this.store.selectSnapshot(AccountState.addresses) ?? [];
+          if (!this.savedAddresses.length) {
+            this.selectedAddressId = 'new';
+            this.saveAddressToAccount = true;
+            this.saveAddressAsDefault = true;
+            return;
+          }
+          const preferred =
+            this.savedAddresses.find(a => a.isDefault) ?? this.savedAddresses[0];
+          this.selectedAddressId = preferred.id;
+          this.saveAddressToAccount = false;
+          this.applyAddressToForm(preferred);
+        },
+      });
+  }
+
+  private applyAddressToForm(address: CustomerAddress): void {
+    this.form.patchValue({
+      shippingName: address.recipientName,
+      shippingPhone: address.phone ?? '',
+      shippingLine1: address.line1,
+      shippingLine2: address.line2 ?? '',
+      shippingCity: address.city,
+      shippingProvince: address.province,
+      shippingPostal: address.postal,
+    });
+  }
+
+  private toUpsertAddress(payload: CreateShopOrderRequest): UpsertAddressRequest {
+    return {
+      label: 'Home',
+      recipientName: payload.shippingName,
+      phone: payload.shippingPhone,
+      line1: payload.shippingLine1,
+      line2: payload.shippingLine2,
+      city: payload.shippingCity,
+      province: payload.shippingProvince,
+      postal: payload.shippingPostal,
+      country: 'CA',
+      isDefault: this.saveAddressAsDefault || this.savedAddresses.length === 0,
+    };
   }
 
   private toItemPayload(): ShopOrderItemRequest[] {

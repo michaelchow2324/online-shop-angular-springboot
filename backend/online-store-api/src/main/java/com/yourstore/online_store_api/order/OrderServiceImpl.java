@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yourstore.common.NotFoundException;
+import com.yourstore.online_store_api.account.CanadaProvinces;
+import com.yourstore.online_store_api.account.CustomerAddress;
+import com.yourstore.online_store_api.account.CustomerAddressRepository;
 import com.yourstore.online_store_api.media.Media;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
@@ -41,6 +44,7 @@ public class OrderServiceImpl implements OrderService {
     private final ImageStorageService imageStorageService;
     private final ShippingService shippingService;
     private final TaxService taxService;
+    private final CustomerAddressRepository addressRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     OrderServiceImpl(
@@ -50,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
             ImageStorageService imageStorageService,
             ShippingService shippingService,
             TaxService taxService,
+            CustomerAddressRepository addressRepository,
             ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
@@ -57,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
         this.imageStorageService = imageStorageService;
         this.shippingService = shippingService;
         this.taxService = taxService;
+        this.addressRepository = addressRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -75,6 +81,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDTO createPendingOrder(CreateOrderRequest req, Long userId, String accountEmail) {
+        // Guide 09: JWT + incomplete address → fill from default address book entry.
+        // Client-sent address wins; never overwrite with the default.
+        if (userId != null && !hasCompleteShippingAddress(req)) {
+            applyDefaultAddress(req, userId);
+        }
+        requireCompleteShippingAddress(req);
+
         // currently only supports Canada
         String normalizedCountry = (req.getShippingCountry() == null || req.getShippingCountry().isBlank())
                 ? DEFAULT_COUNTRY
@@ -84,6 +97,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         String normalizedProvince = req.getShippingProvince().trim().toUpperCase();
+        if (!CanadaProvinces.isKnown(normalizedProvince)) {
+            throw new IllegalArgumentException("Unknown Canadian province: " + normalizedProvince);
+        }
 
         ShopOrder order = new ShopOrder();
         order.setOrderNumber(generateUniqueOrderNumber());
@@ -97,17 +113,20 @@ public class OrderServiceImpl implements OrderService {
             order.setUserId(userId);
             order.setEmail(accountEmail.trim());
         } else {
+            if (req.getEmail() == null || req.getEmail().isBlank()) {
+                throw new IllegalArgumentException("Email is required");
+            }
             order.setEmail(req.getEmail().trim());
         }
 
         order.setStatus(OrderStatus.PENDING_PAYMENT);
         order.setCurrency(DEFAULT_CURRENCY);
 
-        order.setShippingName(req.getShippingName());
-        order.setShippingPhone(req.getShippingPhone());
-        order.setShippingLine1(req.getShippingLine1());
-        order.setShippingLine2(req.getShippingLine2());
-        order.setShippingCity(req.getShippingCity());
+        order.setShippingName(req.getShippingName().trim());
+        order.setShippingPhone(blankToNull(req.getShippingPhone()));
+        order.setShippingLine1(req.getShippingLine1().trim());
+        order.setShippingLine2(blankToNull(req.getShippingLine2()));
+        order.setShippingCity(req.getShippingCity().trim());
         order.setShippingProvince(normalizedProvince);
         order.setShippingPostal(req.getShippingPostal().trim().toUpperCase());
         order.setShippingCountry(normalizedCountry);
@@ -251,6 +270,15 @@ public class OrderServiceImpl implements OrderService {
         ShopOrder order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
         // touch items inside the transaction so mapping is safe with LAZY fetch
+        order.getItems().size();
+        return toDto(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDTO findOrderByOrderNumberForUser(String orderNumber, Long userId) {
+        ShopOrder order = orderRepository.findByOrderNumberAndUserId(orderNumber, userId)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
         order.getItems().size();
         return toDto(order);
     }
@@ -439,6 +467,57 @@ public class OrderServiceImpl implements OrderService {
                 .findFirst()
                 .map(media -> imageStorageService.publicUrl(media.getStorageKey()))
                 .orElse(null);
+    }
+
+    private void applyDefaultAddress(CreateOrderRequest req, Long userId) {
+        CustomerAddress address = addressRepository.findByUserIdAndDefaultAddressTrue(userId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Shipping address is required (no default address on account)"));
+        req.setShippingName(address.getRecipientName());
+        req.setShippingPhone(address.getPhone());
+        req.setShippingLine1(address.getLine1());
+        req.setShippingLine2(address.getLine2());
+        req.setShippingCity(address.getCity());
+        req.setShippingProvince(address.getProvince());
+        req.setShippingPostal(address.getPostal());
+        req.setShippingCountry(address.getCountry());
+    }
+
+    private static boolean hasCompleteShippingAddress(CreateOrderRequest req) {
+        return isPresent(req.getShippingName())
+                && isPresent(req.getShippingLine1())
+                && isPresent(req.getShippingCity())
+                && isPresent(req.getShippingProvince())
+                && isPresent(req.getShippingPostal());
+    }
+
+    private static void requireCompleteShippingAddress(CreateOrderRequest req) {
+        if (!isPresent(req.getShippingName())) {
+            throw new IllegalArgumentException("Shipping name is required");
+        }
+        if (!isPresent(req.getShippingLine1())) {
+            throw new IllegalArgumentException("Shipping line 1 is required");
+        }
+        if (!isPresent(req.getShippingCity())) {
+            throw new IllegalArgumentException("Shipping city is required");
+        }
+        if (!isPresent(req.getShippingProvince())) {
+            throw new IllegalArgumentException("Shipping province is required");
+        }
+        if (!isPresent(req.getShippingPostal())) {
+            throw new IllegalArgumentException("Shipping postal is required");
+        }
+    }
+
+    private static boolean isPresent(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private static String blankToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 
     /**

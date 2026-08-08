@@ -3,7 +3,7 @@ package com.yourstore.online_store_api.auth;
 import java.time.LocalDateTime;
 
 /**
- * Response DTO for "who am I?" APIs ({@code GET /api/auth/me}, register/verify responses).
+ * Response DTO for "who am I?" APIs ({@code GET /api/me}, {@code GET /api/auth/me}, register/verify).
  *
  * Why not return {@link CustomerUser} directly?
  * - Never leak {@code passwordHash} (or other internal fields) in JSON
@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public record MeDTO(
         Long id,
         String email,
+        String displayName,
         String role,
         LocalDateTime emailVerifiedAt
 ) {

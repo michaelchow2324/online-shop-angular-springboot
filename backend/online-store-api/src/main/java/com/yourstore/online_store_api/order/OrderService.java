@@ -26,6 +26,13 @@ public interface OrderService {
 
    OrderDTO findOrderById(Long id);
    OrderDTO findOrderByOrderNumber(String orderNumber);
+
+   /**
+    * Owner-scoped order detail (guide 09). Returns 404-style {@link com.yourstore.common.NotFoundException}
+    * when the order is missing or belongs to another user (no existence leak).
+    */
+   OrderDTO findOrderByOrderNumberForUser(String orderNumber, Long userId);
+
    List<OrderDTO> findOrdersByUserId(Long userId);
 
    /** Admin list by status, newest first (guide 07). */

@@ -15,17 +15,14 @@
     <div class="row g-4">
       <div class="col-xxl-12">
         <div class="form-box">
-          <label class="form-label" for="name">{{ 'name' | translate }}</label>
+          <label class="form-label" for="displayName">{{ 'name' | translate }}</label>
           <input
             class="form-control"
-            id="name"
+            id="displayName"
             type="text"
             placeholder="{{ 'enter_name' | translate }}"
-            formControlName="name"
+            formControlName="displayName"
           />
-          @if(form.controls['name'].touched && form.controls['name'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'name_is_required' | translate }}</div>
-          }
         </div>
       </div>
       <div class="col-12">
@@ -35,46 +32,9 @@
             class="form-control"
             id="email"
             type="text"
-            placeholder="{{ 'enter_email' | translate }}"
             formControlName="email"
           />
-          @if(form.controls['email'].touched && form.controls['email'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'email_is_required' | translate }}</div>
-          } @if(form.controls['email'].touched && form.controls['email'].errors?.['email']){
-          <div class="invalid-feedback">{{ 'please_enter_valid_email' | translate }}</div>
-          }
-        </div>
-      </div>
-      <div class="col-12 phone-field">
-        <div class="form-box">
-          <label class="form-label" for="address1">{{ 'phone_number' | translate }}</label>
-          <select2
-            class="custom-select intl-tel-input"
-            [templates]="template"
-            [data]="codes"
-            formControlName="country_code"
-          >
-            <ng-template #template let-data="data">
-              <div class="country">
-                <div class="flag-box">
-                  <div class="iti-flag {{data?.class}}"></div>
-                </div>
-                <span class="dial-code">{{data.code}}</span>
-              </div>
-            </ng-template>
-          </select2>
-          <input
-            type="number"
-            class="form-control intl-input-padding"
-            formControlName="phone"
-            placeholder="{{ 'enter_phone' | translate }}"
-            name="phone"
-          />
-          @if(form.controls['phone'].touched && form.controls['phone'].errors?.['required']){
-          <div class="invalid-feedback">{{ 'phone_number_is_required' | translate }}</div>
-          } @if(form.controls['phone'].touched && form.controls['phone'].errors?.['pattern']){
-          <div class="invalid-feedback">{{ 'phone_number_is_invalid' | translate }}</div>
-          }
+          <p class="text-muted small mb-0 mt-1">Email cannot be changed here.</p>
         </div>
       </div>
     </div>

@@ -14,8 +14,7 @@ import { OrderState } from '../../../../shared/store/state/order.state';
 import { displayCarrier, trackingUrl } from '../../../../shared/utils/tracking-url';
 
 /**
- * Account order detail — loads Spring {@code GET /api/orders/{orderNumber}}.
- * (Multikart mock detail UI replaced for guide 05.)
+ * Account order detail — loads Spring {@code GET /api/me/orders/{orderNumber}} (owner-scoped).
  */
 @Component({
   selector: 'app-details',

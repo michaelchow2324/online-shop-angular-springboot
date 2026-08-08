@@ -117,7 +117,7 @@ public class SecurityConfig {
 
                         // Logged-in account area — SecurityContext must have an Authentication
                         // (JwtAuthenticationFilter puts CustomerPrincipal there when Bearer is valid)
-                        .requestMatchers("/api/me/**").authenticated()
+                        .requestMatchers("/api/me", "/api/me/**").authenticated()
                         .requestMatchers("/api/auth/me").authenticated()
 
                         // hasRole("ADMIN") requires authority ROLE_ADMIN (see JWT filter)

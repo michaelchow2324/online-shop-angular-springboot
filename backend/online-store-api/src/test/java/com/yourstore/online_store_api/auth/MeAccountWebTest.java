@@ -1,8 +1,11 @@
 package com.yourstore.online_store_api.auth;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,11 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.yourstore.common.NotFoundException;
 import com.yourstore.online_store_api.account.AccountService;
 import com.yourstore.online_store_api.config.SecurityConfig;
 import com.yourstore.online_store_api.order.OrderDTO;
@@ -26,13 +31,11 @@ import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
 
 /**
- * Guide 05 Step 8 — {@code GET /api/me/orders}:
- * - requires JWT (401 without token)
- * - returns orders attached to the authenticated user (claimed guest orders after verify)
+ * Guide 09 — owner-scoped order detail + password endpoint auth.
  */
 @WebMvcTest(controllers = MeController.class)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class})
-class MeOrdersWebTest {
+class MeAccountWebTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,27 +47,45 @@ class MeOrdersWebTest {
     private AccountService accountService;
 
     @Test
-    void myOrders_withoutToken_returns401() throws Exception {
-        mockMvc.perform(get("/api/me/orders"))
-                .andExpect(status().isUnauthorized());
+    void myOrder_otherUsersOrder_returns404() throws Exception {
+        when(orderService.findOrderByOrderNumberForUser("OS-OTHER", 7L))
+                .thenThrow(new NotFoundException("Order not found: OS-OTHER"));
+
+        mockMvc.perform(get("/api/me/orders/OS-OTHER").with(authentication(auth(7L))))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void myOrders_withPrincipal_returnsClaimedGuestOrders() throws Exception {
-        Long userId = 7L;
-        OrderDTO claimed = sampleOrder("OS-CLAIMED-1", "guest@example.com");
-        when(orderService.findOrdersByUserId(userId)).thenReturn(List.of(claimed));
+    void myOrder_ownOrder_returnsDetail() throws Exception {
+        OrderDTO owned = sampleOrder("OS-MINE-1", "me@example.com");
+        when(orderService.findOrderByOrderNumberForUser("OS-MINE-1", 7L)).thenReturn(owned);
 
-        CustomerPrincipal principal = new CustomerPrincipal(userId, "guest@example.com", "USER");
-        var auth = new UsernamePasswordAuthenticationToken(
+        mockMvc.perform(get("/api/me/orders/OS-MINE-1").with(authentication(auth(7L))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderNumber").value("OS-MINE-1"));
+    }
+
+    @Test
+    void changePassword_wrongCurrent_returns400() throws Exception {
+        doThrow(new IllegalArgumentException("Current password is incorrect"))
+                .when(accountService)
+                .changePassword(eq(7L), org.mockito.ArgumentMatchers.any());
+
+        mockMvc.perform(post("/api/me/password")
+                        .with(authentication(auth(7L)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"currentPassword":"wrong","newPassword":"newpassword1"}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static UsernamePasswordAuthenticationToken auth(Long userId) {
+        CustomerPrincipal principal = new CustomerPrincipal(userId, "me@example.com", "USER");
+        return new UsernamePasswordAuthenticationToken(
                 principal,
                 null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-        mockMvc.perform(get("/api/me/orders").with(authentication(auth)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].orderNumber").value("OS-CLAIMED-1"))
-                .andExpect(jsonPath("$[0].email").value("guest@example.com"));
     }
 
     private static OrderDTO sampleOrder(String orderNumber, String email) {
@@ -77,7 +98,7 @@ class MeOrdersWebTest {
         dto.setShippingFee(new BigDecimal("9.95"));
         dto.setTax(new BigDecimal("0.00"));
         dto.setTotal(new BigDecimal("59.95"));
-        dto.setShippingName("Alex Guest");
+        dto.setShippingName("Alex");
         dto.setShippingLine1("123 King St W");
         dto.setShippingCity("Toronto");
         dto.setShippingProvince("ON");

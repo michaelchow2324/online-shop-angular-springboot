@@ -1,5 +1,6 @@
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,26 +9,36 @@ import { Observable } from 'rxjs';
 
 import { ChangePasswordModal } from '../../../shared/components/widgets/modal/change-password-modal/change-password-modal';
 import { EditProfileModal } from '../../../shared/components/widgets/modal/edit-profile-modal/edit-profile-modal';
-import { IUser, IUserAddress } from '../../../shared/interface/user.interface';
-import { CurrencySymbolPipe } from '../../../shared/pipe/currency.pipe';
+import { CustomerAddress } from '../../../shared/interface/customer-address.interface';
+import { IUser } from '../../../shared/interface/user.interface';
+import { GetAddressesAction } from '../../../shared/store/action/account.action';
 import { AccountState } from '../../../shared/store/state/account.state';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [TranslateModule, CurrencySymbolPipe, AsyncPipe, TitleCasePipe],
+  imports: [TranslateModule, AsyncPipe, TitleCasePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
   private modal = inject(NgbModal);
+  private store = inject(Store);
+  private destroyRef = inject(DestroyRef);
 
   user$: Observable<IUser> = inject(Store).select(AccountState.user) as Observable<IUser>;
+  addresses$: Observable<CustomerAddress[]> = inject(Store).select(
+    AccountState.addresses,
+  ) as Observable<CustomerAddress[]>;
 
-  public address: IUserAddress | null;
+  public defaultAddress: CustomerAddress | null = null;
 
-  constructor() {
-    this.user$.subscribe(user => {
-      this.address = user?.address?.length ? user?.address?.[0] : null;
+  ngOnInit(): void {
+    this.store
+      .dispatch(new GetAddressesAction())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+    this.addresses$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(addresses => {
+      this.defaultAddress = addresses?.find(a => a.isDefault) ?? addresses?.[0] ?? null;
     });
   }
 

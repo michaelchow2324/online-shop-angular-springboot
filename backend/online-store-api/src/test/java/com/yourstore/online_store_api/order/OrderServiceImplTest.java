@@ -24,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import com.yourstore.online_store_api.account.CustomerAddress;
+import com.yourstore.online_store_api.account.CustomerAddressRepository;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
@@ -61,6 +63,9 @@ class OrderServiceImplTest {
 
     @Mock
     private TaxService taxService;
+
+    @Mock
+    private CustomerAddressRepository addressRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -196,7 +201,9 @@ class OrderServiceImplTest {
 
         assertThat(dto.getSubtotal()).isEqualByComparingTo("45.00");
         assertThat(dto.getShippingFee()).isEqualByComparingTo("9.95");
-        assertThat(dto.getTotal()).isEqualByComparingTo("54.95"); // 45 + 9.95
+        // 45 + 9.95 = 54.95 taxable; 13% HST = 7.14 → total 62.09
+        assertThat(dto.getTax()).isEqualByComparingTo("7.14");
+        assertThat(dto.getTotal()).isEqualByComparingTo("62.09");
         assertThat(dto.getItems()).hasSize(2);
     }
 
@@ -244,6 +251,59 @@ class OrderServiceImplTest {
         assertThatThrownBy(() -> orderService.createPendingOrder(req))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Shipping country must be CA");
+    }
+
+    @Test
+    void createPendingOrder_withJwtAndEmptyAddress_usesDefaultAddress() {
+        when(productRepository.findById(1L)).thenReturn(Optional.of(activeProduct(1L, "Bag", "BAG", "10.00")));
+        CustomerAddress defaultAddr = defaultAddress(42L);
+        when(addressRepository.findByUserIdAndDefaultAddressTrue(42L))
+                .thenReturn(Optional.of(defaultAddr));
+
+        CreateOrderRequest req = new CreateOrderRequest();
+        req.setEmail("ignored@example.com");
+        OrderItemRequest line = new OrderItemRequest();
+        line.setProductId(1L);
+        line.setQuantity(1);
+        req.setItems(List.of(line));
+
+        OrderDTO dto = orderService.createPendingOrder(req, 42L, "user@example.com");
+
+        assertThat(dto.getEmail()).isEqualTo("user@example.com");
+        assertThat(dto.getShippingName()).isEqualTo("Alex Default");
+        assertThat(dto.getShippingLine1()).isEqualTo("100 Queen St W");
+        assertThat(dto.getShippingCity()).isEqualTo("Toronto");
+        assertThat(dto.getShippingProvince()).isEqualTo("ON");
+        assertThat(dto.getShippingPostal()).isEqualTo("M5H 2N2");
+        assertThat(dto.getShippingCountry()).isEqualTo("CA");
+    }
+
+    @Test
+    void createPendingOrder_withJwtAndClientAddress_doesNotOverwriteWithDefault() {
+        when(productRepository.findById(1L)).thenReturn(Optional.of(activeProduct(1L, "Bag", "BAG", "10.00")));
+
+        CreateOrderRequest req = baseRequest();
+        req.setShippingName("Client Name");
+        req.setShippingLine1("9 Client Ave");
+        OrderItemRequest line = new OrderItemRequest();
+        line.setProductId(1L);
+        line.setQuantity(1);
+        req.setItems(List.of(line));
+
+        OrderDTO dto = orderService.createPendingOrder(req, 42L, "user@example.com");
+
+        assertThat(dto.getShippingName()).isEqualTo("Client Name");
+        assertThat(dto.getShippingLine1()).isEqualTo("9 Client Ave");
+        verify(addressRepository, never()).findByUserIdAndDefaultAddressTrue(any());
+    }
+
+    @Test
+    void findOrderByOrderNumberForUser_otherUsersOrder_throwsNotFound() {
+        when(orderRepository.findByOrderNumberAndUserId("OS-OTHER", 1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> orderService.findOrderByOrderNumberForUser("OS-OTHER", 1L))
+                .isInstanceOf(com.yourstore.common.NotFoundException.class)
+                .hasMessageContaining("Order not found");
     }
 
     @Test
@@ -471,6 +531,22 @@ class OrderServiceImplTest {
         req.setShippingPostal("M5H 1A1");
         req.setShippingCountry("CA");
         return req;
+    }
+
+    private static CustomerAddress defaultAddress(Long userId) {
+        CustomerAddress address = new CustomerAddress();
+        address.setId(9L);
+        address.setUserId(userId);
+        address.setLabel("Home");
+        address.setRecipientName("Alex Default");
+        address.setPhone("416-555-0100");
+        address.setLine1("100 Queen St W");
+        address.setCity("Toronto");
+        address.setProvince("ON");
+        address.setPostal("M5H 2N2");
+        address.setCountry("CA");
+        address.setDefaultAddress(true);
+        return address;
     }
 
     private static Product activeProduct(Long id, String name, String sku, String price) {

@@ -1,10 +1,10 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 
-import { IUserAddress } from '../../../../interface/user.interface';
+import { CustomerAddress } from '../../../../interface/customer-address.interface';
 import { DeleteAddressAction } from '../../../../store/action/account.action';
 import { Button } from '../../button/button';
 
@@ -14,24 +14,17 @@ import { Button } from '../../button/button';
   templateUrl: './delete-address-modal.html',
   styleUrl: './delete-address-modal.scss',
 })
-export class DeleteAddressModal {
+export class DeleteAddressModal implements OnInit {
   public modal = inject(NgbActiveModal);
   private store = inject(Store);
 
-  @Input() userAddress: IUserAddress;
+  @Input() userAddress: CustomerAddress;
 
-  public userAction = {};
-
-  ngOnInit() {
-    const userAddress = this.userAddress;
-    if (userAddress) {
-      this.userAction = {
-        data: userAddress,
-      };
-    }
-  }
+  ngOnInit() {}
 
   delete() {
-    this.store.dispatch(new DeleteAddressAction(this.userAddress.id));
+    this.store.dispatch(new DeleteAddressAction(this.userAddress.id)).subscribe({
+      complete: () => this.modal.close('deleted'),
+    });
   }
 }

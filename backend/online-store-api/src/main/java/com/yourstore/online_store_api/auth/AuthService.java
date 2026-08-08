@@ -127,6 +127,7 @@ public class AuthService {
         return new MeDTO(
                 user.getId(),
                 user.getEmail(),
+                user.getDisplayName(),
                 user.getRole(),
                 user.getEmailVerifiedAt());
     }

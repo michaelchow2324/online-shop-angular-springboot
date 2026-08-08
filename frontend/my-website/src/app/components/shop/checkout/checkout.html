@@ -80,6 +80,28 @@
                         <div class="checkout-title1">
                           <h2>Shipping address</h2>
                         </div>
+                        @if (isLoggedIn && savedAddresses.length) {
+                          <div class="mb-3">
+                            <label class="form-label" for="savedAddress">Saved address</label>
+                            <select
+                              id="savedAddress"
+                              class="form-control form-select"
+                              [ngModel]="selectedAddressId"
+                              [ngModelOptions]="{ standalone: true }"
+                              (ngModelChange)="selectSavedAddress($event)"
+                            >
+                              @for (addr of savedAddresses; track addr.id) {
+                                <option [ngValue]="addr.id">
+                                  {{ addr.label }} — {{ addr.line1 }}, {{ addr.city }}
+                                  @if (addr.isDefault) {
+                                    (default)
+                                  }
+                                </option>
+                              }
+                              <option [ngValue]="'new'">Use a different address</option>
+                            </select>
+                          </div>
+                        }
                         <div class="checkout-form row g-md-4 g-sm-3 g-2">
                           <div class="col-md-6">
                             <div class="form-box">
@@ -206,6 +228,36 @@
                               <small class="text-muted">Canada only for now.</small>
                             </div>
                           </div>
+                          @if (showSaveAddressOption) {
+                            <div class="col-12">
+                              <div class="form-check mt-1">
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  id="saveAddress"
+                                  [(ngModel)]="saveAddressToAccount"
+                                  [ngModelOptions]="{ standalone: true }"
+                                />
+                                <label class="form-check-label" for="saveAddress">
+                                  Save this address to my account for next time
+                                </label>
+                              </div>
+                              @if (saveAddressToAccount) {
+                                <div class="form-check mt-1 ms-1">
+                                  <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="saveAsDefault"
+                                    [(ngModel)]="saveAddressAsDefault"
+                                    [ngModelOptions]="{ standalone: true }"
+                                  />
+                                  <label class="form-check-label" for="saveAsDefault">
+                                    Set as default shipping address
+                                  </label>
+                                </div>
+                              }
+                            </div>
+                          }
                         </div>
                       </div>
                     </div>

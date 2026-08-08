@@ -10,10 +10,11 @@ export interface AuthResponse {
   role: string;
 }
 
-/** GET /api/auth/me, register, verify-email response */
+/** GET /api/me, /api/auth/me, register, verify-email response */
 export interface MeDTO {
   id: number;
   email: string;
+  displayName: string | null;
   role: string;
   emailVerifiedAt: string | null;
 }

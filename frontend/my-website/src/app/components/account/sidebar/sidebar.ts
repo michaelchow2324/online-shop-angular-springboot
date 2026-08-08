@@ -11,7 +11,6 @@ import { ConfirmationModal } from '../../../shared/components/widgets/modal/conf
 import { INotification } from '../../../shared/interface/notification.interface';
 import { IUser } from '../../../shared/interface/user.interface';
 import { AccountService } from '../../../shared/services/account.service';
-import { UpdateUserProfileAction } from '../../../shared/store/action/account.action';
 import { LogoutAction } from '../../../shared/store/action/auth.action';
 import { AccountState } from '../../../shared/store/state/account.state';
 import { NotificationState } from '../../../shared/store/state/notification.state';
@@ -54,17 +53,7 @@ export class Sidebar {
     this.accountService.isOpenMenu = false;
   }
 
-  uploadImage(event: any) {
-    if (event?.target?.files) {
-      let form = new FormData();
-      form.append('profile_image', event.target.files[0]);
-      form.append('_method', 'PUT');
-      this.store.dispatch(new UpdateUserProfileAction(form));
-    } else {
-      let form = new FormData();
-      form.append('profile_image_id', '');
-      form.append('_method', 'PUT');
-      this.store.dispatch(new UpdateUserProfileAction(form));
-    }
+  uploadImage(_event?: unknown) {
+    // Profile image upload is out of scope for guide 09 (displayName only).
   }
 }

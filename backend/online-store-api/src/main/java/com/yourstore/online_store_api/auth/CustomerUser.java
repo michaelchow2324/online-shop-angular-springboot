@@ -30,6 +30,10 @@ public class CustomerUser {
     @Column(nullable = false, unique = true)
     private String email;
 
+    /** Optional display name; email remains the login identity. */
+    @Column(name = "display_name")
+    private String displayName;
+
     @NotBlank
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;

@@ -5,7 +5,6 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -44,29 +43,23 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateOrderRequest {
 
-    @NotBlank(message = "Email is required")
     @Email(message = "Invalid email address")
     private String email;
 
-    @NotBlank(message = "Shipping name is required")
     private String shippingName;
 
     /** Optional — schema allows null. */
     private String shippingPhone;
 
-    @NotBlank(message = "Shipping line 1 is required")
     private String shippingLine1;
 
     /** Optional apartment / unit line. */
     private String shippingLine2;
 
-    @NotBlank(message = "Shipping city is required")
     private String shippingCity;
 
-    @NotBlank(message = "Shipping province is required")
     private String shippingProvince;
 
-    @NotBlank(message = "Shipping postal is required")
     private String shippingPostal;
 
     /** Defaults to "CA" in the service if blank; non-CA is rejected for now. */

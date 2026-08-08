@@ -1,5 +1,6 @@
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,9 +10,11 @@ import { Observable } from 'rxjs';
 import { AddressModal } from '../../../shared/components/widgets/modal/address-modal/address-modal';
 import { DeleteAddressModal } from '../../../shared/components/widgets/modal/delete-address-modal/delete-address-modal';
 import { NoData } from '../../../shared/components/widgets/no-data/no-data';
-import { IAccountUser } from '../../../shared/interface/account.interface';
-import { IUserAddress } from '../../../shared/interface/user.interface';
-import { DeleteAddressAction } from '../../../shared/store/action/account.action';
+import { CustomerAddress } from '../../../shared/interface/customer-address.interface';
+import {
+  GetAddressesAction,
+  SetDefaultAddressAction,
+} from '../../../shared/store/action/account.action';
 import { AccountState } from '../../../shared/store/state/account.state';
 
 @Component({
@@ -20,31 +23,35 @@ import { AccountState } from '../../../shared/store/state/account.state';
   templateUrl: './addresses.html',
   styleUrl: './addresses.scss',
 })
-export class Addresses {
+export class Addresses implements OnInit {
   private store = inject(Store);
   private modal = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
 
-  user$: Observable<IAccountUser> = inject(Store).select(
-    AccountState.user,
-  ) as Observable<IAccountUser>;
+  addresses$: Observable<CustomerAddress[]> = inject(Store).select(
+    AccountState.addresses,
+  ) as Observable<CustomerAddress[]>;
 
-  AddressModal(address?: IUserAddress) {
+  ngOnInit(): void {
+    this.store.dispatch(new GetAddressesAction()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+  }
+
+  AddressModal(address?: CustomerAddress) {
     const modal = this.modal.open(AddressModal, { centered: true, windowClass: 'theme-modal-2' });
-
     if (address) {
       modal.componentInstance.userAddress = address;
     }
   }
 
-  removeAddress(address: IUserAddress) {
+  removeAddress(address: CustomerAddress) {
     const modal = this.modal.open(DeleteAddressModal, { centered: true });
-
-    if (address) {
-      modal.componentInstance.userAddress = address;
-    }
+    modal.componentInstance.userAddress = address;
   }
 
-  delete(action: string, data: IUserAddress) {
-    if (action == 'delete' && data) this.store.dispatch(new DeleteAddressAction(data.id));
+  setDefault(address: CustomerAddress) {
+    if (address.isDefault) {
+      return;
+    }
+    this.store.dispatch(new SetDefaultAddressAction(address.id));
   }
 }
