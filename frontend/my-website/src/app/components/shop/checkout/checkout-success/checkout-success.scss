@@ -9,14 +9,16 @@
     display: inline-block;
     padding: 0.15rem 0.55rem;
     border-radius: 2px;
-    background: #f1f1f1;
+    background: #e9ecef;
+    color: #1a1a1a;
     font-size: 0.85rem;
+    font-weight: 600;
     letter-spacing: 0.02em;
     text-transform: uppercase;
 
     &.paid {
-      background: #d8f3dc;
-      color: #1b4332;
+      background: #dcfce7;
+      color: #14532d;
     }
   }
 

@@ -19,19 +19,29 @@
               </tr>
             </thead>
             <tbody>
-              @for(order of (order$ | async)?.data ;track order; let i = $index){
+              @for(order of (order$ | async)?.data ;track order; let i =
+              $index){
               <tr>
                 <td><span class="fw-bolder">{{ order.order_number }}</span></td>
                 <td>{{ order?.created_at | date: 'dd MMM yyyy hh:mm:a' }}</td>
                 <td>{{ order?.total | currencySymbol }}</td>
                 <td>
-                  <div class="badge rounded-0 custom-badge">
+                  <div
+                    class="badge rounded-0 payment-status-badge"
+                    [class.is-paid]="isStatus(order?.payment_status, 'PAID')"
+                    [class.is-shipped]="isStatus(order?.payment_status, 'SHIPPED')"
+                    [class.is-pending]="isStatus(order?.payment_status, 'PENDING_PAYMENT')"
+                    [class.is-cancelled]="isStatus(order?.payment_status, 'CANCELLED')"
+                    [class.is-failed]="isStatus(order?.payment_status, 'FAILED')"
+                    [class.is-fulfilling]="isStatus(order?.payment_status, 'FULFILLING')"
+                  >
                     <span>{{ order?.payment_status }}</span>
                   </div>
                 </td>
                 <td>{{ order?.payment_method | uppercase }}</td>
                 <td>
-                  <a [routerLink]="['/account/order/details', order.order_number]"
+                  <a
+                    [routerLink]="['/account/order/details', order.order_number]"
                     ><i class="ri-eye-line"></i
                   ></a>
                 </td>

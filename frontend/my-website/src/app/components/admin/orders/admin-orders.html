@@ -2,7 +2,9 @@
 
 <section class="section-b-space admin-orders">
   <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
       <h2 class="h4 mb-0">Fulfillment</h2>
       <div class="status-filters">
         <button
@@ -36,108 +38,124 @@
     </div>
 
     @if (loading) {
-      <p class="text-muted">Loading orders…</p>
+    <p class="text-muted">Loading orders…</p>
     } @else if (error) {
-      <app-no-data
-        [class]="'no-data-added'"
-        [image]="'assets/svg/empty-items.svg'"
-        [text]="'Could not load orders'"
-        [description]="error"
-      />
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'Could not load orders'"
+      [description]="error"
+    />
     } @else if (!orders.length) {
-      <app-no-data
-        [class]="'no-data-added'"
-        [image]="'assets/svg/empty-items.svg'"
-        [text]="'No orders'"
-        [description]="'No orders with status ' + statusFilter"
-      />
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'No orders'"
+      [description]="'No orders with status ' + statusFilter"
+    />
     } @else {
-      <div class="table-responsive">
-        <table class="table cart-table order-table">
-          <thead>
-            <tr class="table-head">
-              <th>Order</th>
-              <th>Email</th>
-              <th>Total</th>
-              <th>Province</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (order of orders; track order.orderNumber) {
-              <tr>
-                <td>
-                  <span class="fw-bolder">{{ order.orderNumber }}</span>
-                  <div class="small text-muted">{{ order.status }}</div>
-                </td>
-                <td>{{ order.email }}</td>
-                <td>{{ order.total | currency: (order.currency || 'CAD') }}</td>
-                <td>{{ order.shippingProvince }}</td>
-                <td>{{ order.createdAt | date: 'dd MMM yyyy, h:mm a' }}</td>
-                <td>
-                  @if (canShip(order)) {
-                    <button type="button" class="btn btn-sm btn-solid" (click)="openShip(order)">
-                      Ship
-                    </button>
-                  } @else if (order.trackingNumber) {
-                    <span class="small">
-                      {{ carrierLabel(order.carrier) || order.carrier }}
-                      · {{ order.trackingNumber }}
-                    </span>
-                  } @else {
-                    —
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    <div class="table-responsive">
+      <table class="table cart-table order-table">
+        <thead>
+          <tr class="table-head">
+            <th>Order</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Province</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders; track order.orderNumber) {
+          <tr>
+            <td>
+              <span class="fw-bolder">{{ order.orderNumber }}</span>
+              <div class="small text-muted">{{ order.status }}</div>
+            </td>
+            <td>{{ order.email }}</td>
+            <td>{{ order.total | currency: (order.currency || 'CAD') }}</td>
+            <td>{{ order.shippingProvince }}</td>
+            <td>{{ order.createdAt | date: 'dd MMM yyyy, h:mm a' }}</td>
+            <td>
+              @if (canShip(order)) {
+              <button
+                type="button"
+                class="btn btn-sm btn-solid"
+                (click)="openShip(order)"
+              >
+                Ship
+              </button>
+              } @else if (order.trackingNumber) {
+              <span class="small">
+                {{ carrierLabel(order.carrier) || order.carrier }} · {{
+                order.trackingNumber }}
+              </span>
+              } @else { — }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     }
   </div>
 </section>
 
 @if (shipTarget) {
-  <div class="ship-modal-backdrop" (click)="closeShip()"></div>
-  <div class="ship-modal" role="dialog" aria-modal="true" aria-labelledby="ship-modal-title">
-    <h3 id="ship-modal-title" class="h5">Ship {{ shipTarget.orderNumber }}</h3>
-    <p class="text-muted small mb-3">
-      {{ shipTarget.email }} · {{ shipTarget.shippingCity }}, {{ shipTarget.shippingProvince }}
-    </p>
+<div class="ship-modal-backdrop" (click)="closeShip()"></div>
+<div
+  class="ship-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="ship-modal-title"
+>
+  <h3 id="ship-modal-title" class="h5">Ship {{ shipTarget.orderNumber }}</h3>
+  <p class="text-muted small mb-3">
+    {{ shipTarget.email }} · {{ shipTarget.shippingCity }}, {{
+    shipTarget.shippingProvince }}
+  </p>
 
-    <form [formGroup]="shipForm" (ngSubmit)="submitShip()">
-      <div class="mb-3">
-        <label class="form-label" for="carrier">Carrier</label>
-        <select id="carrier" class="form-select" formControlName="carrier">
-          <option value="canada_post">Canada Post</option>
-          <option value="chit_chats">Chit Chats</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label" for="trackingNumber">Tracking number</label>
-        <input
-          id="trackingNumber"
-          type="text"
-          class="form-control"
-          formControlName="trackingNumber"
-          placeholder="Paste from Canada Post / Chit Chats"
-          autocomplete="off"
-        />
-      </div>
+  <form [formGroup]="shipForm" (ngSubmit)="submitShip()">
+    <div class="mb-3">
+      <label class="form-label" for="carrier">Carrier</label>
+      <select id="carrier" class="form-select" formControlName="carrier">
+        <option value="canada_post">Canada Post</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="trackingNumber">Tracking number</label>
+      <input
+        id="trackingNumber"
+        type="text"
+        class="form-control"
+        formControlName="trackingNumber"
+        placeholder="Paste from Canada Post"
+        autocomplete="off"
+      />
+    </div>
 
-      @if (shipError) {
-        <div class="alert alert-danger py-2">{{ shipError }}</div>
-      }
+    @if (shipError) {
+    <div class="alert alert-danger py-2">{{ shipError }}</div>
+    }
 
-      <div class="d-flex gap-2 justify-content-end">
-        <button type="button" class="btn btn-outline" (click)="closeShip()" [disabled]="shipping">
-          Cancel
-        </button>
-        <button type="submit" class="btn btn-solid" [disabled]="shipping || shipForm.invalid">
-          {{ shipping ? 'Saving…' : 'Mark shipped' }}
-        </button>
-      </div>
-    </form>
-  </div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="closeShip()"
+        [disabled]="shipping"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="btn btn-solid"
+        [disabled]="shipping || shipForm.invalid"
+      >
+        {{ shipping ? 'Saving…' : 'Mark shipped' }}
+      </button>
+    </div>
+  </form>
+</div>
 }

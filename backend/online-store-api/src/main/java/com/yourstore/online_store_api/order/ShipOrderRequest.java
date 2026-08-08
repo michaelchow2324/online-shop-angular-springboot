@@ -7,7 +7,7 @@ import lombok.Setter;
 
 /**
  * Body for {@code POST /api/admin/orders/{orderNumber}/ship} (guide 07).
- * Carrier is a free-form code (e.g. {@code canada_post}, {@code chit_chats}).
+ * Carrier code — currently {@code canada_post} only (Chit Chats disabled).
  */
 @Getter
 @Setter

@@ -82,9 +82,10 @@ class MailServiceTest {
     }
 
     @Test
-    void trackingUrl_chitChats() {
-        assertThat(MailService.trackingUrl("chit_chats", "abc123"))
-                .isEqualTo("https://chitchats.com/tracking/abc123");
+    void trackingUrl_usesCanadaPost() {
+        assertThat(MailService.trackingUrl("canada_post", "abc123"))
+                .isEqualTo(
+                        "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=abc123");
     }
 
     private static ShopOrder sampleOrder() {

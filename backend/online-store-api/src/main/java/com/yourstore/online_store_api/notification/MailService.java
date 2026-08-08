@@ -25,7 +25,6 @@ public class MailService {
 
     private static final String CANADA_POST_TRACK =
             "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=";
-    private static final String CHIT_CHATS_TRACK = "https://chitchats.com/tracking/";
 
     private final JavaMailSender mailSender;
     private final String from;
@@ -72,18 +71,13 @@ public class MailService {
         send(toEmail, subject, body);
     }
 
-    /** Build Canada Post / Chit Chats tracking link from carrier + tracking number. */
+    /** Build Canada Post tracking link from tracking number (Chit Chats disabled). */
     public static String trackingUrl(String carrier, String trackingNumber) {
         if (trackingNumber == null || trackingNumber.isBlank()) {
             return null;
         }
-        String trimmed = trackingNumber.trim();
-        String normalized = carrier == null ? "" : carrier.trim().toLowerCase(Locale.ROOT);
-        return switch (normalized) {
-            case "canada_post", "canadapost", "canada-post" -> CANADA_POST_TRACK + trimmed;
-            case "chit_chats", "chitchats", "chit-chats" -> CHIT_CHATS_TRACK + trimmed;
-            default -> CANADA_POST_TRACK + trimmed; // default to Canada Post for unknown carriers
-        };
+        // Carrier kept for call-site compatibility; all links use Canada Post for now.
+        return CANADA_POST_TRACK + trackingNumber.trim();
     }
 
     private void send(String to, String subject, String text) {
@@ -171,7 +165,6 @@ public class MailService {
     private static String displayCarrier(String carrier) {
         return switch (carrier.trim().toLowerCase(Locale.ROOT)) {
             case "canada_post", "canadapost", "canada-post" -> "Canada Post";
-            case "chit_chats", "chitchats", "chit-chats" -> "Chit Chats";
             default -> carrier.trim();
         };
     }

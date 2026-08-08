@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -273,6 +274,10 @@ public class OrderServiceImpl implements OrderService {
 
         String carrier = request.getCarrier().trim();
         String tracking = request.getTrackingNumber().trim();
+        if (!isSupportedCarrier(carrier)) {
+            throw new IllegalArgumentException(
+                    "Unsupported carrier '" + carrier + "'. Use canada_post.");
+        }
 
         // Idempotent: already shipped with the same tracking → return current state
         if (order.getStatus() == OrderStatus.SHIPPED) {
@@ -310,6 +315,13 @@ public class OrderServiceImpl implements OrderService {
             return false;
         }
         return existing.trim().equalsIgnoreCase(incoming);
+    }
+
+    private static boolean isSupportedCarrier(String carrier) {
+        String normalized = carrier.trim().toLowerCase(Locale.ROOT);
+        return normalized.equals("canada_post")
+                || normalized.equals("canadapost")
+                || normalized.equals("canada-post");
     }
 
     private static boolean carrierEquals(String existing, String incoming) {

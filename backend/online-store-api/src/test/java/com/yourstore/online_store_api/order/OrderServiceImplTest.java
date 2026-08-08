@@ -272,14 +272,29 @@ class OrderServiceImplTest {
         when(orderRepository.findByOrderNumber("OS-SHIP-2")).thenReturn(Optional.of(order));
 
         ShipOrderRequest req = new ShipOrderRequest();
-        req.setCarrier("chit_chats");
+        req.setCarrier("canada_post");
         req.setTrackingNumber("CC-999");
 
         OrderDTO dto = orderService.shipOrder("OS-SHIP-2", req);
 
         assertThat(dto.getStatus()).isEqualTo(OrderStatus.SHIPPED);
-        assertThat(dto.getCarrier()).isEqualTo("chit_chats");
+        assertThat(dto.getCarrier()).isEqualTo("canada_post");
         verify(eventPublisher).publishEvent(new OrderShippedEvent(order.getId()));
+    }
+
+    @Test
+    void shipOrder_rejectsUnsupportedCarrier() {
+        ShopOrder order = paidOrder("OS-SHIP-CC");
+        when(orderRepository.findByOrderNumber("OS-SHIP-CC")).thenReturn(Optional.of(order));
+
+        ShipOrderRequest req = new ShipOrderRequest();
+        req.setCarrier("chit_chats");
+        req.setTrackingNumber("CC-999");
+
+        assertThatThrownBy(() -> orderService.shipOrder("OS-SHIP-CC", req))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported carrier");
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
