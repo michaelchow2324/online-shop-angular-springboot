@@ -191,6 +191,8 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() == OrderStatus.PAID) {
             return;
         }
+        // Late webhook after pending expiry may find CANCELLED — still mark PAID
+        // (customer completed Stripe; don't leave money without an order).
 
         LocalDateTime now = LocalDateTime.now();
         order.setStatus(OrderStatus.PAID);
@@ -308,6 +310,20 @@ public class OrderServiceImpl implements OrderService {
 
         order.getItems().size();
         return toDto(order);
+    }
+
+    @Override
+    @Transactional
+    public int cancelExpiredPendingPayments(LocalDateTime cutoff) {
+        if (cutoff == null) {
+            throw new IllegalArgumentException("Cutoff is required");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return orderRepository.cancelStalePendingPayments(
+                OrderStatus.PENDING_PAYMENT,
+                OrderStatus.CANCELLED,
+                cutoff,
+                now);
     }
 
     private static boolean trackingEquals(String existing, String incoming) {

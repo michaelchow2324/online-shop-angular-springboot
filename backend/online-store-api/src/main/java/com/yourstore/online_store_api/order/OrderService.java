@@ -1,5 +1,6 @@
 package com.yourstore.online_store_api.order;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderService {
@@ -36,5 +37,11 @@ public interface OrderService {
     * tracking is idempotent; different tracking is rejected.
     */
    OrderDTO shipOrder(String orderNumber, ShipOrderRequest request);
+
+   /**
+    * Cancel {@code PENDING_PAYMENT} orders created before {@code cutoff} (guide 08).
+    * Never touches {@code PAID} / shipped orders. Returns rows updated.
+    */
+   int cancelExpiredPendingPayments(LocalDateTime cutoff);
 
 }

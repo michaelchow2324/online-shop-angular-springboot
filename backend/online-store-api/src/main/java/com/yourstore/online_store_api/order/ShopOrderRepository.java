@@ -2,6 +2,7 @@ package com.yourstore.online_store_api.order;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -42,9 +43,21 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
             """)
     Optional<ShopOrder> findByIdWithItems(@Param("id") Long id);
 
-    // roughly equivalent:
-//     SELECT shop_order.*, shop_order_item.*
-//         FROM shop_order o
-//         LEFT JOIN shop_order_item i ON i.order_id = o.id
-//         WHERE o.id = :id
+    /**
+     * Cancel abandoned checkouts (guide 08): only {@code PENDING_PAYMENT} older than
+     * {@code cutoff}. Status predicate prevents cancelling paid orders.
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            UPDATE ShopOrder o
+            SET o.status = :cancelled,
+                o.updatedAt = :now
+            WHERE o.status = :pending
+              AND o.createdAt < :cutoff
+            """)
+    int cancelStalePendingPayments(
+            @Param("pending") OrderStatus pending,
+            @Param("cancelled") OrderStatus cancelled,
+            @Param("cutoff") LocalDateTime cutoff,
+            @Param("now") LocalDateTime now);
 }

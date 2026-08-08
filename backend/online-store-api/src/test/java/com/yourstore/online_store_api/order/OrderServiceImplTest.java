@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -360,6 +361,48 @@ class OrderServiceImplTest {
         List<OrderDTO> result = orderService.findOrdersByStatus(OrderStatus.PAID);
 
         assertThat(result).extracting(OrderDTO::getOrderNumber).containsExactly("OS-A", "OS-B");
+    }
+
+    @Test
+    void cancelExpiredPendingPayments_delegatesCutoffToRepository() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        when(orderRepository.cancelStalePendingPayments(
+                        eq(OrderStatus.PENDING_PAYMENT),
+                        eq(OrderStatus.CANCELLED),
+                        eq(cutoff),
+                        any(LocalDateTime.class)))
+                .thenReturn(3);
+
+        int cancelled = orderService.cancelExpiredPendingPayments(cutoff);
+
+        assertThat(cancelled).isEqualTo(3);
+        verify(orderRepository)
+                .cancelStalePendingPayments(
+                        eq(OrderStatus.PENDING_PAYMENT),
+                        eq(OrderStatus.CANCELLED),
+                        eq(cutoff),
+                        any(LocalDateTime.class));
+    }
+
+    @Test
+    void cancelExpiredPendingPayments_nullCutoff_rejected() {
+        assertThatThrownBy(() -> orderService.cancelExpiredPendingPayments(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cutoff");
+        verify(orderRepository, never())
+                .cancelStalePendingPayments(any(), any(), any(), any());
+    }
+
+    @Test
+    void markPaidFromStripe_cancelledOrder_stillMarksPaid() {
+        ShopOrder order = pendingOrderWithSession("cs_late", "OS-LATE");
+        order.setStatus(OrderStatus.CANCELLED);
+        when(orderRepository.findByStripeCheckoutSessionId("cs_late")).thenReturn(Optional.of(order));
+
+        orderService.markPaidFromStripeCheckout("cs_late", "pi_late", "OS-LATE");
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+        verify(eventPublisher).publishEvent(new OrderPaidEvent(order.getId()));
     }
 
     private static ShopOrder pendingOrderWithSession(String sessionId, String orderNumber) {

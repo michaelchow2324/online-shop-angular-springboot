@@ -16,3 +16,6 @@ app:
       REMOTE:
         fee: 24.95
         free-threshold: 150
+  # Guide 08 — abandon unpaid Stripe checkouts after this many hours
+  orders:
+    pending-payment-ttl-hours: 24
