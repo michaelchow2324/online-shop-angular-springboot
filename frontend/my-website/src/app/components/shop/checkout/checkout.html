@@ -81,11 +81,11 @@
                           <h2>Shipping address</h2>
                         </div>
                         @if (isLoggedIn && savedAddresses.length) {
-                          <div class="mb-3">
+                          <div class="mb-3 form-box">
                             <label class="form-label" for="savedAddress">Saved address</label>
                             <select
                               id="savedAddress"
-                              class="form-control form-select"
+                              class="form-control"
                               [ngModel]="selectedAddressId"
                               [ngModelOptions]="{ standalone: true }"
                               (ngModelChange)="selectSavedAddress($event)"
@@ -183,7 +183,7 @@
                               <label class="form-label" for="shippingProvince">Province</label>
                               <select
                                 id="shippingProvince"
-                                class="form-control form-select"
+                                class="form-control"
                                 formControlName="shippingProvince"
                                 autocomplete="address-level1"
                               >
@@ -230,32 +230,34 @@
                           </div>
                           @if (showSaveAddressOption) {
                             <div class="col-12">
-                              <div class="form-check mt-1">
-                                <input
-                                  class="form-check-input"
-                                  type="checkbox"
-                                  id="saveAddress"
-                                  [(ngModel)]="saveAddressToAccount"
-                                  [ngModelOptions]="{ standalone: true }"
-                                />
-                                <label class="form-check-label" for="saveAddress">
-                                  Save this address to my account for next time
-                                </label>
-                              </div>
-                              @if (saveAddressToAccount) {
-                                <div class="form-check mt-1 ms-1">
+                              <div class="checkout-save-address">
+                                <div class="form-check">
                                   <input
                                     class="form-check-input"
                                     type="checkbox"
-                                    id="saveAsDefault"
-                                    [(ngModel)]="saveAddressAsDefault"
+                                    id="saveAddress"
+                                    [(ngModel)]="saveAddressToAccount"
                                     [ngModelOptions]="{ standalone: true }"
                                   />
-                                  <label class="form-check-label" for="saveAsDefault">
-                                    Set as default shipping address
+                                  <label class="form-check-label" for="saveAddress">
+                                    Save this address to my account for next time
                                   </label>
                                 </div>
-                              }
+                                @if (saveAddressToAccount) {
+                                  <div class="form-check">
+                                    <input
+                                      class="form-check-input"
+                                      type="checkbox"
+                                      id="saveAsDefault"
+                                      [(ngModel)]="saveAddressAsDefault"
+                                      [ngModelOptions]="{ standalone: true }"
+                                    />
+                                    <label class="form-check-label" for="saveAsDefault">
+                                      Set as default shipping address
+                                    </label>
+                                  </div>
+                                }
+                              </div>
                             </div>
                           }
                         </div>

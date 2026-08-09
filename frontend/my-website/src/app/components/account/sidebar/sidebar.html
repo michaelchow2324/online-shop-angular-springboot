@@ -46,6 +46,8 @@
         </a>
       </li>
 
+      <!-- Hidden for now (guide 09) — Multikart leftovers; keep markup for later -->
+      @if (false) {
       <li class="nav-item" role="presentation">
         <a
           class="nav-link"
@@ -78,11 +80,15 @@
           <i class="ri-coin-line"></i> {{ 'earning_points' | translate }}
         </a>
       </li>
+      }
+
       <li class="nav-item" role="presentation">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/account/order']">
           <i class="ri-file-text-line"></i>{{ 'my_orders' | translate }}
         </a>
       </li>
+
+      @if (false) {
       <li class="nav-item" role="presentation">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/account/downloads']">
           <i class="ri-download-2-line"></i>{{ 'downloads' | translate }}
@@ -93,6 +99,8 @@
           <i class="ri-money-dollar-circle-line"></i> {{ 'refund_history' | translate }}
         </a>
       </li>
+      }
+
       <li class="nav-item" role="presentation">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/account/addresses']">
           <i class="ri-map-pin-line"></i> {{ 'saved_address' | translate }}

@@ -38,6 +38,41 @@
   background: #ececec;
 }
 
-.form-select.form-control {
-  appearance: auto;
+/* One arrow only — do not combine Bootstrap .form-select with theme select styling */
+.checkout-page select.form-control {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px 12px;
+  padding-right: 2rem;
+}
+
+.checkout-save-address {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+
+  .form-check {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    min-height: auto;
+    padding-left: 1.5em;
+
+    .form-check-input {
+      float: none;
+      margin-top: 0.2em;
+      margin-left: -1.5em;
+      flex-shrink: 0;
+    }
+
+    .form-check-label {
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
 }

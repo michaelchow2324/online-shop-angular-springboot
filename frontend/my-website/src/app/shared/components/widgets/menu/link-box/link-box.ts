@@ -16,7 +16,10 @@ export class LinkBox {
 
   readonly menu = input<IMenu>();
 
-  redirect(path: string) {
+  redirect(path: string | null | undefined) {
+    if (!path) {
+      return;
+    }
     void this.router.navigateByUrl(path);
   }
 }
