@@ -1,6 +1,6 @@
 import { Select2Data } from 'ng-select2-component';
 
-export const countryCodes: Select2Data = [
+const rawCountryCodes: Select2Data = [
   {
     label: '+971',
     value: '971',
@@ -1994,3 +1994,79 @@ export const countryCodes: Select2Data = [
     },
   },
 ];
+
+
+const regionNames =
+  typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['en'], { type: 'region' })
+    : null;
+
+function regionName(iso: string | undefined): string {
+  if (!iso || !regionNames) {
+    return '';
+  }
+  try {
+    return regionNames.of(iso.toUpperCase()) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** Unique ISO country rows; `value` is ISO2 so Select2 never merges shared dial codes (+1, +44, …). */
+export const countryCodes: Select2Data = (() => {
+  const seen = new Set<string>();
+  const rows: Array<{
+    label: string;
+    value: string;
+    data: { class: string; code: string; name: string };
+  }> = [];
+
+  for (const item of rawCountryCodes as Array<{
+    label: string | number;
+    value: string | number;
+    data?: { class?: string; code?: string; name?: string };
+  }>) {
+    const iso = String(item.data?.class ?? '')
+      .trim()
+      .toLowerCase();
+    if (!iso || seen.has(iso)) {
+      continue;
+    }
+    seen.add(iso);
+
+    const dial = String(item.data?.code ?? item.label).trim();
+    const name = regionName(iso);
+    rows.push({
+      label: name ? `${name} ${dial}` : dial,
+      value: iso,
+      data: {
+        class: iso,
+        code: dial,
+        name,
+      },
+    });
+  }
+
+  return rows;
+})();
+
+/** Dial digits without "+" from a Select2 ISO value (e.g. "ca" → "1"). */
+export function dialDigitsForCountry(isoOrDial: string | number | null | undefined): string {
+  const key = String(isoOrDial ?? '')
+    .trim()
+    .toLowerCase();
+  if (!key) {
+    return '';
+  }
+  const match = (countryCodes as Array<{ value: string; data?: { code?: string } }>).find(
+    c => c.value === key,
+  );
+  const dial = String(match?.data?.code ?? key).trim();
+  return dial.replace(/^\+/, '').replace(/\s+/g, '');
+}
+
+/** Shop ships to Canada only for now — lock phone dial to +1. */
+export const CANADA_COUNTRY_ISO = 'ca';
+export const CANADA_DIAL_DIGITS = '1';
+export const CANADA_DIAL_DISPLAY = '+1';
+

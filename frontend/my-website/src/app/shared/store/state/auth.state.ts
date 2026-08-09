@@ -80,17 +80,24 @@ export class AuthState {
 
   @Action(RegisterAction)
   register(_ctx: StateContext<AuthStateModel>, action: RegisterAction) {
-    // Backend only needs email + password (theme form may include name/phone).
+    const payload = action.payload as {
+      email: string;
+      password: string;
+      phone: string | number;
+      country_code: string | number;
+    };
     return this.authService
       .register({
-        email: action.payload.email,
-        password: action.payload.password,
+        email: payload.email,
+        password: payload.password,
+        phone: String(payload.phone ?? ''),
+        countryCode: String(payload.country_code ?? ''),
       })
       .pipe(
         tap({
           next: () => {
             this.notificationService.showSuccess(
-              'Account created. Check the server log for the email verification token (guide 06 will email it).',
+              'Account created. Check your email to verify your address.',
             );
           },
           error: err => {
@@ -105,6 +112,7 @@ export class AuthState {
     // JWT is persisted via NgxsStoragePlugin (keys includes 'auth') → localStorage.
     // AuthInterceptor reads access_token and sets Authorization: Bearer …
     // Post-login navigation is handled by the login modal (avoid double navigate).
+    this.authService.lastLoginEmail = String(action.payload?.email ?? '').trim() || null;
     return this.authService.login(action.payload).pipe(
       tap({
         next: res => {

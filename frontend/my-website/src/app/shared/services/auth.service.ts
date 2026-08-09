@@ -22,6 +22,8 @@ export class AuthService {
   public confirmed: boolean = false;
   /** Layout watches this to open the login modal when AuthGuard blocks. */
   public isLogin: boolean = false;
+  /** Last email used on login — Alert uses this for "Resend verification". */
+  public lastLoginEmail: string | null = null;
 
   login(payload: IAuthUserState): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, {
@@ -30,10 +32,17 @@ export class AuthService {
     });
   }
 
-  register(payload: { email: string; password: string }): Observable<MeDTO> {
+  register(payload: {
+    email: string;
+    password: string;
+    phone: string;
+    countryCode: string;
+  }): Observable<MeDTO> {
     return this.http.post<MeDTO>(`${environment.apiUrl}/auth/register`, {
       email: payload.email.trim(),
       password: payload.password,
+      phone: String(payload.phone).trim(),
+      countryCode: String(payload.countryCode).trim(),
     });
   }
 
@@ -65,6 +74,14 @@ export class AuthService {
       {
         params: { token },
       },
+    );
+  }
+
+  /** Public; always returns a generic success message (no email enumeration). */
+  resendVerification(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/auth/resend-verification`,
+      { email: email.trim() },
     );
   }
 }

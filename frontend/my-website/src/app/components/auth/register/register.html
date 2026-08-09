@@ -35,28 +35,21 @@
   </div>
   <div class="col-12 phone-field mb-3">
     <div class="form-box">
-      <label class="form-label" for="address1">{{ 'phone_number' | translate }}</label>
-      <select2
-        class="custom-select intl-tel-input"
-        [templates]="template"
-        [data]="codes"
-        formControlName="country_code"
-      >
-        <ng-template #template let-data="data">
-          <div class="country">
-            <div class="flag-box">
-              <div class="iti-flag {{data?.class}}"></div>
-            </div>
-            <span class="dial-code">{{data.code}}</span>
-          </div>
-        </ng-template>
-      </select2>
+      <label class="form-label" for="phone">{{ 'phone_number' | translate }}</label>
+      <div class="canada-dial-prefix" title="Canada only">
+        <div class="flag-box">
+          <div class="iti-flag ca"></div>
+        </div>
+        <span class="dial-code">{{ canadaDial }}</span>
+      </div>
       <input
-        type="number"
+        id="phone"
+        type="tel"
         class="form-control intl-input-padding"
         formControlName="phone"
         placeholder="{{ 'enter_phone' | translate }}"
         name="phone"
+        autocomplete="tel-national"
       />
       @if(form.controls['phone'].touched && form.controls['phone'].errors?.['required']){
       <div class="invalid-feedback">{{ 'phone_number_is_required' | translate }}</div>
@@ -77,7 +70,7 @@
 
     @if(form.controls['password'].touched && form.controls['password'].errors?.['required']){
     <div class="invalid-feedback">{{ 'password_is_required' | translate }}</div>
-    }da
+    }
   </div>
   <div class="mb-3">
     <div class="form-box">

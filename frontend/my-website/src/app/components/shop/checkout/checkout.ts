@@ -37,6 +37,7 @@ import { Breadcrumb } from '../../../shared/components/widgets/breadcrumb/breadc
 import { LoginModal } from '../../../shared/components/widgets/modal/login-modal/login-modal';
 import { NoData } from '../../../shared/components/widgets/no-data/no-data';
 import { CA_POSTAL_PATTERN, CANADIAN_PROVINCES } from '../../../shared/data/canadian-provinces';
+import { CANADA_DIAL_DISPLAY } from '../../../shared/data/country-code';
 import { IBreadcrumb } from '../../../shared/interface/breadcrumb.interface';
 import { ICart } from '../../../shared/interface/cart.interface';
 import {
@@ -53,7 +54,7 @@ import { AccountService } from '../../../shared/services/account.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { CheckoutService } from '../../../shared/services/checkout.service';
 import { ShippingService } from '../../../shared/services/shipping.service';
-import { GetAddressesAction } from '../../../shared/store/action/account.action';
+import { GetAddressesAction, GetUserDetailsAction } from '../../../shared/store/action/account.action';
 import { AccountState } from '../../../shared/store/state/account.state';
 import { AuthState } from '../../../shared/store/state/auth.state';
 import { CartState } from '../../../shared/store/state/cart.state';
@@ -91,6 +92,7 @@ export class Checkout implements OnInit {
   };
 
   public provinces = CANADIAN_PROVINCES;
+  public canadaDial = CANADA_DIAL_DISPLAY;
   public form: FormGroup;
   public cartItems: ICart[] = [];
   public cartSubtotal = 0;
@@ -146,7 +148,15 @@ export class Checkout implements OnInit {
         if (this.isLoggedIn && email) {
           this.form.patchValue({ email });
           this.form.get('email')?.disable({ emitEvent: false });
-          this.loadSavedAddresses();
+          this.store
+            .dispatch(new GetUserDetailsAction())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                this.prefillFromAccountProfile();
+                this.loadSavedAddresses();
+              },
+            });
         } else {
           this.form.get('email')?.enable({ emitEvent: false });
           this.savedAddresses = [];
@@ -255,10 +265,13 @@ export class Checkout implements OnInit {
     }
 
     const raw = this.form.getRawValue();
+    const nationalPhone = String(raw.shippingPhone).replace(/\D/g, '');
     const payload: CreateShopOrderRequest = {
       email: String(raw.email).trim(),
       shippingName: String(raw.shippingName).trim(),
-      shippingPhone: String(raw.shippingPhone).trim() || null,
+      shippingPhone: nationalPhone
+        ? `${CANADA_DIAL_DISPLAY} ${nationalPhone}`
+        : null,
       shippingLine1: String(raw.shippingLine1).trim(),
       shippingLine2: String(raw.shippingLine2 || '').trim() || null,
       shippingCity: String(raw.shippingCity).trim(),
@@ -315,6 +328,7 @@ export class Checkout implements OnInit {
             this.selectedAddressId = 'new';
             this.saveAddressToAccount = true;
             this.saveAddressAsDefault = true;
+            this.prefillFromAccountProfile();
             return;
           }
           const preferred =
@@ -326,10 +340,36 @@ export class Checkout implements OnInit {
       });
   }
 
+  /**
+   * When logged in with no saved address (or "new address"), fill name/phone from profile.
+   * Address book values still win when a saved address is selected.
+   */
+  private prefillFromAccountProfile(): void {
+    const user = this.store.selectSnapshot(AccountState.user);
+    if (!user) {
+      return;
+    }
+    const patch: { shippingName?: string; shippingPhone?: string } = {};
+    const currentName = String(this.form.get('shippingName')?.value ?? '').trim();
+    const currentPhone = String(this.form.get('shippingPhone')?.value ?? '').trim();
+    const profileName = String(user.name ?? '').trim();
+    const profilePhone = String(user.phone ?? '').replace(/\D/g, '');
+
+    if (!currentName && profileName) {
+      patch.shippingName = profileName;
+    }
+    if (!currentPhone && profilePhone) {
+      patch.shippingPhone = profilePhone;
+    }
+    if (Object.keys(patch).length) {
+      this.form.patchValue(patch);
+    }
+  }
+
   private applyAddressToForm(address: CustomerAddress): void {
     this.form.patchValue({
       shippingName: address.recipientName,
-      shippingPhone: address.phone ?? '',
+      shippingPhone: String(address.phone ?? '').replace(/\D/g, ''),
       shippingLine1: address.line1,
       shippingLine2: address.line2 ?? '',
       shippingCity: address.city,

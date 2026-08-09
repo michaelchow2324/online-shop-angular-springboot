@@ -9,7 +9,9 @@
       /* Theme default translate(50%) was for split layout with the image */
       transform: none;
       width: 100%;
-      padding: 2rem 1.75rem;
+      padding: 2rem 1.75rem 1.75rem;
+      max-height: min(88vh, 760px);
+      overflow-y: auto;
     }
 
     &.open .right-content {
@@ -18,3 +20,4 @@
     }
   }
 }
+

@@ -40,7 +40,9 @@
                         </p>
                       } @else {
                         <p class="mb-0 text-muted small">
-                          Checking out as a guest. Have an account? Log in is optional.
+                          Checking out as a guest. Have an account?
+                          <a href="javascript:void(0)" (click)="openLogin()">Log in</a>
+                          to track this order — optional, not required.
                         </p>
                       }
                     </div>
@@ -118,16 +120,22 @@
                               }
                             </div>
                           </div>
-                          <div class="col-md-6">
+                          <div class="col-md-6 phone-field">
                             <div class="form-box">
                               <label class="form-label" for="shippingPhone">Phone</label>
+                              <div class="canada-dial-prefix" title="Canada only">
+                                <div class="flag-box">
+                                  <div class="iti-flag ca"></div>
+                                </div>
+                                <span class="dial-code">{{ canadaDial }}</span>
+                              </div>
                               <input
                                 id="shippingPhone"
                                 type="tel"
-                                class="form-control"
+                                class="form-control intl-input-padding"
                                 formControlName="shippingPhone"
-                                autocomplete="tel"
-                                placeholder="416-555-0100"
+                                autocomplete="tel-national"
+                                placeholder="4165550100"
                               />
                               @if (controlInvalid('shippingPhone')) {
                                 <div class="invalid-feedback d-block">Phone is required.</div>

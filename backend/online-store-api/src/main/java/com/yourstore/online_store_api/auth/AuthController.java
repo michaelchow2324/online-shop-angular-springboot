@@ -39,6 +39,14 @@ public class AuthController {
         return ResponseEntity.ok(authService.verifyEmail(token));
     }
 
+    @PostMapping("/resend-verification")
+    public ResponseEntity<MessageResponse> resendVerification(
+            @Valid @RequestBody ResendVerificationRequest request) {
+        authService.resendVerification(request.getEmail());
+        return ResponseEntity.ok(new MessageResponse(
+                "If that email needs verification, we sent a new link. Check your inbox."));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<MeDTO> me(@AuthenticationPrincipal CustomerPrincipal principal) {
         return ResponseEntity.ok(authService.me(principal.id()));

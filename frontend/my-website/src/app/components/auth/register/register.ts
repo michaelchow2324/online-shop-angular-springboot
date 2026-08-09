@@ -10,12 +10,11 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
-import { Select2Module } from 'ng-select2-component';
 import { Observable } from 'rxjs';
 
 import { Alert } from '../../../shared/components/widgets/alert/alert';
 import { Button } from '../../../shared/components/widgets/button/button';
-import { countryCodes } from '../../../shared/data/country-code';
+import { CANADA_DIAL_DIGITS, CANADA_DIAL_DISPLAY } from '../../../shared/data/country-code';
 import { IBreadcrumb } from '../../../shared/interface/breadcrumb.interface';
 import { IValues } from '../../../shared/interface/setting.interface';
 import { IOption } from '../../../shared/interface/theme-option.interface';
@@ -26,7 +25,7 @@ import { CustomValidators } from '../../../shared/validator/password-match';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule, ReactiveFormsModule, TranslateModule, Select2Module, Button, Alert],
+  imports: [FormsModule, ReactiveFormsModule, TranslateModule, Button, Alert],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -42,7 +41,7 @@ export class Register {
   ) as Observable<IOption>;
 
   public form: FormGroup;
-  public codes = countryCodes;
+  public canadaDial = CANADA_DIAL_DISPLAY;
   public tnc = new FormControl(false, [Validators.requiredTrue]);
   public breadcrumb: IBreadcrumb = {
     title: 'create account',
@@ -60,7 +59,6 @@ export class Register {
         name: new FormControl('', [Validators.required]),
         email: new FormControl('', [Validators.required, Validators.email]),
         phone: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]*$/)]),
-        country_code: new FormControl('91', [Validators.required]),
         password: new FormControl('', [Validators.required, Validators.minLength(8)]),
         password_confirmation: new FormControl('', [Validators.required, Validators.minLength(8)]),
       },
@@ -78,11 +76,19 @@ export class Register {
       return;
     }
     if (this.form.valid) {
-      this.store.dispatch(new RegisterAction(this.form.value)).subscribe({
-        complete: () => {
-          this.activeForm.emit('login');
-        },
-      });
+      const raw = this.form.getRawValue();
+      this.store
+        .dispatch(
+          new RegisterAction({
+            ...raw,
+            country_code: CANADA_DIAL_DIGITS,
+          }),
+        )
+        .subscribe({
+          complete: () => {
+            this.activeForm.emit('login');
+          },
+        });
     }
   }
 

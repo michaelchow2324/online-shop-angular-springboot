@@ -15,6 +15,8 @@ export interface MeDTO {
   id: number;
   email: string;
   displayName: string | null;
+  phone: string | null;
+  countryCode: string | null;
   role: string;
   emailVerifiedAt: string | null;
 }

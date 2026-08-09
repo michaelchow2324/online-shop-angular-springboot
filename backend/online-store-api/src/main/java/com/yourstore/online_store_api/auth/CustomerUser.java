@@ -34,6 +34,14 @@ public class CustomerUser {
     @Column(name = "display_name")
     private String displayName;
 
+    /** National number digits (no country dial code). */
+    @Column(length = 32)
+    private String phone;
+
+    /** Dial code digits without "+" (e.g. 1, 91, 852). */
+    @Column(name = "country_code", length = 8)
+    private String countryCode;
+
     @NotBlank
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;

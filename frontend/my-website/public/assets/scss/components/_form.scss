@@ -198,10 +198,31 @@ textarea.form-control {
     }
 
     .form-label {
-      ~ .custom-select {
+      ~ .custom-select,
+      ~ .canada-dial-prefix {
         top: 29px;
         left: 1px;
       }
+    }
+  }
+
+  .canada-dial-prefix {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: calc(42px + (48 - 42) * ((100vw - 320px) / (1920 - 320)));
+    width: calc(100px + (120 - 100) * ((100vw - 320px) / (1920 - 320)));
+    padding: 0 0.65rem;
+    border-right: 1px solid variables.$white-dark;
+    pointer-events: none;
+
+    .dial-code {
+      color: #777;
+      font-weight: 500;
     }
   }
 
@@ -211,6 +232,7 @@ textarea.form-control {
     left: 0;
     height: calc(42px + (48 - 42) * ((100vw - 320px) / (1920 - 320)));
     width: calc(100px + (120 - 100) * ((100vw - 320px) / (1920 - 320)));
+    z-index: 2;
 
     .select2 {
       height: 100%;
@@ -256,3 +278,48 @@ textarea.form-control {
     }
   }
 }
+
+/* Country dial list attached via CDK overlay — float above modal, one country per row */
+.cdk-overlay-container {
+  .cdk-overlay-pane {
+    z-index: 1100;
+  }
+
+  .select2-results,
+  .select2-container--open {
+    min-width: 280px;
+    max-width: min(360px, 92vw);
+  }
+
+  /* Force single-column list (never Multikart/select2 grid packing) */
+  .select2-results__options,
+  .select2-results__options.select2-grid,
+  .select2-results__options.select2-grid-auto {
+    display: block !important;
+    grid-template-columns: none !important;
+    overflow-x: hidden;
+  }
+
+  .select2-results__option {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    float: none !important;
+  }
+
+  .country {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.35rem;
+    min-width: 0;
+
+    .country-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+

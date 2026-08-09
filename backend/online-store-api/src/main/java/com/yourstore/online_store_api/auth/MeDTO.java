@@ -16,6 +16,8 @@ public record MeDTO(
         Long id,
         String email,
         String displayName,
+        String phone,
+        String countryCode,
         String role,
         LocalDateTime emailVerifiedAt
 ) {

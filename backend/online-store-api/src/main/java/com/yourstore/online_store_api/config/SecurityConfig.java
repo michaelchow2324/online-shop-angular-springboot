@@ -99,7 +99,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/register",
                                 "/api/auth/login",
-                                "/api/auth/verify-email"
+                                "/api/auth/verify-email",
+                                "/api/auth/resend-verification"
                         ).permitAll()
 
                         // Catalog + checkout plumbing — guests can browse and pay

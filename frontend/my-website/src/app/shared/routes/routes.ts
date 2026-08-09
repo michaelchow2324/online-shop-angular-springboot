@@ -44,6 +44,14 @@ export const content: Routes = [
     loadChildren: () =>
       import("../../components/page/page.routes").then((m) => m.page),
   },
+  // Guide 10 — public verify link from registration email (must be before **)
+  {
+    path: "verify-email",
+    loadComponent: () =>
+      import("../../components/auth/verify-email/verify-email").then(
+        (m) => m.VerifyEmail,
+      ),
+  },
   {
     path: "**",
     pathMatch: "full",

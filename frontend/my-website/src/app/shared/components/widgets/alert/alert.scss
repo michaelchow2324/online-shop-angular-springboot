@@ -1,0 +1,13 @@
+.login-alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+
+  .alert-resend {
+    margin-left: auto;
+    font-weight: 600;
+    text-decoration: underline;
+    white-space: nowrap;
+  }
+}

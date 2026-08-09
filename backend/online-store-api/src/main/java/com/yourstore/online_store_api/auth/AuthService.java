@@ -52,6 +52,8 @@ public class AuthService {
         CustomerUser user = new CustomerUser();
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+        user.setPhone(req.getPhone().trim());
+        user.setCountryCode("1"); // Canada-only dial for now
         user.setRole(DEFAULT_ROLE);
         user.setCreatedAt(LocalDateTime.now());
         user = userRepository.save(user);
@@ -64,6 +66,7 @@ public class AuthService {
 
     /**
      * Validates credentials and returns a JWT access token.
+     * Email must be verified first (check the link from registration mail).
      */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest req) {
@@ -72,6 +75,11 @@ public class AuthService {
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalArgumentException(
+                    "Please verify your email before signing in. Check your inbox for the link.");
         }
 
         String accessToken = jwtService.createToken(user);
@@ -95,20 +103,53 @@ public class AuthService {
                 .orElseThrow(() -> new NotFoundException("Invalid verification token"));
 
         LocalDateTime now = LocalDateTime.now();
+        CustomerUser user = token.getUser();
+
+        // Idempotent / heal: SSR or double-click may hit verify twice; also recover if
+        // an older claimGuestOrders clear wiped email_verified_at after marking used.
         if (token.isUsed()) {
-            throw new IllegalArgumentException("Verification token already used");
+            if (user.isEmailVerified()) {
+                return toMeDTO(user);
+            }
+            user.setEmailVerifiedAt(now);
+            userRepository.save(user);
+            claimGuestOrders(user);
+            return toMeDTO(user);
         }
         if (token.isExpired(now)) {
             throw new IllegalArgumentException("Verification token expired");
         }
 
-        CustomerUser user = token.getUser();
         user.setEmailVerifiedAt(now);
         token.setUsedAt(now);
+        // Persist before claimGuestOrders: that @Modifying query clears the persistence
+        // context and would otherwise drop these unflushed changes.
+        userRepository.save(user);
+        tokenRepository.save(token);
 
         claimGuestOrders(user);
 
         return toMeDTO(user);
+    }
+
+    /**
+     * Issues a fresh verify link for an unverified account.
+     * Always succeeds from the caller's perspective (no email enumeration).
+     */
+    @Transactional
+    public void resendVerification(String emailRaw) {
+        if (emailRaw == null || emailRaw.isBlank()) {
+            return;
+        }
+        String email = emailRaw.trim();
+        userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
+            if (user.isEmailVerified()) {
+                return;
+            }
+            invalidateUnusedTokens(user);
+            String rawToken = createVerificationToken(user);
+            sendVerifyEmailSafely(user.getEmail(), rawToken);
+        });
     }
 
     /**
@@ -128,6 +169,8 @@ public class AuthService {
                 user.getId(),
                 user.getEmail(),
                 user.getDisplayName(),
+                user.getPhone(),
+                user.getCountryCode(),
                 user.getRole(),
                 user.getEmailVerifiedAt());
     }
@@ -139,6 +182,13 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusHours(VERIFY_TOKEN_HOURS));
         tokenRepository.save(token);
         return token.getToken();
+    }
+
+    private void invalidateUnusedTokens(CustomerUser user) {
+        LocalDateTime now = LocalDateTime.now();
+        for (EmailVerificationToken token : tokenRepository.findByUserAndUsedAtIsNull(user)) {
+            token.setUsedAt(now);
+        }
     }
 
     /**

@@ -157,6 +157,8 @@ public class AccountService {
                 user.getId(),
                 user.getEmail(),
                 user.getDisplayName(),
+                user.getPhone(),
+                user.getCountryCode(),
                 user.getRole(),
                 user.getEmailVerifiedAt());
     }

@@ -26,9 +26,10 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
     boolean existsByOrderNumber(String orderNumber);
 
     // @Modifying means that this is a modifying query
-    // clearAutomatically = true means clears the EntityManager cache, so the next query will get the latest data
+    // flushAutomatically = true writes pending entity changes first;
+    // clearAutomatically = true then clears the EntityManager cache
     /** Attach guest orders (user_id null) with the same email to a verified account. */
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE ShopOrder o
             SET o.userId = :userId
@@ -49,7 +50,7 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
      * Cancel abandoned checkouts (guide 08): only {@code PENDING_PAYMENT} older than
      * {@code cutoff}. Status predicate prevents cancelling paid orders.
      */
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE ShopOrder o
             SET o.status = :cancelled,

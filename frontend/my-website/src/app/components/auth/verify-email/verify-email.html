@@ -1,0 +1,57 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+<section class="section-b-space verify-email-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="verify-email-card text-center">
+          @if (status === 'loading') {
+            <h2>Verifying your email…</h2>
+            <p class="text-muted mb-0">Please wait a moment.</p>
+          } @else if (status === 'success') {
+            <h2>Email verified</h2>
+            @if (verifiedEmail) {
+              <p class="mb-2">
+                Confirmed for <strong>{{ verifiedEmail }}</strong>
+              </p>
+            }
+            <p class="text-muted mb-4">{{ message }}</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+              @if (isLoggedIn) {
+                <a class="btn btn-solid" routerLink="/account/order">View my orders</a>
+              } @else {
+                <button type="button" class="btn btn-solid" (click)="openLogin()">Log in</button>
+              }
+              <a class="btn btn-outline" routerLink="/">Continue shopping</a>
+            </div>
+          } @else {
+            <h2>Verification failed</h2>
+            <p class="text-muted mb-4">{{ message }}</p>
+
+            <form class="resend-form text-start mb-4" [formGroup]="resendForm" (ngSubmit)="resendVerification()">
+              <label class="form-label" for="resend-email">Resend verification email</label>
+              <input
+                id="resend-email"
+                type="email"
+                class="form-control mb-2"
+                formControlName="email"
+                placeholder="Your account email"
+              />
+              @if (resendForm.controls['email'].touched && resendForm.controls['email'].invalid) {
+                <div class="invalid-feedback d-block mb-2">Enter a valid email address.</div>
+              }
+              <button type="submit" class="btn btn-solid w-100" [disabled]="resending">
+                {{ resending ? 'Sending…' : 'Resend email' }}
+              </button>
+            </form>
+
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+              <button type="button" class="btn btn-outline" (click)="openLogin()">Log in</button>
+              <a class="btn btn-outline" routerLink="/">Back to home</a>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
