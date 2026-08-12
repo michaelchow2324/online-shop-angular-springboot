@@ -1,21 +1,24 @@
 package com.yourstore.online_store_api.notification;
 
-import java.math.BigDecimal;
-import java.util.Locale;
+import java.io.UnsupportedEncodingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.yourstore.online_store_api.order.ShopOrder;
-import com.yourstore.online_store_api.order.ShopOrderItem;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 /**
- * Plain-text emails via {@link JavaMailSender} (Mailhog locally, real SMTP in prod).
+ * HTML transactional emails via {@link JavaMailSender} (Mailhog locally, real SMTP in prod).
  * Order listeners and auth call these methods — do not send mail from payment code directly.
  */
 @Service
@@ -26,34 +29,42 @@ public class MailService {
     private static final String CANADA_POST_TRACK =
             "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=";
 
+    private static final String LOGO_CLASSPATH = "mail/lovely-dearly-logo.jpeg";
+
     private final JavaMailSender mailSender;
     private final String fromOrders;
     private final String fromNoreply;
     private final String publicWebBaseUrl;
+    private final String shopName;
 
     MailService(
             JavaMailSender mailSender,
             @Value("${app.mail.from-orders:${app.mail.from}}") String fromOrders,
             @Value("${app.mail.from-noreply:${app.mail.from}}") String fromNoreply,
-            @Value("${app.public-web-base-url:http://localhost:4200}") String publicWebBaseUrl) {
+            @Value("${app.public-web-base-url:http://localhost:4200}") String publicWebBaseUrl,
+            @Value("${app.mail.shop-name:Lovely Dearly}") String shopName) {
         this.mailSender = mailSender;
         this.fromOrders = fromOrders;
         this.fromNoreply = fromNoreply;
         this.publicWebBaseUrl = trimTrailingSlash(publicWebBaseUrl);
+        this.shopName = shopName == null || shopName.isBlank() ? "Lovely Dearly" : shopName.trim();
     }
 
     /** Paid confirmation: items, total, “we’ll email when shipped”. */
     public void sendOrderPaid(ShopOrder order) {
-        String subject = "Order " + order.getOrderNumber() + " confirmed";
-        String body = buildPaidBody(order);
-        send(fromOrders, order.getEmail(), subject, body);
+        String subject = EmailTemplates.paidSubject(order.getOrderNumber());
+        String html = EmailTemplates.paidHtml(order, shopName, publicWebBaseUrl, fromOrders);
+        String text = EmailTemplates.paidText(order, shopName, publicWebBaseUrl, fromOrders);
+        sendHtml(fromOrders, shopName, order.getEmail(), subject, html, text);
     }
 
     /** Shipped notice: carrier + tracking URL when available. */
     public void sendOrderShipped(ShopOrder order) {
-        String subject = "Order " + order.getOrderNumber() + " shipped";
-        String body = buildShippedBody(order);
-        send(fromOrders, order.getEmail(), subject, body);
+        String subject = EmailTemplates.shippedSubject(order.getOrderNumber());
+        String tracking = trackingUrl(order.getCarrier(), order.getTrackingNumber());
+        String html = EmailTemplates.shippedHtml(order, shopName, publicWebBaseUrl, fromOrders, tracking);
+        String text = EmailTemplates.shippedText(order, shopName, publicWebBaseUrl, fromOrders, tracking);
+        sendHtml(fromOrders, shopName, order.getEmail(), subject, html, text);
     }
 
     /**
@@ -62,16 +73,10 @@ public class MailService {
      */
     public void sendVerifyEmail(String toEmail, String rawToken) {
         String link = publicWebBaseUrl + "/verify-email?token=" + rawToken;
-        String subject = "Verify your email";
-        String body = """
-                Welcome!
-
-                Please verify your email by opening this link:
-                %s
-
-                If you did not create an account, you can ignore this message.
-                """.formatted(link);
-        send(fromNoreply, toEmail, subject, body);
+        String subject = EmailTemplates.verifySubject();
+        String html = EmailTemplates.verifyHtml(shopName, publicWebBaseUrl, fromNoreply, link);
+        String text = EmailTemplates.verifyText(shopName, link);
+        sendHtml(fromNoreply, shopName, toEmail, subject, html, text);
     }
 
     /** Build Canada Post tracking link from tracking number (Chit Chats disabled). */
@@ -83,100 +88,33 @@ public class MailService {
         return CANADA_POST_TRACK + trackingNumber.trim();
     }
 
-    private void send(String from, String to, String subject, String text) {
+    private void sendHtml(
+            String fromAddress, String fromPersonal, String to, String subject, String html, String text) {
         if (to == null || to.isBlank()) {
             log.warn("Skipping mail '{}': no recipient", subject);
             return;
         }
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(from);
-            message.setTo(to.trim());
-            message.setSubject(subject);
-            message.setText(text);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(new InternetAddress(fromAddress, fromPersonal, "UTF-8"));
+            helper.setTo(to.trim());
+            helper.setSubject(subject);
+            helper.setText(text, html);
+            // Inline logo: used as header image and as sender branding asset in clients that show CIDs
+            helper.addInline(
+                    EmailTemplates.LOGO_CID,
+                    new ClassPathResource(LOGO_CLASSPATH),
+                    "image/jpeg");
             mailSender.send(message);
-            log.info("Sent mail '{}' to {} (from {})", subject, to, from);
-        } catch (MailException ex) {
-            // Callers (listeners) should also catch; log here so SMTP issues are visible.
+            log.info("Sent mail '{}' to {} (from {})", subject, to, fromAddress);
+        } catch (MessagingException | UnsupportedEncodingException | MailException ex) {
             log.error("Failed to send mail '{}' to {}: {}", subject, to, ex.getMessage());
-            throw ex;
-        }
-    }
-
-    private static String buildPaidBody(ShopOrder order) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Thanks for your order!\n\n");
-        sb.append("Order: ").append(order.getOrderNumber()).append("\n\n");
-        sb.append("Items:\n");
-        appendItems(sb, order);
-        sb.append("\n");
-        appendMoneyLine(sb, "Subtotal", order.getSubtotal(), order.getCurrency());
-        appendMoneyLine(sb, "Shipping", order.getShippingFee(), order.getCurrency());
-        appendMoneyLine(sb, taxLabel(order), order.getTax(), order.getCurrency());
-        appendMoneyLine(sb, "Total", order.getTotal(), order.getCurrency());
-        sb.append("\nWe'll email you again when your order ships.\n");
-        return sb.toString();
-    }
-
-    private static String buildShippedBody(ShopOrder order) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Good news — your order is on the way.\n\n");
-        sb.append("Order: ").append(order.getOrderNumber()).append("\n");
-        if (order.getCarrier() != null && !order.getCarrier().isBlank()) {
-            sb.append("Carrier: ").append(displayCarrier(order.getCarrier())).append("\n");
-        }
-        if (order.getTrackingNumber() != null && !order.getTrackingNumber().isBlank()) {
-            sb.append("Tracking number: ").append(order.getTrackingNumber().trim()).append("\n");
-            String url = trackingUrl(order.getCarrier(), order.getTrackingNumber());
-            if (url != null) {
-                sb.append("Track package: ").append(url).append("\n");
+            if (ex instanceof MailException mailEx) {
+                throw mailEx;
             }
+            throw new org.springframework.mail.MailSendException("Failed to send mail: " + subject, ex);
         }
-        sb.append("\nItems:\n");
-        appendItems(sb, order);
-        return sb.toString();
-    }
-
-    private static void appendItems(StringBuilder sb, ShopOrder order) {
-        if (order.getItems() == null || order.getItems().isEmpty()) {
-            sb.append("  (no line items)\n");
-            return;
-        }
-        for (ShopOrderItem item : order.getItems()) {
-            sb.append("  - ")
-                    .append(item.getQuantity())
-                    .append(" x ")
-                    .append(item.getProductName())
-                    .append("  ")
-                    .append(formatMoney(item.getLineTotal(), order.getCurrency()))
-                    .append("\n");
-        }
-    }
-
-    private static void appendMoneyLine(StringBuilder sb, String label, BigDecimal amount, String currency) {
-        sb.append(label).append(": ").append(formatMoney(amount, currency)).append("\n");
-    }
-
-    private static String formatMoney(BigDecimal amount, String currency) {
-        String cur = currency == null || currency.isBlank() ? "CAD" : currency;
-        if (amount == null) {
-            return cur + " 0.00";
-        }
-        return cur + " " + amount.setScale(2, java.math.RoundingMode.HALF_UP);
-    }
-
-    private static String taxLabel(ShopOrder order) {
-        if (order.getTaxName() != null && !order.getTaxName().isBlank()) {
-            return order.getTaxName().trim();
-        }
-        return "Tax";
-    }
-
-    private static String displayCarrier(String carrier) {
-        return switch (carrier.trim().toLowerCase(Locale.ROOT)) {
-            case "canada_post", "canadapost", "canada-post" -> "Canada Post";
-            default -> carrier.trim();
-        };
     }
 
     private static String trimTrailingSlash(String url) {

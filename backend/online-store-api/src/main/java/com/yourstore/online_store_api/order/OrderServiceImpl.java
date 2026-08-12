@@ -2,9 +2,7 @@ package com.yourstore.online_store_api.order;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -521,15 +519,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * Format: OS-yyyyMMdd-XXXX (e.g. OS-20260728-A1B2).
+     * Format: OS-XXXXXX (6 hex digits, e.g. OS-A1B2C3). No date — shorter for customers.
      * Retries on the rare unique-constraint collision.
      */
     private String generateUniqueOrderNumber() {
-        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // yyyyMMdd
-        for (int attempt = 0; attempt < 5; attempt++) {
-            int n = ThreadLocalRandom.current().nextInt(0x10000); // 0..65535
-            String suffix = String.format("%04X", n);
-            String candidate = "OS-" + date + "-" + suffix;
+        for (int attempt = 0; attempt < 8; attempt++) {
+            int n = ThreadLocalRandom.current().nextInt(0x1000000); // 0..16_777_215
+            String candidate = "OS-" + String.format("%06X", n);
             if (!orderRepository.existsByOrderNumber(candidate)) {
                 return candidate;
             }

@@ -40,8 +40,12 @@ spring.mail.port=1025
 spring.mail.username=
 spring.mail.password=
 app.mail.from=orders@localhost
+app.mail.from-orders=orders@localhost
+app.mail.from-noreply=noreply@localhost
+app.mail.shop-name=Lovely Dearly
 
-# Frontend origin for links in email (verify / reset). Prod: https://yourshop.com
+# Local Angular origin for links in email (verify / view order).
+# Prod uses APP_PUBLIC_WEB_BASE_URL=https://lovelydearly.ca — never localhost there.
 app.public-web-base-url=http://localhost:4200
 
 # Dev admin seed (guide 07) — creates ADMIN user if missing. Leave blank / omit in prod.

@@ -1,9 +1,13 @@
 package com.yourstore.online_store_api.notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import com.yourstore.online_store_api.order.OrderStatus;
 import com.yourstore.online_store_api.order.ShopOrder;
 import com.yourstore.online_store_api.order.ShopOrderItem;
+
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
@@ -30,57 +36,63 @@ class MailServiceTest {
     @BeforeEach
     void setUp() {
         mailService = new MailService(
-                mailSender, "orders@localhost", "noreply@localhost", "http://localhost:4200");
+                mailSender, "orders@localhost", "noreply@localhost", "http://localhost:4200", "Lovely Dearly");
+        lenient().when(mailSender.createMimeMessage()).thenAnswer(inv -> new MimeMessage((Session) null));
+        lenient().doAnswer(inv -> null).when(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    void sendOrderPaid_usesConfirmedSubjectAndListsItems() {
+    void sendOrderPaid_usesConfirmedSubjectAndListsItems() throws Exception {
         ShopOrder order = sampleOrder();
 
         mailService.sendOrderPaid(order);
 
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(captor.capture());
-        SimpleMailMessage msg = captor.getValue();
-        assertThat(msg.getFrom()).isEqualTo("orders@localhost");
-        assertThat(msg.getTo()).containsExactly("guest@example.com");
-        assertThat(msg.getSubject()).isEqualTo("Order OS-TEST-1 confirmed");
-        assertThat(msg.getText())
+        MimeMessage msg = captureSent();
+        assertThat(msg.getFrom()[0].toString()).contains("Lovely Dearly");
+        assertThat(msg.getFrom()[0].toString()).contains("orders@localhost");
+        assertThat(msg.getAllRecipients()[0].toString()).contains("guest@example.com");
+        assertThat(msg.getSubject()).isEqualTo("Order #OS-TEST-1 confirmed");
+        String raw = rawMime(msg);
+        assertThat(raw)
                 .contains("Makeup Bag")
-                .contains("CAD 59.95")
-                .contains("We'll email you again when your order ships.");
+                .contains("$59.95")
+                .contains("We're getting your order ready to be shipped")
+                .contains("cid:logo");
     }
 
     @Test
-    void sendOrderShipped_includesCanadaPostTrackingUrl() {
+    void sendOrderShipped_includesCanadaPostTrackingUrl() throws Exception {
         ShopOrder order = sampleOrder();
         order.setCarrier("canada_post");
         order.setTrackingNumber("1234567890123456");
 
         mailService.sendOrderShipped(order);
 
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(captor.capture());
-        SimpleMailMessage msg = captor.getValue();
-        assertThat(msg.getSubject()).isEqualTo("Order OS-TEST-1 shipped");
-        assertThat(msg.getText())
+        MimeMessage msg = captureSent();
+        assertThat(msg.getSubject()).isEqualTo("A shipment from order #OS-TEST-1 is on the way");
+        String raw = rawMime(msg);
+        assertThat(raw)
                 .contains("Canada Post")
                 .contains("1234567890123456")
                 .contains(
-                        "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=1234567890123456");
+                        "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=1234567890123456")
+                .contains("Your order is on the way")
+                .contains("cid:logo");
     }
 
     @Test
-    void sendVerifyEmail_containsFrontendLinkWithToken() {
+    void sendVerifyEmail_containsFrontendLinkWithToken() throws Exception {
         mailService.sendVerifyEmail("new@example.com", "abc123token");
 
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(captor.capture());
-        SimpleMailMessage msg = captor.getValue();
-        assertThat(msg.getFrom()).isEqualTo("noreply@localhost");
-        assertThat(msg.getSubject()).isEqualTo("Verify your email");
-        assertThat(msg.getTo()).containsExactly("new@example.com");
-        assertThat(msg.getText()).contains("http://localhost:4200/verify-email?token=abc123token");
+        MimeMessage msg = captureSent();
+        assertThat(msg.getFrom()[0].toString()).contains("noreply@localhost");
+        assertThat(msg.getSubject()).isEqualTo("Confirm your email address.");
+        assertThat(msg.getAllRecipients()[0].toString()).contains("new@example.com");
+        String raw = rawMime(msg);
+        assertThat(raw)
+                .contains("http://localhost:4200/verify-email?token=abc123token")
+                .contains("Confirm your email address.")
+                .contains("cid:logo");
     }
 
     @Test
@@ -88,6 +100,18 @@ class MailServiceTest {
         assertThat(MailService.trackingUrl("canada_post", "abc123"))
                 .isEqualTo(
                         "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=abc123");
+    }
+
+    private MimeMessage captureSent() {
+        ArgumentCaptor<MimeMessage> captor = ArgumentCaptor.forClass(MimeMessage.class);
+        verify(mailSender).send(captor.capture());
+        return captor.getValue();
+    }
+
+    private static String rawMime(MimeMessage msg) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        msg.writeTo(out);
+        return out.toString(StandardCharsets.UTF_8);
     }
 
     private static ShopOrder sampleOrder() {
@@ -100,6 +124,13 @@ class MailServiceTest {
         order.setShippingFee(new BigDecimal("9.95"));
         order.setTax(new BigDecimal("0.00"));
         order.setTotal(new BigDecimal("59.95"));
+        order.setShippingName("Test Guest");
+        order.setShippingLine1("12 Example St");
+        order.setShippingCity("Toronto");
+        order.setShippingProvince("ON");
+        order.setShippingPostal("M5V 2T6");
+        order.setShippingCountry("CA");
+        order.setShippingMethod("regular");
 
         ShopOrderItem item = new ShopOrderItem();
         item.setProductName("Makeup Bag");
