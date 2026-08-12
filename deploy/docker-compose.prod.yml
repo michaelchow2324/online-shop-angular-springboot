@@ -80,6 +80,9 @@ services:
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
       INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN:-}
+      # Optional one-shot ADMIN seed (AdminUserSeedRunner). Remove from .env.prod after first login.
+      APP_ADMIN_EMAIL: ${APP_ADMIN_EMAIL:-}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-}
       JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
     deploy:
       resources:
