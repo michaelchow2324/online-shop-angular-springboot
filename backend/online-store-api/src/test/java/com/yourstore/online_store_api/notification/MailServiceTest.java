@@ -29,7 +29,8 @@ class MailServiceTest {
 
     @BeforeEach
     void setUp() {
-        mailService = new MailService(mailSender, "orders@localhost", "http://localhost:4200");
+        mailService = new MailService(
+                mailSender, "orders@localhost", "noreply@localhost", "http://localhost:4200");
     }
 
     @Test
@@ -76,6 +77,7 @@ class MailServiceTest {
         ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender).send(captor.capture());
         SimpleMailMessage msg = captor.getValue();
+        assertThat(msg.getFrom()).isEqualTo("noreply@localhost");
         assertThat(msg.getSubject()).isEqualTo("Verify your email");
         assertThat(msg.getTo()).containsExactly("new@example.com");
         assertThat(msg.getText()).contains("http://localhost:4200/verify-email?token=abc123token");

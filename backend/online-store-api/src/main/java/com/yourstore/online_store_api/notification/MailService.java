@@ -27,15 +27,18 @@ public class MailService {
             "https://www.canadapost-postescanada.ca/track-reperage/en#/resultList?searchFor=";
 
     private final JavaMailSender mailSender;
-    private final String from;
+    private final String fromOrders;
+    private final String fromNoreply;
     private final String publicWebBaseUrl;
 
     MailService(
             JavaMailSender mailSender,
-            @Value("${app.mail.from}") String from,
+            @Value("${app.mail.from-orders:${app.mail.from}}") String fromOrders,
+            @Value("${app.mail.from-noreply:${app.mail.from}}") String fromNoreply,
             @Value("${app.public-web-base-url:http://localhost:4200}") String publicWebBaseUrl) {
         this.mailSender = mailSender;
-        this.from = from;
+        this.fromOrders = fromOrders;
+        this.fromNoreply = fromNoreply;
         this.publicWebBaseUrl = trimTrailingSlash(publicWebBaseUrl);
     }
 
@@ -43,14 +46,14 @@ public class MailService {
     public void sendOrderPaid(ShopOrder order) {
         String subject = "Order " + order.getOrderNumber() + " confirmed";
         String body = buildPaidBody(order);
-        send(order.getEmail(), subject, body);
+        send(fromOrders, order.getEmail(), subject, body);
     }
 
     /** Shipped notice: carrier + tracking URL when available. */
     public void sendOrderShipped(ShopOrder order) {
         String subject = "Order " + order.getOrderNumber() + " shipped";
         String body = buildShippedBody(order);
-        send(order.getEmail(), subject, body);
+        send(fromOrders, order.getEmail(), subject, body);
     }
 
     /**
@@ -68,7 +71,7 @@ public class MailService {
 
                 If you did not create an account, you can ignore this message.
                 """.formatted(link);
-        send(toEmail, subject, body);
+        send(fromNoreply, toEmail, subject, body);
     }
 
     /** Build Canada Post tracking link from tracking number (Chit Chats disabled). */
@@ -80,7 +83,7 @@ public class MailService {
         return CANADA_POST_TRACK + trackingNumber.trim();
     }
 
-    private void send(String to, String subject, String text) {
+    private void send(String from, String to, String subject, String text) {
         if (to == null || to.isBlank()) {
             log.warn("Skipping mail '{}': no recipient", subject);
             return;
@@ -92,7 +95,7 @@ public class MailService {
             message.setSubject(subject);
             message.setText(text);
             mailSender.send(message);
-            log.info("Sent mail '{}' to {}", subject, to);
+            log.info("Sent mail '{}' to {} (from {})", subject, to, from);
         } catch (MailException ex) {
             // Callers (listeners) should also catch; log here so SMTP issues are visible.
             log.error("Failed to send mail '{}' to {}: {}", subject, to, ex.getMessage());
