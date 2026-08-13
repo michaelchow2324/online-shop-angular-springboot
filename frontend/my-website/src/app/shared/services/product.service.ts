@@ -224,7 +224,8 @@ export class ProductService {
     }
   }
 
+  /** Header search — real catalog, not Multikart product.json. */
   getProductBySearchList(payload?: Params): Observable<IProductModel> {
-    return this.http.get<IProductModel>(`${environment.URL}/product.json`, { params: payload });
+    return this.getProducts(payload);
   }
 }

@@ -1,12 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
-import { tap } from 'rxjs';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
 
 import { IProduct } from '../../interface/product.interface';
-import { AuthService } from '../../services/auth.service';
-import { NotificationService } from '../../services/notification.service';
 import { WishlistService } from '../../services/wishlist.service';
 import {
   GetWishlistAction,
@@ -34,11 +31,8 @@ export class WishlistStateModel {
 })
 @Injectable()
 export class WishlistState {
-  private store = inject(Store);
   router = inject(Router);
   private wishlistService = inject(WishlistService);
-  private authService = inject(AuthService);
-  private notificationService = inject(NotificationService);
 
   @Selector()
   static wishlistItems(state: WishlistStateModel) {
@@ -50,37 +44,18 @@ export class WishlistState {
     return state.wishlistIds;
   }
 
+  /** No wishlist.json seed — empty until a real wishlist API exists. */
   @Action(GetWishlistAction)
-  getWishlistItems(ctx: StateContext<GetWishlistAction>) {
-    this.wishlistService.skeletonLoader = true;
-    // if(!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-    //   return;
-    // }
-    return this.wishlistService.getWishlistItems().pipe(
-      tap({
-        next: result => {
-          let ids = result.data.map(product => product.id);
-          ctx.patchState({
-            wishlist: {
-              data: result.data,
-              total: result?.total ? result?.total : result.data?.length,
-            },
-            wishlistIds: ids,
-          });
-        },
-        complete: () => {
-          this.wishlistService.skeletonLoader = false;
-        },
-        error: err => {
-          throw new Error(err?.error?.message);
-        },
-      }),
-    );
+  getWishlistItems(ctx: StateContext<WishlistStateModel>) {
+    this.wishlistService.skeletonLoader = false;
+    ctx.patchState({
+      wishlist: { data: [], total: 0 },
+      wishlistIds: [],
+    });
   }
 
   @Action(AddToWishlistAction)
   add(_ctx: StateContext<WishlistStateModel>, _action: AddToWishlistAction) {
-    // Add Wishlist Logic Here
     void this.router.navigate(['/wishlist']);
   }
 
@@ -91,7 +66,7 @@ export class WishlistState {
     ctx.patchState({
       wishlist: {
         data: item,
-        total: state.wishlist.total - 1,
+        total: Math.max(0, state.wishlist.total - 1),
       },
     });
   }

@@ -97,11 +97,8 @@ export class LoginModal {
     this.themeOption$.subscribe((res) => (this.themeOption = res));
 
     this.loginForm = this.formBuilder.group({
-      email: new FormControl("john.customer@example.com", [
-        Validators.required,
-        Validators.email,
-      ]),
-      password: new FormControl("123456789", Validators.required),
+      email: new FormControl("", [Validators.required, Validators.email]),
+      password: new FormControl("", Validators.required),
     });
   }
 

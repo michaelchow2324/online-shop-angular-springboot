@@ -1,13 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
-import { tap } from 'rxjs';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
 
 import { IProduct } from '../../interface/product.interface';
-import { AuthService } from '../../services/auth.service';
 import { CompareService } from '../../services/compare.service';
-import { NotificationService } from '../../services/notification.service';
 import {
   AddToCompareAction,
   DeleteCompareAction,
@@ -30,10 +27,7 @@ export class CompareStateModel {
 })
 @Injectable()
 export class CompareState {
-  private store = inject(Store);
   router = inject(Router);
-  private notificationService = inject(NotificationService);
-  authService = inject(AuthService);
   private compareService = inject(CompareService);
 
   @Selector()
@@ -51,30 +45,15 @@ export class CompareState {
     return state.total;
   }
 
+  /** No compare.json seed — empty until a real compare API exists. */
   @Action(GetCompareAction)
-  getCompareItems(ctx: StateContext<GetCompareAction>) {
-    if (!this.store.selectSnapshot(state => state.auth && state.auth.access_token)) {
-      return;
-    }
-    this.compareService.skeletonLoader = true;
-    return this.compareService.getComparItems().pipe(
-      tap({
-        next: result => {
-          let ids = result.data.map(product => product.id);
-          ctx.patchState({
-            items: result.data,
-            total: result?.total ? result?.total : result.data?.length,
-            comparIds: ids,
-          });
-        },
-        complete: () => {
-          this.compareService.skeletonLoader = false;
-        },
-        error: err => {
-          throw new Error(err?.error?.message);
-        },
-      }),
-    );
+  getCompareItems(ctx: StateContext<CompareStateModel>) {
+    this.compareService.skeletonLoader = false;
+    ctx.patchState({
+      items: [],
+      total: 0,
+      comparIds: [],
+    });
   }
 
   @Action(AddToCompareAction)
