@@ -26,7 +26,7 @@ import { OrderService } from "../../../shared/services/order.service";
 import { displayCarrier } from "../../../shared/utils/tracking-url";
 
 /**
- * Minimal admin fulfillment UI (guide 07) — list paid orders and ship with tracking.
+ * Admin fulfillment UI — list orders, ship with tracking, full Stripe refund.
  */
 @Component({
   selector: "app-admin-orders",
@@ -68,6 +68,13 @@ export class AdminOrders {
   public shipForm: FormGroup = this.fb.group({
     carrier: ["canada_post", Validators.required],
     trackingNumber: ["", Validators.required],
+  });
+
+  public refundTarget: ShopOrder | null = null;
+  public refunding = false;
+  public refundError: string | null = null;
+  public refundForm: FormGroup = this.fb.group({
+    reason: [""],
   });
 
   constructor() {
@@ -153,8 +160,52 @@ export class AdminOrders {
       });
   }
 
+  openRefund(order: ShopOrder): void {
+    this.refundTarget = order;
+    this.refundError = null;
+    this.refundForm.reset({ reason: "" });
+  }
+
+  closeRefund(): void {
+    this.refundTarget = null;
+    this.refundError = null;
+    this.refunding = false;
+  }
+
+  submitRefund(): void {
+    if (!this.refundTarget) {
+      return;
+    }
+    this.refunding = true;
+    this.refundError = null;
+    const reason = String(this.refundForm.get("reason")?.value || "").trim();
+
+    this.orderService
+      .adminRefundOrder(this.refundTarget.orderNumber, reason || undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.refunding = false;
+          this.closeRefund();
+          this.loadOrders();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.refunding = false;
+          this.refundError = this.readApiMessage(err);
+        },
+      });
+  }
+
   canShip(order: ShopOrder): boolean {
     return order.status === "PAID" || order.status === "FULFILLING";
+  }
+
+  canRefund(order: ShopOrder): boolean {
+    return (
+      order.status === "PAID" ||
+      order.status === "FULFILLING" ||
+      order.status === "SHIPPED"
+    );
   }
 
   carrierLabel(carrier: string | null): string {

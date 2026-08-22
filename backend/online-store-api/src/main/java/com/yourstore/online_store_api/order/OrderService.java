@@ -46,6 +46,13 @@ public interface OrderService {
    OrderDTO shipOrder(String orderNumber, ShipOrderRequest request);
 
    /**
+    * Full Stripe refund + mark {@code REFUNDED}.
+    * Allowed from {@code PAID}, {@code FULFILLING}, or {@code SHIPPED}.
+    * Already-refunded is idempotent.
+    */
+   OrderDTO refundOrder(String orderNumber, RefundOrderRequest request);
+
+   /**
     * Cancel {@code PENDING_PAYMENT} orders created before {@code cutoff} (guide 08).
     * Never touches {@code PAID} / shipped orders. Returns rows updated.
     */

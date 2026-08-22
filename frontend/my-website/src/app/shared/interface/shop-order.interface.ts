@@ -72,6 +72,7 @@ export interface ShopOrder {
   trackingNumber: string | null;
   paidAt: string | null;
   shippedAt: string | null;
+  refundedAt?: string | null;
   createdAt: string;
   items: ShopOrderItem[];
 }

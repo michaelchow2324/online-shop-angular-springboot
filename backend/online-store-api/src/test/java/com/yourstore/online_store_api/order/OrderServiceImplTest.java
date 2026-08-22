@@ -29,7 +29,9 @@ import com.yourstore.online_store_api.account.CustomerAddressRepository;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
+import com.yourstore.online_store_api.notification.OrderRefundedEvent;
 import com.yourstore.online_store_api.notification.OrderShippedEvent;
+import com.yourstore.online_store_api.payment.StripeRefundClient;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
@@ -69,6 +71,9 @@ class OrderServiceImplTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private StripeRefundClient stripeRefundClient;
 
     // injectMocks: inject the mock dependencies into the orderService
     @InjectMocks
@@ -434,6 +439,59 @@ class OrderServiceImplTest {
         assertThatThrownBy(() -> orderService.shipOrder("OS-SHIP-5", req))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must be paid or fulfilling");
+    }
+
+    @Test
+    void refundOrder_fromPaid_callsStripeAndPublishesEvent() {
+        ShopOrder order = paidOrder("OS-REF-1");
+        order.setStripePaymentIntentId("pi_test_1");
+        when(orderRepository.findByOrderNumber("OS-REF-1")).thenReturn(Optional.of(order));
+        when(stripeRefundClient.createFullRefund("pi_test_1")).thenReturn("re_test_1");
+
+        OrderDTO dto = orderService.refundOrder("OS-REF-1", new RefundOrderRequest());
+
+        assertThat(dto.getStatus()).isEqualTo(OrderStatus.REFUNDED);
+        assertThat(dto.getRefundedAt()).isNotNull();
+        assertThat(order.getStripeRefundId()).isEqualTo("re_test_1");
+        verify(stripeRefundClient).createFullRefund("pi_test_1");
+        verify(eventPublisher).publishEvent(new OrderRefundedEvent(order.getId()));
+    }
+
+    @Test
+    void refundOrder_alreadyRefunded_isIdempotent() {
+        ShopOrder order = paidOrder("OS-REF-2");
+        order.setStatus(OrderStatus.REFUNDED);
+        order.setRefundedAt(LocalDateTime.now());
+        order.setStripeRefundId("re_existing");
+        when(orderRepository.findByOrderNumber("OS-REF-2")).thenReturn(Optional.of(order));
+
+        OrderDTO dto = orderService.refundOrder("OS-REF-2", new RefundOrderRequest());
+
+        assertThat(dto.getStatus()).isEqualTo(OrderStatus.REFUNDED);
+        verify(stripeRefundClient, never()).createFullRefund(anyString());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void refundOrder_pendingPayment_rejected() {
+        ShopOrder order = paidOrder("OS-REF-3");
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        when(orderRepository.findByOrderNumber("OS-REF-3")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.refundOrder("OS-REF-3", new RefundOrderRequest()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot be refunded");
+    }
+
+    @Test
+    void refundOrder_missingPaymentIntent_rejected() {
+        ShopOrder order = paidOrder("OS-REF-4");
+        order.setStripePaymentIntentId(null);
+        when(orderRepository.findByOrderNumber("OS-REF-4")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.refundOrder("OS-REF-4", new RefundOrderRequest()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payment intent");
     }
 
     @Test

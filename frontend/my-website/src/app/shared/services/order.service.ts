@@ -68,4 +68,12 @@ export class OrderService {
       body,
     );
   }
+
+  /** Admin: full Stripe refund for a paid/fulfilling/shipped order. */
+  adminRefundOrder(orderNumber: string, reason?: string): Observable<ShopOrder> {
+    return this.http.post<ShopOrder>(
+      `${environment.apiUrl}/admin/orders/${encodeURIComponent(orderNumber)}/refund`,
+      reason ? { reason } : {},
+    );
+  }
 }

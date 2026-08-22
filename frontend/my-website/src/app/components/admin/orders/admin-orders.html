@@ -34,6 +34,15 @@
         >
           Shipped
         </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'REFUNDED'"
+          [class.btn-outline]="statusFilter !== 'REFUNDED'"
+          (click)="setStatus('REFUNDED')"
+        >
+          Refunded
+        </button>
       </div>
     </div>
 
@@ -78,20 +87,34 @@
             <td>{{ order.shippingProvince }}</td>
             <td>{{ order.createdAt | date: 'dd MMM yyyy, h:mm a' }}</td>
             <td>
-              @if (canShip(order)) {
-              <button
-                type="button"
-                class="btn btn-sm btn-solid"
-                (click)="openShip(order)"
-              >
-                Ship
-              </button>
-              } @else if (order.trackingNumber) {
-              <span class="small">
-                {{ carrierLabel(order.carrier) || order.carrier }} · {{
-                order.trackingNumber }}
-              </span>
-              } @else { — }
+              <div class="action-buttons">
+                @if (canShip(order)) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-solid"
+                  (click)="openShip(order)"
+                >
+                  Ship
+                </button>
+                } @else if (order.trackingNumber) {
+                <span class="small">
+                  {{ carrierLabel(order.carrier) || order.carrier }} ·
+                  {{ order.trackingNumber }}
+                </span>
+                }
+
+                @if (canRefund(order)) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  (click)="openRefund(order)"
+                >
+                  Refund
+                </button>
+                } @else if (order.status === 'REFUNDED') {
+                <span class="small text-muted">Refunded</span>
+                }
+              </div>
             </td>
           </tr>
           }
@@ -112,8 +135,8 @@
 >
   <h3 id="ship-modal-title" class="h5">Ship {{ shipTarget.orderNumber }}</h3>
   <p class="text-muted small mb-3">
-    {{ shipTarget.email }} · {{ shipTarget.shippingCity }}, {{
-    shipTarget.shippingProvince }}
+    {{ shipTarget.email }} · {{ shipTarget.shippingCity }},
+    {{ shipTarget.shippingProvince }}
   </p>
 
   <form [formGroup]="shipForm" (ngSubmit)="submitShip()">
@@ -154,6 +177,59 @@
         [disabled]="shipping || shipForm.invalid"
       >
         {{ shipping ? 'Saving…' : 'Mark shipped' }}
+      </button>
+    </div>
+  </form>
+</div>
+}
+
+@if (refundTarget) {
+<div class="ship-modal-backdrop" (click)="closeRefund()"></div>
+<div
+  class="ship-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="refund-modal-title"
+>
+  <h3 id="refund-modal-title" class="h5">
+    Refund {{ refundTarget.orderNumber }}
+  </h3>
+  <p class="text-muted small mb-3">
+    Full refund of
+    <strong>{{
+      refundTarget.total | currency: (refundTarget.currency || 'CAD')
+    }}</strong>
+    to {{ refundTarget.email }}. This cannot be undone.
+  </p>
+
+  <form [formGroup]="refundForm" (ngSubmit)="submitRefund()">
+    <div class="mb-3">
+      <label class="form-label" for="refundReason">Reason (optional)</label>
+      <input
+        id="refundReason"
+        type="text"
+        class="form-control"
+        formControlName="reason"
+        placeholder="e.g. customer request"
+        autocomplete="off"
+      />
+    </div>
+
+    @if (refundError) {
+    <div class="alert alert-danger py-2">{{ refundError }}</div>
+    }
+
+    <div class="d-flex gap-2 justify-content-end">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="closeRefund()"
+        [disabled]="refunding"
+      >
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-solid" [disabled]="refunding">
+        {{ refunding ? 'Refunding…' : 'Confirm refund' }}
       </button>
     </div>
   </form>

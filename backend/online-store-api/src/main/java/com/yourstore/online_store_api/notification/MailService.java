@@ -67,6 +67,14 @@ public class MailService {
         sendHtml(fromOrders, shopName, order.getEmail(), subject, html, text);
     }
 
+    /** Full refund confirmation after admin Stripe refund. */
+    public void sendOrderRefunded(ShopOrder order) {
+        String subject = EmailTemplates.refundedSubject(order.getOrderNumber());
+        String html = EmailTemplates.refundedHtml(order, shopName, publicWebBaseUrl, fromOrders);
+        String text = EmailTemplates.refundedText(order, shopName, publicWebBaseUrl, fromOrders);
+        sendHtml(fromOrders, shopName, order.getEmail(), subject, html, text);
+    }
+
     /**
      * Guide 06 Step 5 — replace console token log with a clickable verify link.
      * Link shape: {@code {publicWebBaseUrl}/verify-email?token=...}

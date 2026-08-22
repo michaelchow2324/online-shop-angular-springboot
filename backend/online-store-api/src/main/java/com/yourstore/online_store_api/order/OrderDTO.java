@@ -58,9 +58,10 @@ public class OrderDTO {
     private String carrier;
     private String trackingNumber;
 
-    /** Null until payment / shipment events happen. */
+    /** Null until payment / shipment / refund events happen. */
     private LocalDateTime paidAt;
     private LocalDateTime shippedAt;
+    private LocalDateTime refundedAt;
     private LocalDateTime createdAt;
 
     private List<OrderItemDTO> items;

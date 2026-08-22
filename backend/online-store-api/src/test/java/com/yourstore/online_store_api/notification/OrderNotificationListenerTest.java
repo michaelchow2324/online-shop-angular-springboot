@@ -72,4 +72,15 @@ class OrderNotificationListenerTest {
 
         verify(mailService).sendOrderShipped(order);
     }
+
+    @Test
+    void onRefunded_sendsOrderRefundedEmail() {
+        ShopOrder order = new ShopOrder();
+        order.setId(8L);
+        when(orderRepository.findByIdWithItems(8L)).thenReturn(Optional.of(order));
+
+        listener.onRefunded(new OrderRefundedEvent(8L));
+
+        verify(mailService).sendOrderRefunded(order);
+    }
 }

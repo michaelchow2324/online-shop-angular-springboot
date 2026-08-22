@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yourstore.online_store_api.order.OrderDTO;
 import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
+import com.yourstore.online_store_api.order.RefundOrderRequest;
 import com.yourstore.online_store_api.order.ShipOrderRequest;
 
 import jakarta.validation.Valid;
@@ -52,6 +53,15 @@ public class AdminOrderController {
             @PathVariable String orderNumber,
             @Valid @RequestBody ShipOrderRequest request) {
         return ResponseEntity.ok(orderService.shipOrder(orderNumber, request));
+    }
+
+    /** Full Stripe refund; marks order {@code REFUNDED}. Body optional. */
+    @PostMapping("/{orderNumber}/refund")
+    public ResponseEntity<OrderDTO> refund(
+            @PathVariable String orderNumber,
+            @RequestBody(required = false) RefundOrderRequest request) {
+        RefundOrderRequest body = request != null ? request : new RefundOrderRequest();
+        return ResponseEntity.ok(orderService.refundOrder(orderNumber, body));
     }
 
     private static OrderStatus parseStatus(String status) {

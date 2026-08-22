@@ -64,4 +64,16 @@ public class OrderNotificationListener {
             log.error("Failed shipped email for order {}: {}", event.orderId(), ex.getMessage(), ex);
         }
     }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    public void onRefunded(OrderRefundedEvent event) {
+        try {
+            orderRepository.findByIdWithItems(event.orderId()).ifPresentOrElse(
+                    mailService::sendOrderRefunded,
+                    () -> log.warn("OrderRefundedEvent: order {} not found — skip refund email", event.orderId()));
+        } catch (Exception ex) {
+            log.error("Failed refund email for order {}: {}", event.orderId(), ex.getMessage(), ex);
+        }
+    }
 }

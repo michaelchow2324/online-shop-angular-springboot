@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +21,10 @@ import com.yourstore.online_store_api.account.CustomerAddressRepository;
 import com.yourstore.online_store_api.media.Media;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.notification.OrderPaidEvent;
+import com.yourstore.online_store_api.notification.OrderRefundedEvent;
 import com.yourstore.online_store_api.notification.OrderShippedEvent;
 import com.yourstore.online_store_api.order.CreateOrderRequest.OrderItemRequest;
+import com.yourstore.online_store_api.payment.StripeRefundClient;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.shipping.ShippingQuoteDTO;
@@ -31,6 +35,8 @@ import com.yourstore.online_store_api.tax.TaxService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     private static final String DEFAULT_COUNTRY = "CA";
     private static final String DEFAULT_CURRENCY = "CAD";
@@ -44,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private final TaxService taxService;
     private final CustomerAddressRepository addressRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final StripeRefundClient stripeRefundClient;
 
     OrderServiceImpl(
             ShopOrderRepository orderRepository,
@@ -53,7 +60,8 @@ public class OrderServiceImpl implements OrderService {
             ShippingService shippingService,
             TaxService taxService,
             CustomerAddressRepository addressRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            StripeRefundClient stripeRefundClient) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.mediaRepository = mediaRepository;
@@ -62,6 +70,7 @@ public class OrderServiceImpl implements OrderService {
         this.taxService = taxService;
         this.addressRepository = addressRepository;
         this.eventPublisher = eventPublisher;
+        this.stripeRefundClient = stripeRefundClient;
     }
 
     @Override
@@ -349,6 +358,49 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    public OrderDTO refundOrder(String orderNumber, RefundOrderRequest request) {
+        ShopOrder order = orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNumber));
+
+        if (order.getStatus() == OrderStatus.REFUNDED) {
+            order.getItems().size();
+            return toDto(order);
+        }
+
+        if (order.getStatus() != OrderStatus.PAID
+                && order.getStatus() != OrderStatus.FULFILLING
+                && order.getStatus() != OrderStatus.SHIPPED) {
+            throw new IllegalArgumentException(
+                    "Order cannot be refunded from status " + order.getStatus());
+        }
+
+        if (order.getStripePaymentIntentId() == null || order.getStripePaymentIntentId().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Order has no Stripe payment intent — cannot refund: " + orderNumber);
+        }
+
+        String reason = request != null ? request.getReason() : null;
+        if (reason != null && !reason.isBlank()) {
+            log.info("Refunding order {} reason={}", orderNumber, reason.trim());
+        }
+
+        String refundId = stripeRefundClient.createFullRefund(order.getStripePaymentIntentId());
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setStatus(OrderStatus.REFUNDED);
+        order.setRefundedAt(now);
+        order.setStripeRefundId(refundId);
+        order.setUpdatedAt(now);
+        orderRepository.save(order);
+
+        eventPublisher.publishEvent(new OrderRefundedEvent(order.getId()));
+
+        order.getItems().size();
+        return toDto(order);
+    }
+
+    @Override
+    @Transactional
     public int cancelExpiredPendingPayments(LocalDateTime cutoff) {
         if (cutoff == null) {
             throw new IllegalArgumentException("Cutoff is required");
@@ -420,6 +472,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getTrackingNumber(),
                 order.getPaidAt(),
                 order.getShippedAt(),
+                order.getRefundedAt(),
                 order.getCreatedAt(),
                 itemDtos);
     }

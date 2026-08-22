@@ -141,6 +141,12 @@ public class ShopOrder {
     @Column(name = "shipped_at")
     private LocalDateTime shippedAt;
 
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
+
+    @Column(name = "stripe_refund_id")
+    private String stripeRefundId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -32,6 +32,10 @@ final class EmailTemplates {
         return "A shipment from order #" + orderNumber + " is on the way";
     }
 
+    static String refundedSubject(String orderNumber) {
+        return "Refund for order #" + orderNumber;
+    }
+
     static String verifyHtml(String shopName, String shopUrl, String contactEmail, String verifyLink) {
         String safeShop = esc(shopName);
         String safeUrl = esc(shopUrl);
@@ -335,6 +339,53 @@ final class EmailTemplates {
         sb.append("Items in this shipment\n");
         appendItemsText(sb, order);
         sb.append("\nIf you have any questions, reply to this email or contact us at ").append(contactEmail).append('\n');
+        return sb.toString();
+    }
+
+    static String refundedHtml(ShopOrder order, String shopName, String shopUrl, String contactEmail) {
+        String orderNumber = esc(order.getOrderNumber());
+        String orderUrl = esc(shopUrl + "/account/order/details/" + order.getOrderNumber());
+        String safeShop = esc(shopName);
+        String safeUrl = esc(shopUrl);
+        String safeEmail = esc(contactEmail);
+        String total = esc(formatMoney(order.getTotal(), order.getCurrency()) + " "
+                + (order.getCurrency() == null ? "CAD" : order.getCurrency()));
+
+        return shopifyShell(
+                "Your order has been refunded",
+                """
+                <h2 style="font-weight:normal;font-size:24px;margin:0 0 10px;color:#333;">Your order has been refunded</h2>
+                <p style="color:#777;line-height:150%%;font-size:16px;margin:0;">
+                  We've issued a full refund of <strong style="color:#555;">%s</strong> for order #%s.
+                  Depending on your bank or card issuer, it may take a few business days to appear on your statement.
+                </p>
+                %s
+                """.formatted(total, orderNumber, actionButtons(orderUrl, safeUrl)),
+                """
+                <h3 style="font-weight:normal;font-size:20px;margin:0 0 10px;color:#333;">Refund amount</h3>
+                <p style="color:#555;font-size:16px;margin:0;">%s</p>
+                """.formatted(total),
+                "",
+                orderNumber,
+                safeShop,
+                safeUrl,
+                safeEmail);
+    }
+
+    static String refundedText(ShopOrder order, String shopName, String shopUrl, String contactEmail) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Your order has been refunded\n\n");
+        sb.append(shopName).append("\n").append(shopUrl).append("\n\n");
+        sb.append("Order #").append(order.getOrderNumber()).append("\n\n");
+        sb.append("We've issued a full refund of ")
+                .append(formatMoney(order.getTotal(), order.getCurrency()))
+                .append(' ')
+                .append(order.getCurrency() == null ? "CAD" : order.getCurrency())
+                .append(".\n");
+        sb.append("Depending on your bank or card issuer, it may take a few business days to appear on your statement.\n\n");
+        sb.append("View your order: ").append(shopUrl).append("/account/order/details/").append(order.getOrderNumber()).append("\n");
+        sb.append("Visit our store: ").append(shopUrl).append("\n\n");
+        sb.append("If you have any questions, reply to this email or contact us at ").append(contactEmail).append('\n');
         return sb.toString();
     }
 

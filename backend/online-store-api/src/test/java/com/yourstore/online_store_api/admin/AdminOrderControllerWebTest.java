@@ -30,6 +30,7 @@ import com.yourstore.online_store_api.config.SecurityConfig;
 import com.yourstore.online_store_api.order.OrderDTO;
 import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
+import com.yourstore.online_store_api.order.RefundOrderRequest;
 import com.yourstore.online_store_api.order.ShipOrderRequest;
 
 /**
@@ -84,6 +85,27 @@ class AdminOrderControllerWebTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SHIPPED"))
                 .andExpect(jsonPath("$.trackingNumber").value("1234567890123456"));
+    }
+
+    @Test
+    void refund_asAdmin_returnsRefundedOrder() throws Exception {
+        OrderDTO refunded = sampleOrder("OS-PAID-1", OrderStatus.REFUNDED);
+        when(orderService.refundOrder(eq("OS-PAID-1"), any(RefundOrderRequest.class))).thenReturn(refunded);
+
+        mockMvc.perform(post("/api/admin/orders/OS-PAID-1/refund")
+                        .with(authentication(adminAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("REFUNDED"));
+    }
+
+    @Test
+    void refund_withoutToken_returns401() throws Exception {
+        mockMvc.perform(post("/api/admin/orders/OS-PAID-1/refund")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isUnauthorized());
     }
 
     private static UsernamePasswordAuthenticationToken adminAuth() {
