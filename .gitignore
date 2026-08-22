@@ -28,9 +28,10 @@ __pycache__/
 !**/.env.*.example
 !**/env.*.example
 
-# Deploy local secrets (example without leading dot is OK to commit: env.prod.example)
+# Deploy local secrets. Tracked template is deploy/env.prod.example (no leading dot).
 deploy/.env.prod
-deploy/.env.prod.example
+deploy/.env.prod.*
+!deploy/.env.prod.*.example
 
 # Spring Boot local overrides (real DB / Stripe / JWT / MinIO)
 **/application.properties
@@ -48,6 +49,7 @@ deploy/.env.prod.example
 *.keystore
 id_rsa
 id_rsa.pub
+*.secret
 **/credentials.json
 **/service-account*.json
 **/google-services.json
@@ -64,8 +66,15 @@ id_rsa.pub
 *.log
 .npm/
 
-# Private deploy notes (optional local-only docs)
+# Private notes / study guides — keep local, not on the public repo
+guides/
+notes/
+DOCKER.md
+USEFUL_LINKS.md
+CATEGORY_GUIDE.md
+product_guide.md
+product_detail_guide.md
+DEPLOYMENT_PLAN.md
 deploy/Caddyfile
 deploy/GIT_MONOREPO_FIX.md
 deploy/HETZNER_SERVER_SETUP.md
-DEPLOYMENT_PLAN.md
