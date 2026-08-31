@@ -25,6 +25,30 @@ export const content: Routes = [
       ),
   },
   {
+    path: "admin/products/new",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/product-form/admin-product-form").then(
+        (m) => m.AdminProductForm,
+      ),
+  },
+  {
+    path: "admin/products/:id",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/product-form/admin-product-form").then(
+        (m) => m.AdminProductForm,
+      ),
+  },
+  {
+    path: "admin/products",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/products/admin-products").then(
+        (m) => m.AdminProducts,
+      ),
+  },
+  {
     path: "admin",
     pathMatch: "full",
     redirectTo: "admin/orders",

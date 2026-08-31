@@ -1,0 +1,31 @@
+.admin-products {
+  .status-filters,
+  .action-buttons,
+  .search-row,
+  .import-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .search-row .form-control {
+    min-width: 220px;
+  }
+
+  .btn-outline {
+    border: 1px solid #ddd;
+    background: transparent;
+  }
+
+  .product-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    img {
+      object-fit: cover;
+      background: #f4f4f4;
+    }
+  }
+}

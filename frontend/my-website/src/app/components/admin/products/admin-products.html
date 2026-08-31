@@ -1,0 +1,227 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+<section class="section-b-space admin-products">
+  <div class="container">
+    <app-admin-nav />
+
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
+      <h2 class="h4 mb-0">Products</h2>
+      <div class="action-buttons">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          [disabled]="exporting"
+          (click)="exportCatalog()"
+        >
+          {{ exporting ? 'Exporting…' : 'Export CSV' }}
+        </button>
+        <a routerLink="/admin/products/new" class="btn btn-sm btn-solid">
+          Add product
+        </a>
+      </div>
+    </div>
+
+    <div class="import-row mb-3">
+      <input
+        #csvInput
+        type="file"
+        accept=".csv,text/csv"
+        hidden
+        (change)="onCsvPicked($event)"
+      />
+      <input
+        #imagesInput
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple
+        hidden
+        (change)="onImagesPicked($event)"
+      />
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
+        (click)="csvInput.click()"
+      >
+        Choose CSV
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
+        (click)="imagesInput.click()"
+      >
+        Choose images
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-solid"
+        [disabled]="!csvFile || importing"
+        (click)="importCatalog()"
+      >
+        {{ importing ? 'Importing…' : 'Import' }}
+      </button>
+      <span class="small text-muted">{{ importHint() }}</span>
+    </div>
+    <p class="small text-muted mb-3">
+      Import rebuilds the catalog from a spreadsheet and matching image
+      filenames. A full shop restore still uses the database + image backups.
+    </p>
+    @if (notice) {
+    <p class="small mb-2">{{ notice }}</p>
+    } @if (importErrors.length) {
+    <ul class="small text-danger mb-3">
+      @for (item of importErrors; track item) {
+      <li>{{ item }}</li>
+      }
+    </ul>
+    }
+
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
+      <form class="search-row" (ngSubmit)="submitSearch()">
+        <input
+          type="search"
+          class="form-control"
+          name="search"
+          [(ngModel)]="search"
+          placeholder="Search name, SKU, or slug"
+        />
+        <button type="submit" class="btn btn-sm btn-outline">Search</button>
+      </form>
+      <div class="status-filters">
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'all'"
+          [class.btn-outline]="statusFilter !== 'all'"
+          (click)="setStatus('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'active'"
+          [class.btn-outline]="statusFilter !== 'active'"
+          (click)="setStatus('active')"
+        >
+          Active
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'disabled'"
+          [class.btn-outline]="statusFilter !== 'disabled'"
+          (click)="setStatus('disabled')"
+        >
+          Disabled
+        </button>
+      </div>
+    </div>
+
+    @if (loading) {
+    <p class="text-muted">Loading products…</p>
+    } @else if (error) {
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'Could not load products'"
+      [description]="error"
+    />
+    } @else if (!products.length) {
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'No products'"
+      [description]="'Add a product or change the filter.'"
+    />
+    } @else {
+    <div class="table-responsive">
+      <table class="table cart-table">
+        <thead>
+          <tr class="table-head">
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Categories</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product.id) {
+          <tr>
+            <td>
+              <div class="product-cell">
+                @if (product.product_thumbnail?.original_url) {
+                <img
+                  [src]="product.product_thumbnail?.original_url"
+                  [alt]="product.name"
+                  width="48"
+                  height="48"
+                />
+                }
+                <div>
+                  <span class="fw-bolder">{{ product.name }}</span>
+                  <div class="small text-muted">{{ product.slug }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ product.sku || '—' }}</td>
+            <td>{{ product.price | currency: 'CAD' }}</td>
+            <td>{{ categoryNames(product) }}</td>
+            <td>
+              <span [class.text-muted]="!product.status">
+                {{ product.status ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a
+                  class="btn btn-sm btn-solid"
+                  [routerLink]="['/admin/products', product.id]"
+                >
+                  Edit
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  [disabled]="togglingId === product.id"
+                  (click)="toggleActive(product)"
+                >
+                  {{ product.status ? 'Disable' : 'Enable' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <span class="small text-muted">{{ totalElements }} products</span>
+      <div class="action-buttons">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          [disabled]="page === 0"
+          (click)="prevPage()"
+        >
+          Previous
+        </button>
+        <span class="small">Page {{ page + 1 }} / {{ totalPages || 1 }}</span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          [disabled]="page + 1 >= totalPages"
+          (click)="nextPage()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+</section>

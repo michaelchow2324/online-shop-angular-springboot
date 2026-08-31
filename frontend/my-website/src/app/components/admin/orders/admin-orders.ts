@@ -13,16 +13,17 @@ import { Router, RouterModule } from "@angular/router";
 import { Store } from "@ngxs/store";
 
 import { hasAdminSession } from "../../../core/guard/admin.guard";
+import { AdminNav } from "../admin-nav/admin-nav";
 import { Breadcrumb } from "../../../shared/components/widgets/breadcrumb/breadcrumb";
 import { NoData } from "../../../shared/components/widgets/no-data/no-data";
 import { IBreadcrumb } from "../../../shared/interface/breadcrumb.interface";
 import {
-  ApiErrorBody,
   ShopOrder,
   ShopOrderStatus,
 } from "../../../shared/interface/shop-order.interface";
 import { AuthService } from "../../../shared/services/auth.service";
 import { OrderService } from "../../../shared/services/order.service";
+import { httpErrorMessage } from "../../../shared/utils/http-error-message";
 import { displayCarrier } from "../../../shared/utils/tracking-url";
 
 /**
@@ -37,6 +38,7 @@ import { displayCarrier } from "../../../shared/utils/tracking-url";
     CurrencyPipe,
     DatePipe,
     ReactiveFormsModule,
+    AdminNav,
   ],
   templateUrl: "./admin-orders.html",
   styleUrl: "./admin-orders.scss",
@@ -212,14 +214,9 @@ export class AdminOrders {
     return displayCarrier(carrier);
   }
 
-  private readApiMessage(err: HttpErrorResponse): string {
-    const body = err.error as ApiErrorBody | string | null;
-    if (body && typeof body === "object" && body.message) {
-      return body.message;
-    }
-    if (err.status === 401 || err.status === 403) {
-      return "Admin access required. Log in as an ADMIN user.";
-    }
-    return err.message || "Request failed.";
+  private readApiMessage(err: unknown): string {
+    return httpErrorMessage(err, {
+      unauthorized: "Admin access required. Log in as an ADMIN user.",
+    });
   }
 }
