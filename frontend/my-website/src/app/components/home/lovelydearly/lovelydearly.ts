@@ -10,7 +10,8 @@ import { ILovelydearly } from "../../../shared/interface/theme.interface";
 import { InstagramPost, InstagramService } from "../../../shared/services/instagram.service";
 import { ThemeOptionService } from "../../../shared/services/theme-option.service";
 import { GetCategoriesAction } from "../../../shared/store/action/category.action";
-import { GetProductByIdsAction } from "../../../shared/store/action/product.action";
+import { GetNewArrivalsAction } from "../../../shared/store/action/product.action";
+import { ProductState } from "../../../shared/store/state/product.state";
 import { ThemeHomeSlider } from "../widgets/theme-home-slider/theme-home-slider";
 import { ThemeProduct } from "../widgets/theme-product/theme-product";
 import { ThemeProductTabSection } from "../widgets/theme-product-tab-section/theme-product-tab-section";
@@ -43,6 +44,9 @@ export class Lovelydearly {
 
   /** Live Instagram posts; null = not yet loaded, [] = failed/no posts */
   instagramPosts = signal<InstagramPost[] | null>(null);
+  /** Newest active products for the New Arrivals rail (default 10). */
+  newArrivalIds: number[] = [];
+  private static readonly NEW_ARRIVALS_LIMIT = 10;
 
   /** Builds a social_media object shaped like the JSON data so ThemeSocialMedia can consume it. */
   get instagramMediaData() {
@@ -70,20 +74,10 @@ export class Lovelydearly {
     if (data?.slug == this.slug()) {
       const categoryProductIds = data?.content?.category_product?.category_ids || [];
 
-      // Get Products
-      let getProduct$;
-      if (data?.content?.products_ids?.length) {
-        getProduct$ = this.store.dispatch(
-          new GetProductByIdsAction({
-            status: 1,
-            approve: 1,
-            ids: data?.content?.products_ids?.join(","),
-            paginate: data?.content?.products_ids?.length,
-          }),
-        );
-      } else {
-        getProduct$ = of(null);
-      }
+      // Newest active products for New Arrivals (not a hardcoded merchandising list)
+      const getProduct$ = this.store.dispatch(
+        new GetNewArrivalsAction(Lovelydearly.NEW_ARRIVALS_LIMIT),
+      ).pipe(catchError(() => of(null)));
 
       // Get Categories — load all, let each section filter client-side
       let getCategory$;
@@ -94,6 +88,10 @@ export class Lovelydearly {
       }
 
       forkJoin([getProduct$, getCategory$]).subscribe({
+        next: () => {
+          const products = this.store.selectSnapshot(ProductState.productByIds) || [];
+          this.newArrivalIds = products.map(product => product.id);
+        },
         complete: () => {
           this.themeOptionService.preloader = false;
         },

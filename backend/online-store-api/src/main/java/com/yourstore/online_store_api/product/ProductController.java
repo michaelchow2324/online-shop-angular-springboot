@@ -35,6 +35,18 @@ public class ProductController {
         
         // no cache here since product listings can change frequently (new products, price changes, stock levels, etc.).
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Homepage New Arrivals: newest active products by created date.
+     * Default 10 — typical boutique homepage rails are 8–12 items.
+     */
+    @GetMapping("/new-arrivals")
+    public ResponseEntity<PagedResponse<ProductDTO>> newArrivals(
+        @RequestParam(defaultValue = "10") int limit,
+        @RequestParam(defaultValue = "en") String locale
+    ) {
+        return ResponseEntity.ok(productService.findNewArrivals(limit, locale));
     }   
 
     @GetMapping("/{slug}/details")

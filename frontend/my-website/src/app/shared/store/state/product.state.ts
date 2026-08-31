@@ -11,6 +11,7 @@ import {
   GetCategoryProductsAction,
   GetMenuProductsAction,
   GetMoreProductAction,
+  GetNewArrivalsAction,
   GetProductByIdsAction,
   GetProductBySearchAction,
   GetProductBySearchListAction,
@@ -242,6 +243,22 @@ export class ProductState {
           const state = ctx.getState();
           ctx.patchState({
             ...state,
+            productByIds: result.data,
+          });
+        },
+        error: err => {
+          throw new Error(err?.error?.message);
+        },
+      }),
+    );
+  }
+
+  @Action(GetNewArrivalsAction)
+  getNewArrivals(ctx: StateContext<ProductStateModel>, action: GetNewArrivalsAction) {
+    return this.productService.getNewArrivals(action.limit).pipe(
+      tap({
+        next: (result: IProductModel) => {
+          ctx.patchState({
             productByIds: result.data,
           });
         },

@@ -53,6 +53,11 @@ export class GetProductByIdsAction {
   constructor(public payload?: Params) {}
 }
 
+export class GetNewArrivalsAction {
+  static readonly type = '[Product] New Arrivals Get';
+  constructor(public limit: number = 10) {}
+}
+
 export class GetMoreProductAction {
   static readonly type = '[MoreProduct] Get';
   constructor(

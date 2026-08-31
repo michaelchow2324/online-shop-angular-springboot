@@ -22,8 +22,8 @@
             "tag": "Just Landed",
             "title": "New Arrivals",
             "status": true,
-            "description": "Polka dots, petite florals & trending colours.",
-            "product_ids": [21, 16, 15, 12, 19, 17, 18, 14]
+            "description": "Newest pieces, just added to the shop.",
+            "product_ids": []
         },
         "categories": {
             "tag": "Shop Collection",
@@ -143,7 +143,7 @@
                 }
             ]
         },
-        "products_ids": [21, 16, 15, 12, 19, 17, 18, 14]
+        "products_ids": []
     },
     "slug": "lovelydearly"
 }

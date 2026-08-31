@@ -29,6 +29,8 @@ public class ProductServiceImpl implements ProductService {
     private static final int DEFAULT_SIZE = 20;
     private static final int MAX_SIZE = 100;
     private static final String DEFAULT_SORT = "id,desc";
+    static final int DEFAULT_NEW_ARRIVALS = 10;
+    static final int MAX_NEW_ARRIVALS = 24;
 
 
     private final ProductRepository productRepository;
@@ -129,6 +131,29 @@ public class ProductServiceImpl implements ProductService {
             .orElseThrow(() -> new IllegalArgumentException("Product not found or not active: " + normalizedSlug));
 
         return dto;
+    }
+
+    @Override
+    public PagedResponse<ProductDTO> findNewArrivals(int limit, String locale) {
+        int normalizedLimit = limit <= 0 ? DEFAULT_NEW_ARRIVALS : Math.min(limit, MAX_NEW_ARRIVALS);
+        String normalizedLocale = normalizeLocale(locale);
+        Pageable pageable = PageRequest.of(
+                0,
+                normalizedLimit,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+        Page<Product> productsPage = productRepository.findByActiveTrue(pageable);
+        List<ProductDTO> dtos = productsPage.getContent()
+                .stream()
+                .map(product -> toDto(product, normalizedLocale))
+                .collect(Collectors.toList());
+        return new PagedResponse<>(
+                dtos,
+                0,
+                normalizedLimit,
+                productsPage.getTotalElements(),
+                productsPage.getTotalPages(),
+                productsPage.hasNext(),
+                productsPage.hasPrevious());
     } 
     
     private int normalizeSize(int size) {

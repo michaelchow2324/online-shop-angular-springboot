@@ -7,13 +7,13 @@
 <!-- ===== END HERO ===== -->
 
 <!-- ===== NEW ARRIVALS SLIDER ===== -->
-@if(data()?.content?.products_list?.status && data()?.content?.products_list?.product_ids?.length){
+@if(data()?.content?.products_list?.status){
   <div class="lovelydearly-section-wrap">
     <app-theme-title [title]="data()?.content?.products_list" [type]="'basic'" [space]="true" />
     <section class="section-b-space pt-0">
       <div class="container">
         <app-theme-product
-          [productIds]="data()?.content?.products_list?.product_ids || []"
+          [productIds]="newArrivalIds"
           [style]="'vertical'"
           [slider]="true"
         />

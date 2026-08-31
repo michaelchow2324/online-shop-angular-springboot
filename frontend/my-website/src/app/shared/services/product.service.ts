@@ -214,6 +214,23 @@ export class ProductService {
       .pipe(map(product => this.normalizeProduct(product)));
   }
 
+  /** Homepage New Arrivals — newest active products by created date. */
+  getNewArrivals(limit = 10): Observable<IProductModel> {
+    return this.http
+      .get<{ content?: IProduct[]; totalElements?: number; total?: number }>(
+        `${environment.apiUrl}/products/new-arrivals`,
+        { params: { limit, locale: this.getLocale() } },
+      )
+      .pipe(
+        map((result) => {
+          const raw = result?.content ?? [];
+          const data = raw.map((product: any) => this.normalizeProduct(product));
+          const total = result?.totalElements ?? result?.total ?? data.length;
+          return { data, total } as IProductModel;
+        }),
+      );
+  }
+
   private getLocale(): string {
     try {
       const raw = localStorage.getItem('language');
