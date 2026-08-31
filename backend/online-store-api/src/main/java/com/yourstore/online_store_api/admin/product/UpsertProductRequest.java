@@ -27,6 +27,12 @@ public class UpsertProductRequest {
 
     private String description;
 
+    /** Traditional Chinese name shown when the shop language is 繁體中文. */
+    private String nameZh;
+
+    /** Traditional Chinese description. */
+    private String descriptionZh;
+
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.00", inclusive = true, message = "Price must be non-negative")
     @Digits(integer = 10, fraction = 2)

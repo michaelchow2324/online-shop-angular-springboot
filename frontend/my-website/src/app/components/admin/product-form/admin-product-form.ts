@@ -62,6 +62,8 @@ export class AdminProductForm implements OnDestroy {
     sku: [""],
     price: [null, [Validators.required, Validators.min(0)]],
     description: [""],
+    nameZh: [""],
+    descriptionZh: [""],
     active: [true],
   });
 
@@ -209,6 +211,8 @@ export class AdminProductForm implements OnDestroy {
       sku: string;
       price: number;
       description: string;
+      nameZh: string;
+      descriptionZh: string;
       active: boolean;
     };
     const body = {
@@ -216,6 +220,8 @@ export class AdminProductForm implements OnDestroy {
       slug: raw.slug.trim() || undefined,
       sku: raw.sku.trim() || null,
       description: raw.description.trim() || null,
+      nameZh: raw.nameZh.trim() || null,
+      descriptionZh: raw.descriptionZh.trim() || null,
       price: Number(raw.price),
       active: !!raw.active,
       categoryIds: [...this.selectedCategoryIds],
@@ -296,6 +302,8 @@ export class AdminProductForm implements OnDestroy {
       sku: product.sku || "",
       price: product.price,
       description: product.description || "",
+      nameZh: product.nameZh || "",
+      descriptionZh: product.descriptionZh || "",
       active: product.status,
     });
   }

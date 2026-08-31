@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,6 +35,7 @@ import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.product.Product;
 import com.yourstore.online_store_api.product.ProductRepository;
 import com.yourstore.online_store_api.storage.ImageStorageService;
+import com.yourstore.online_store_api.translation.ProductTranslation;
 import com.yourstore.online_store_api.translation.ProductTranslationRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -119,6 +121,40 @@ class AdminProductServiceImplTest {
         assertThat(dto.isStatus()).isTrue();
         assertThat(bags.getProducts()).extracting(Product::getId).contains(21L);
         verify(translationRepository).save(any());
+    }
+
+    @Test
+    void create_savesChineseNameAndDescription() {
+        when(productRepository.existsBySlug("floral-keychain")).thenReturn(false);
+        when(productRepository.save(any(Product.class))).thenAnswer(inv -> {
+            Product p = inv.getArgument(0);
+            p.setId(21L);
+            return p;
+        });
+        when(translationRepository.findByProductIdAndLocale(eq(21L), anyString()))
+                .thenReturn(Optional.empty());
+        when(translationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(translationRepository.findByProductId(21L)).thenReturn(List.of());
+        when(mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc("product", 21L))
+                .thenReturn(List.of());
+
+        UpsertProductRequest request = new UpsertProductRequest();
+        request.setName("Floral Keychain");
+        request.setPrice(new BigDecimal("12.00"));
+        request.setNameZh("花卉鎖匙扣");
+        request.setDescriptionZh("手作鎖匙扣");
+
+        adminProductService.create(request);
+
+        ArgumentCaptor<ProductTranslation> captor = ArgumentCaptor.forClass(ProductTranslation.class);
+        verify(translationRepository, org.mockito.Mockito.atLeast(3)).save(captor.capture());
+        assertThat(captor.getAllValues())
+                .extracting(ProductTranslation::getLocale)
+                .contains("en", "zh-TW", "zh-HK");
+        assertThat(captor.getAllValues())
+                .filteredOn(t -> "zh-HK".equals(t.getLocale()))
+                .extracting(ProductTranslation::getName)
+                .containsExactly("花卉鎖匙扣");
     }
 
     @Test

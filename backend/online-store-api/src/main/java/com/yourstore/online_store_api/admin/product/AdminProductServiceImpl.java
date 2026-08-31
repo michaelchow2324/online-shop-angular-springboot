@@ -182,6 +182,7 @@ public class AdminProductServiceImpl implements AdminProductService {
         product = productRepository.save(product);
         syncCategories(product, request.getCategoryIds());
         upsertEnglishTranslation(product);
+        upsertChineseTranslation(product, request.getNameZh(), request.getDescriptionZh());
         return toDto(product, true);
     }
 
@@ -193,6 +194,7 @@ public class AdminProductServiceImpl implements AdminProductService {
         product.setUpdatedAt(LocalDateTime.now());
         syncCategories(product, request.getCategoryIds());
         upsertEnglishTranslation(product);
+        upsertChineseTranslation(product, request.getNameZh(), request.getDescriptionZh());
         return toDto(productRepository.save(product), true);
     }
 
@@ -382,18 +384,60 @@ public class AdminProductServiceImpl implements AdminProductService {
     }
 
     private void upsertEnglishTranslation(Product product) {
+        upsertTranslation(product, "en", product.getName(), product.getDescription());
+    }
+
+    /**
+     * Storefront Chinese uses {@code zh-HK} (language picker) and {@code zh-TW}
+     * ({@code zh} normalized). Seed data is {@code zh-HK}. Keep both in sync.
+     */
+    private void upsertChineseTranslation(Product product, String nameZh, String descriptionZh) {
+        String name = blankToNull(nameZh);
+        String description = blankToNull(descriptionZh);
+        if (name == null && description == null) {
+            deleteTranslation(product.getId(), "zh-TW");
+            deleteTranslation(product.getId(), "zh-HK");
+            deleteTranslation(product.getId(), "zh");
+            return;
+        }
+        if (name == null) {
+            ProductTranslation existing = findChineseTranslation(product.getId());
+            name = existing != null && !isBlank(existing.getName()) ? existing.getName() : product.getName();
+        }
+        upsertTranslation(product, "zh-TW", name, description);
+        upsertTranslation(product, "zh-HK", name, description);
+    }
+
+    private void upsertTranslation(Product product, String locale, String name, String description) {
         ProductTranslation translation = translationRepository
-                .findByProductIdAndLocale(product.getId(), "en")
+                .findByProductIdAndLocale(product.getId(), locale)
                 .orElseGet(ProductTranslation::new);
         if (translation.getId() == null) {
             translation.setProduct(product);
-            translation.setLocale("en");
+            translation.setLocale(locale);
             translation.setCreatedAt(LocalDateTime.now());
         }
-        translation.setName(product.getName());
-        translation.setDescription(product.getDescription());
+        translation.setName(name);
+        translation.setDescription(description);
         translation.setUpdatedAt(LocalDateTime.now());
         translationRepository.save(translation);
+    }
+
+    private void deleteTranslation(Long productId, String locale) {
+        translationRepository.findByProductIdAndLocale(productId, locale)
+                .ifPresent(translationRepository::delete);
+    }
+
+    private ProductTranslation findChineseTranslation(Long productId) {
+        List<ProductTranslation> translations = translationRepository.findByProductId(productId);
+        for (String locale : List.of("zh-TW", "zh-HK", "zh")) {
+            for (ProductTranslation translation : translations) {
+                if (locale.equalsIgnoreCase(translation.getLocale())) {
+                    return translation;
+                }
+            }
+        }
+        return null;
     }
 
     private Product requireProduct(Long id) {
@@ -502,12 +546,24 @@ public class AdminProductServiceImpl implements AdminProductService {
                 .map(c -> new AdminCategoryRef(c.getId(), c.getName(), c.getSlug()))
                 .collect(Collectors.toList());
 
+        String nameZh = null;
+        String descriptionZh = null;
+        if (includeGallery) {
+            ProductTranslation zh = findChineseTranslation(product.getId());
+            if (zh != null) {
+                nameZh = zh.getName();
+                descriptionZh = zh.getDescription();
+            }
+        }
+
         return new AdminProductDTO(
                 product.getId(),
                 product.getName(),
                 product.getSlug(),
                 product.getSku(),
                 product.getDescription(),
+                nameZh,
+                descriptionZh,
                 product.getPrice(),
                 thumbnail,
                 product.isActive(),

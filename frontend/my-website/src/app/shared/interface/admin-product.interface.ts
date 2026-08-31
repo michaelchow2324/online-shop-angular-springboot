@@ -17,6 +17,8 @@ export interface AdminProduct {
   slug: string;
   sku: string | null;
   description: string | null;
+  nameZh?: string | null;
+  descriptionZh?: string | null;
   price: number;
   product_thumbnail: { id?: number; original_url: string } | null;
   status: boolean;
@@ -48,6 +50,8 @@ export interface UpsertProductBody {
   slug?: string;
   sku?: string | null;
   description?: string | null;
+  nameZh?: string | null;
+  descriptionZh?: string | null;
   price: number;
   active: boolean;
   categoryIds: number[];

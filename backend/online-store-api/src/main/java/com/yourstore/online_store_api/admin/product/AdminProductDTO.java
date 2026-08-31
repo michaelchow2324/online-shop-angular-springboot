@@ -44,6 +44,8 @@ public class AdminProductDTO {
     private String slug;
     private String sku;
     private String description;
+    private String nameZh;
+    private String descriptionZh;
     private BigDecimal price;
     private ProductImage product_thumbnail;
     private boolean status;
