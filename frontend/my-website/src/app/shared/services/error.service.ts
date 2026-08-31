@@ -1,27 +1,27 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpErrorResponse } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+
+import { httpErrorMessage } from "../utils/http-error-message";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ErrorService {
-  constructor() {}
-
-  getClientErrorMessage(error: Error): string {
-    // Check if running on the client side
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+  getClientErrorMessage(error: Error | null | undefined): string {
+    if (error == null) {
+      return "Something Went Wrong";
+    }
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
       return navigator.onLine
         ? error.message
           ? error.message
-          : 'Something Went Wrong'
-        : 'No Internet Connection';
+          : "Something Went Wrong"
+        : "No Internet Connection";
     }
-
-    // If running on the server side
-    return error.message ? error.message : 'An error occurred';
+    return error.message ? error.message : "An error occurred";
   }
 
   getServerErrorMessage(error: HttpErrorResponse): string {
-    return error.message;
+    return httpErrorMessage(error);
   }
 }
