@@ -3,6 +3,12 @@
 # ROC: Rest of Canada
 # REMOTE: Remote areas (NL, NT, NU, YT) Yukon, Northwest Territories, Nunavut 
 
+spring:
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 64MB
+
 # Guide 08 — Actuator: only health (+ info). Other endpoints stay off the web surface.
 # Docker prod healthcheck hits /actuator/health (see deploy/docker-compose.prod.yml).
 management:
@@ -65,3 +71,17 @@ app:
         rate: 0.15
         name: HST
       # BC/MB/SK/QC: no entry → default GST 5% only (PST/QST not collected yet)
+  backup:
+    # Empty = skip nightly CSV. Dev profile below writes to repo backups/.
+    catalog-dir: ""
+    catalog-cron: "0 0 3 * * *"
+    keep-days: 14
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+app:
+  backup:
+    catalog-dir: ../../backups

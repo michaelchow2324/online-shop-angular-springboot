@@ -19,4 +19,8 @@ app.mail.from=${APP_MAIL_FROM:orders@localhost}
 
 app.public-web-base-url=${APP_PUBLIC_WEB_BASE_URL:http://localhost:4200}
 
+# Admin catalog import (CSV + several images). application.yml has the same defaults.
+spring.servlet.multipart.max-file-size=8MB
+spring.servlet.multipart.max-request-size=64MB
+
 # Shipping / tax / actuator: see application.yml (@ConfigurationProperties)

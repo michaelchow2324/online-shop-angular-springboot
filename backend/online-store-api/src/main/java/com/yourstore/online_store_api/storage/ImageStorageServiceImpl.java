@@ -1,10 +1,14 @@
 package com.yourstore.online_store_api.storage;
 
+import java.io.InputStream;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 
 // ─── ORIGINAL IMPLEMENTATION (kept for reference) ────────────────────────────
 // import io.minio.GetPresignedObjectUrlArgs;
@@ -74,18 +78,17 @@ public class ImageStorageServiceImpl implements ImageStorageService {
     // Example: https://minio.myshop.com/online-store-bucket/
     // For local dev: http://localhost:9000/online-store-bucket/
     private final String publicBaseUrl;
-
-    // minioClient is kept for potential future use (e.g. checking object existence),
-    // but is NOT used for URL generation — plain URLs are used instead.
-    @SuppressWarnings("unused")
+    private final String bucket;
     private final MinioClient minioClient;
 
     public ImageStorageServiceImpl(
             @Value("${storage.public-base-url:}") String publicBaseUrl,
+            @Value("${storage.minio.bucket:}") String bucket,
             @Nullable MinioClient minioClient) {
         if (publicBaseUrl == null) publicBaseUrl = "";
         // Ensure trailing slash so keys can be appended directly.
         this.publicBaseUrl = publicBaseUrl.endsWith("/") ? publicBaseUrl : publicBaseUrl + "/";
+        this.bucket = bucket == null ? "" : bucket;
         this.minioClient = minioClient;
     }
 
@@ -96,5 +99,56 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         if (storageKey.startsWith("/")) storageKey = storageKey.substring(1);
         // Compose plain public URL — never expires, safe for CDN and SEO crawlers.
         return publicBaseUrl + storageKey;
+    }
+
+    @Override
+    public void upload(String storageKey, InputStream stream, long size, String contentType) {
+        requireClient();
+        if (storageKey == null || storageKey.isBlank()) {
+            throw new IllegalArgumentException("Storage key is required");
+        }
+        if (stream == null) {
+            throw new IllegalArgumentException("Image data is required");
+        }
+        String key = storageKey.startsWith("/") ? storageKey.substring(1) : storageKey;
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(key)
+                            .stream(stream, size, -1)
+                            .contentType(contentType == null || contentType.isBlank()
+                                    ? "application/octet-stream"
+                                    : contentType)
+                            .build());
+        } catch (Exception ex) {
+            throw new IllegalStateException("Failed to upload image: " + ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public void delete(String storageKey) {
+        if (storageKey == null || storageKey.isBlank()) {
+            return;
+        }
+        if (minioClient == null || bucket.isBlank()) {
+            return;
+        }
+        String key = storageKey.startsWith("/") ? storageKey.substring(1) : storageKey;
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(key)
+                            .build());
+        } catch (Exception ex) {
+            throw new IllegalStateException("Failed to delete image: " + ex.getMessage(), ex);
+        }
+    }
+
+    private void requireClient() {
+        if (minioClient == null || bucket.isBlank()) {
+            throw new IllegalStateException("Image storage is not configured");
+        }
     }
 }
