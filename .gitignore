@@ -66,6 +66,9 @@ id_rsa.pub
 *.log
 .npm/
 
+# Postgres / catalog dumps (see deploy/scripts/)
+/backups/
+
 # Private notes / study guides — keep local, not on the public repo
 guides/
 notes/

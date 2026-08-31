@@ -1,0 +1,12 @@
+# Nightly Postgres dump + local MinIO volume (Linux/VPS crontab)
+#
+#   crontab -e
+#   paste the line below (adjust the path)
+#
+# Local Git Bash / WSL:
+#   0 3 * * * /c/Users/chow/Documents/GitHub/my-online-shop/deploy/scripts/backup-all.sh >> /c/Users/chow/Documents/GitHub/my-online-shop/backups/backup.log 2>&1
+#
+# Production VPS (images already on R2 — MinIO step is a no-op):
+#   0 3 * * * COMPOSE_FILE=/home/deploy/my-online-shop/deploy/docker-compose.prod.yml COMPOSE_ENV_FILE=/home/deploy/my-online-shop/deploy/.env.prod /home/deploy/my-online-shop/deploy/scripts/backup-all.sh >> /var/log/shop-backup.log 2>&1
+
+0 3 * * * /home/deploy/my-online-shop/deploy/scripts/backup-all.sh >> /var/log/shop-backup.log 2>&1

@@ -10,7 +10,8 @@ The UI started from a [ThemeForest Multikart](https://themeforest.net/item/multi
 - Stripe Checkout + signed webhooks; admin full refunds
 - JWT auth (register, login, email verification); guest orders can be claimed after verify
 - Account: profile, order history, address book
-- Admin: list orders, ship with tracking, refund
+- Admin: products (add/edit/images/categories/enable), orders (ship, refund)
+- Catalog CSV import/export; scheduled Postgres + MinIO dumps (`deploy/scripts/`)
 - GST/HST by destination province; shipping zones (Ontario / rest of Canada / remote)
 - Transactional email: verify, paid, shipped, refunded
 - Angular SSR; i18n (English, French, Traditional Chinese)
@@ -75,10 +76,13 @@ npm start
 | | URL |
 |---|---|
 | Shop | http://localhost:4200 |
+| Admin | http://localhost:4200/admin |
 | API health | http://localhost:8080/actuator/health |
 | Mailhog | http://localhost:8025 |
 
 Stripe webhooks: `stripe listen --forward-to localhost:8080/api/payments/stripe/webhook`
+
+**Catalog data:** products live in Postgres (Docker volume); local images live in MinIO. Restarting the API does not wipe admin edits. Full restore: [`deploy/scripts/backup-all.sh`](deploy/scripts/backup-all.sh) / [`backup-all.ps1`](deploy/scripts/backup-all.ps1) (cron in [`deploy/scripts/crontab.example`](deploy/scripts/crontab.example)). To rebuild only the catalog, use Import on `/admin/products`. Details: [`deploy/scripts/README.md`](deploy/scripts/README.md).
 
 ```bash
 cd backend/online-store-api && ./mvnw test
