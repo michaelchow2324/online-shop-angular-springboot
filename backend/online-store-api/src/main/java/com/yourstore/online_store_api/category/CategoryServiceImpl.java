@@ -61,7 +61,9 @@ public class CategoryServiceImpl implements CategoryService {
         // for (Category c : categoryRepository.findAll()) { out.add(toDto(c)); }
         // return out;
         String normalizedLocale = normalizeLocale(locale);
-        return categoryRepository.findAll().stream().map(c -> toDto(c, normalizedLocale)).collect(Collectors.toList());
+        return categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
+                .map(c -> toDto(c, normalizedLocale))
+                .collect(Collectors.toList());
     }
 
     @Override

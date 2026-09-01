@@ -439,7 +439,9 @@
   "cosmetic_bags": "化妝袋",
   "accessories": "配飾",
   "headbands": "髮帶",
-  "hk_tissue_covers": "紙巾套",
-  "hk_coin_pouches": "零錢包",
+  "hk_tissue_covers": "港式紙巾套",
+  "hk_coin_pouches": "港式散紙包",
+  "ca_tissue_covers": "加拿大主題紙巾套",
+  "ca_coin_pouches": "加拿大主題散紙包",
   "makeup_bags": "化妝包"
 }
