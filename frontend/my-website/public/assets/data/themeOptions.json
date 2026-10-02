@@ -2,12 +2,12 @@
     "id": 1,
     "options": {
         "seo": {
-            "og_title": "Lovely Dearly | Handmade Accessories & Gifts from New Zealand",
-            "meta_tags": "Lovely Dearly, handmade accessories, NZ gifts, cosmetic bags, wallets, headbands",
-            "meta_title": "Lovely Dearly | Handmade Accessories & Gifts from New Zealand",
+            "og_title": "Lovely Dearly | Handmade Accessories & Gifts from Canada",
+            "meta_tags": "Lovely Dearly, handmade accessories, Canada gifts, cosmetic bags, wallets, headbands",
+            "meta_title": "Lovely Dearly | Handmade Accessories & Gifts from Canada",
             "og_image_id": 107,
-            "og_description": "Shop cute and practical handmade accessories from Lovely Dearly. Personalised gifts, cosmetic bags, wallets, and more — crafted with love and shipped worldwide from New Zealand.",
-            "meta_description": "Lovely Dearly offers handmade accessories and thoughtful gifts — cosmetic bags, wallets, headbands, and more. Personalisation available. Free NZ shipping on orders over $85.",
+            "og_description": "Shop cute and practical handmade accessories from Lovely Dearly. Personalised gifts, cosmetic bags, wallets, and more — crafted with love and shipped from Ontario, Canada.",
+            "meta_description": "Lovely Dearly offers handmade accessories and thoughtful gifts — cosmetic bags, wallets, headbands, and more. Personalisation available. Free Canada shipping on orders over $85.",
             "og_image": {
                 "id": 107,
                 "name": "fashion_two_1",
@@ -83,13 +83,13 @@
                 "offer": "80% off",
                 "title": "NEWSLETTER",
                 "image_url": "/images/placeholder/auth.png",
-                "is_enable": true,
+                "is_enable": false,
                 "description": "plus, early access to new arrivals, exclusive sales, & lots more?"
             }
         },
         "footer": {
             "title": "Sign up for weekly subscriber exclusive deals!",
-            "twitter": "https://twitter.com/",
+            "twitter": "",
             "bg_color": "#fdf6f0",
             "bg_image": "/images/footer/christmas.jpg",
             "facebook": "https://www.facebook.com/lovelydearly",
@@ -158,11 +158,11 @@
             ],
             "footer_about": "Cute & practical handmade accessories, crafted with love in the Lovely Dearly studio. Shipped from our home to yours.",
             "footer_style": "footer_one",
-            "about_address": "Shipped from New Zealand worldwide",
+            "about_address": "Shipped from Ontario, Canada",
             "app_store_url": "https://www.apple.com/in/app-store/",
-            "support_email": "support@gmail.com",
+            "support_email": "hello@lovelydearly.ca",
             "play_store_url": "https://play.google.com/store/apps",
-            "support_number": "123-456-7898",
+            "support_number": "647-995-8329",
             "footer_copyright": true,
             "copyright_content": "2026, Lovely Dearly",
             "footer_categories": [
@@ -185,10 +185,10 @@
                 107
             ],
             "header_options": "header_two",
-            "support_number": "123 - 456 - 7890",
+            "support_number": "647-995-8329",
             "top_bar_content": [
                 {
-                    "content": "<i class=\"ri-truck-line\"></i> Free NZ shipping on orders over $85"
+                    "content": "<i class=\"ri-truck-line\"></i> Free Canada shipping on orders over $85"
                 },
                 {
                     "content": "<i class=\"ri-heart-line\"></i> Handmade with love — shipped from our studio to yours"
@@ -431,22 +431,22 @@
             "title": "Get In Touch",
             "detail_1": {
                 "icon": "ri-phone-fill",
-                "text": "+91 123 - 456 - 7890",
+                "text": "+1 647-995-8329",
                 "label": "Contact Us"
             },
             "detail_2": {
                 "icon": "ri-map-pin-fill",
-                "text": "ABC Complex,Near xyz, New York",
+                "text": "Ontario, Canada",
                 "label": "Address"
             },
             "detail_3": {
                 "icon": "ri-mail-fill",
-                "text": "support@multikart.com",
+                "text": "hello@lovelydearly.ca",
                 "label": "Email"
             },
             "detail_4": {
                 "icon": "ri-cellphone-fill",
-                "text": "support@multikart.com",
+                "text": "",
                 "label": "Fax"
             },
             "imageUrl": null,

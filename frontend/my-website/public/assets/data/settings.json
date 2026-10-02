@@ -2,12 +2,12 @@
     "values": {
         "general": {
             "mode": "light-only",
-            "site_url": "https://angular.pixelstrap.net/multikart-rest/",
-            "copyright": "Copyright 2024 © Multikart theme by pixelstrap",
-            "site_name": "Multikart",
-            "site_title": "Multikart Marketplace: Where Vendors Shine Together",
-            "site_tagline": "Shop Unique, Sell Exceptional – Multikart's Multi-Vendor Universe.",
-            "default_timezone": "Asia/Kolkata",
+            "site_url": "https://lovelydearly.ca",
+            "copyright": "Copyright 2026 © Lovely Dearly",
+            "site_name": "Lovely Dearly",
+            "site_title": "Lovely Dearly | Handmade Accessories & Gifts from Canada",
+            "site_tagline": "Cute and practical handmade accessories, shipped from Ontario, Canada.",
+            "default_timezone": "America/Toronto",
             "favicon_image_id": 10,
             "min_order_amount": 0,
             "dark_logo_image_id": 3948,
@@ -15,7 +15,7 @@
             "tiny_logo_image_id": 1302,
             "default_currency_id": 1,
             "light_logo_image_id": 3950,
-            "min_order_free_shipping": 50,
+            "min_order_free_shipping": 85,
             "admin_site_language_direction": "ltr",
             "light_logo_image": {
                 "id": 3950,
