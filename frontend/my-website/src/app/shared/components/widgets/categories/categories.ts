@@ -42,14 +42,19 @@ export class Categories {
     this.route.queryParams.subscribe(params => {
       this.selectedCategorySlug = params['category'] ? params['category'].split(',') : [];
     });
-    this.category$.subscribe(res => (this.categories = res.data.map(category => category)));
+    this.category$.subscribe(
+      res => (this.categories = (res?.data || []).filter(category => this.isPublicCategory(category))),
+    );
   }
 
   ngOnChanges() {
     const categoryIds = this.categoryIds();
     if (categoryIds && categoryIds.length) {
       this.category$.subscribe(
-        res => (this.categories = this.getCategoriesByIds(res.data, this.categoryIds()!)),
+        res =>
+          (this.categories = this.getCategoriesByIds(res.data, this.categoryIds()!).filter(
+            category => this.isPublicCategory(category),
+          )),
       );
     }
 
@@ -104,6 +109,12 @@ export class Categories {
     });
 
     return matchedCategories;
+  }
+
+  private isPublicCategory(category: ICategory): boolean {
+    const name = category?.name?.trim().toLowerCase();
+    const slug = category?.slug?.toLowerCase();
+    return name !== 'test' && slug !== 'test';
   }
 
   closeCanvasMenu() {

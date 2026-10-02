@@ -1,4 +1,5 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 
 import { Store } from '@ngxs/store';
@@ -16,28 +17,22 @@ import { CategoryState } from '../../../../store/state/category.state';
 })
 export class FooterCategories {
   private store = inject(Store);
-
-  readonly categoryIds = input<number[]>();
+  private destroyRef = inject(DestroyRef);
 
   category$: Observable<ICategoryModel> = inject(Store).select(CategoryState.footerCategory);
 
-  public categories: ICategory[];
+  public categories: ICategory[] = [];
 
   ngOnInit() {
-    const categoryIds = this.categoryIds();
-    this.store.dispatch(
-      new GetFooterCategoriesAction({
-        status: 1,
-        ids: categoryIds?.join(','),
-      }),
-    );
+    this.store.dispatch(new GetFooterCategoriesAction({ status: 1 }));
 
-    if (categoryIds && categoryIds.length) {
-      this.category$.subscribe(res => {
-        if (res) {
-          this.categories = res.data.filter(category => this.categoryIds()?.includes(category.id));
-        }
-      });
-    }
+    this.category$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
+      this.categories = (res?.data || []).filter(
+        category =>
+          category?.status !== false &&
+          category?.slug?.toLowerCase() !== 'test' &&
+          category?.name?.trim().toLowerCase() !== 'test',
+      );
+    });
   }
 }

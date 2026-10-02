@@ -1,29 +1,35 @@
 @if(data()?.footer?.facebook || data()?.footer?.twitter || data()?.footer?.instagram ||
-data()?.footer?.pinterest){
+data()?.footer?.pinterest || data()?.footer?.threads){
 <div class="footer-social">
   <ul>
     @if(data()?.footer?.facebook){
     <li>
-      <a href="{{ data()?.footer?.facebook }}" target="_blank">
+      <a href="{{ data()?.footer?.facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
         <i class="ri-facebook-fill"></i>
       </a>
     </li>
     }@if(data()?.footer?.twitter){
     <li>
-      <a href="{{ data()?.footer?.twitter }}" target="_blank">
+      <a href="{{ data()?.footer?.twitter }}" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
         <i class="ri-twitter-fill"></i>
       </a>
     </li>
     }@if(data()?.footer?.instagram){
     <li>
-      <a href="{{ data()?.footer?.instagram }}" target="_blank">
+      <a href="{{ data()?.footer?.instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <i class="ri-instagram-fill"></i>
       </a>
     </li>
     }@if(data()?.footer?.pinterest){
     <li>
-      <a href="{{ data()?.footer?.pinterest }}" target="_blank">
+      <a href="{{ data()?.footer?.pinterest }}" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
         <i class="ri-pinterest-fill"></i>
+      </a>
+    </li>
+    }@if(data()?.footer?.threads){
+    <li>
+      <a href="{{ data()?.footer?.threads }}" target="_blank" rel="noopener noreferrer" aria-label="Threads">
+        <i class="ri-threads-fill"></i>
       </a>
     </li>
     }

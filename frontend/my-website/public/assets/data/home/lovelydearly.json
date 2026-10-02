@@ -31,7 +31,7 @@
             "status": true
         },
         "services": {
-            "status": true,
+            "status": false,
             "banners": [
                 {
                     "title": "Personalised Just for You",
@@ -83,7 +83,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_7.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -92,7 +92,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_6.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -101,7 +101,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_5.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -110,7 +110,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_4.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -119,7 +119,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_3.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -128,7 +128,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_2.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 },
@@ -137,7 +137,7 @@
                     "image_url": "/assets/images/theme/fashion_one/fashion_one_insta_1.png",
                     "button_text": "",
                     "redirect_link": {
-                        "link": "https://instagram.com/",
+                        "link": "https://www.instagram.com/by.lovelydearly/",
                         "link_type": "external_url"
                     }
                 }

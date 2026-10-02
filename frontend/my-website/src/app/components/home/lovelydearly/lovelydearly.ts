@@ -14,8 +14,6 @@ import { GetNewArrivalsAction } from "../../../shared/store/action/product.actio
 import { ProductState } from "../../../shared/store/state/product.state";
 import { ThemeHomeSlider } from "../widgets/theme-home-slider/theme-home-slider";
 import { ThemeProduct } from "../widgets/theme-product/theme-product";
-import { ThemeProductTabSection } from "../widgets/theme-product-tab-section/theme-product-tab-section";
-import { ThemeServices } from "../widgets/theme-services/theme-services";
 import { ThemeSocialMedia } from "../widgets/theme-social-media/theme-social-media";
 import { ThemeTitle } from "../widgets/theme-title/theme-title";
 
@@ -26,8 +24,6 @@ import { ThemeTitle } from "../widgets/theme-title/theme-title";
     Categories,
     ThemeTitle,
     ThemeProduct,
-    ThemeServices,
-    ThemeProductTabSection,
     ThemeSocialMedia,
   ],
   templateUrl: "./lovelydearly.html",

@@ -4,7 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { IOption } from '../../../../shared/interface/theme-option.interface';
 import { ThemeOptionService } from '../../../services/theme-option.service';
-import { NoData } from '../../widgets/no-data/no-data';
 import { FooterAbout } from '../widgets/footer-about/footer-about';
 import { FooterCategories } from '../widgets/footer-categories/footer-categories';
 import { FooterContact } from '../widgets/footer-contact/footer-contact';
@@ -28,7 +27,6 @@ import { FooterSocialLinks } from '../widgets/footer-social-links/footer-social-
     FooterCopyright,
     FooterPaymentOptions,
     FooterNewsLetter,
-    NoData,
   ],
   templateUrl: './footer-one.html',
   styleUrl: './footer-one.scss',

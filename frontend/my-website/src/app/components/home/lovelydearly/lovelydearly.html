@@ -38,23 +38,6 @@
 }
 <!-- ===== END COLLECTIONS ===== -->
 
-<!-- ===== FEATURES / PERKS SECTION ===== -->
-@if(data()?.content?.services?.banners?.length){
-  <section class="lovelydearly-features section-t-space section-b-space">
-    <div class="container">
-      <div class="lovelydearly-section-heading text-center mb-5">
-        <span class="lovelydearly-eyebrow">Why Shop With Us</span>
-        <h2 class="lovelydearly-title">Our Promises to You</h2>
-      </div>
-      <app-theme-services
-        [services]="data()?.content?.services?.banners || []"
-        [class]="'col-lg-4 col-sm-6'"
-        [type]="'simple'"
-      />
-    </div>
-  </section>
-}
-<!-- ===== END FEATURES ===== -->
 
 <!-- ===== SHOP BY CATEGORY (TAB PRODUCTS) ===== -->
 <!-- @if(data()?.content?.category_product?.status && data()?.content?.category_product?.category_ids?.length){

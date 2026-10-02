@@ -15,11 +15,7 @@
               <h4>{{ 'categories' | translate }}</h4>
             </div>
             <div class="footer-content">
-              <app-footer-categories [categoryIds]="data()?.footer?.footer_categories || []" />
-              <!-- No Data -->
-              @if(!data()?.footer?.footer_categories?.length) {
-              <app-no-data [class]="'no-data-footer'" [text]="'no_category_found' | translate" />
-              }
+              <app-footer-categories />
             </div>
           </div>
         </div>

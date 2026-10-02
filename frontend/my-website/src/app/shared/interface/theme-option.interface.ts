@@ -108,6 +108,7 @@ export interface IFooter {
   instagram: string;
   twitter: string;
   pinterest: string;
+  threads: string;
 }
 
 export interface ICustomDropdown {

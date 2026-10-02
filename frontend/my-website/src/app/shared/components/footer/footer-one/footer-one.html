@@ -18,14 +18,11 @@
               <h4>{{ 'categories' | translate }}</h4>
             </div>
             <div class="footer-content">
-              <app-footer-categories [categoryIds]="data()?.footer?.footer_categories || []" />
-              <!-- No Data -->
-              @if(!data()?.footer?.footer_categories?.length) {
-              <app-no-data [class]="'no-data-footer'" [text]="'no_category_found' | translate" />
-              }
+              <app-footer-categories />
             </div>
           </div>
         </div>
+        @if (data()?.footer?.useful_link?.length) {
         <div class="col-xl col-lg-2 col-md-3" (click)="toggle('useful_link')">
           <div class="sub-title">
             <div class="footer-title" [class.show]="active['useful_link']">
@@ -33,13 +30,11 @@
             </div>
             <div class="footer-content">
               <app-footer-links [links]="data()?.footer?.useful_link || []" />
-              <!-- No Data -->
-              @if(!data()?.footer?.useful_link?.length) {
-              <app-no-data [class]="'no-data-footer'" [text]="'no_link_found' | translate" />
-              }
             </div>
           </div>
         </div>
+        }
+        @if (data()?.footer?.help_center?.length) {
         <div class="col-xl-2 col-md-3" (click)="toggle('help_center')">
           <div class="sub-title">
             <div class="footer-title" [class.show]="active['help_center']">
@@ -47,13 +42,10 @@
             </div>
             <div class="footer-content">
               <app-footer-links [links]="data()?.footer?.help_center || []" />
-              <!-- No Data -->
-              @if(!data()?.footer?.help_center?.length) {
-              <app-no-data [class]="'no-data-footer'" [text]="'no_link_found' | translate" />
-              }
             </div>
           </div>
         </div>
+        }
         <div class="col-xl-3 col-lg-4 col-md-6" (click)="toggle('contact')">
           <div class="sub-title">
             <div class="footer-title" [class.show]="active['contact']">

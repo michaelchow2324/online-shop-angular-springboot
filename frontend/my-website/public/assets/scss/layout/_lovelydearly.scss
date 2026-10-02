@@ -372,6 +372,14 @@ $lovelydearly-radius:      14px;
 
     .footer-theme {
       color: $lovelydearly-text;
+
+      .footer-logo img {
+        width: auto;
+        max-width: 160px;
+        max-height: 96px;
+        height: auto;
+        object-fit: contain;
+      }
     }
 
     // Newsletter (top stripe)

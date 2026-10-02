@@ -39,7 +39,12 @@ export class CollectionCategoryFilter {
 
   ngOnInit() {
     this.category$.subscribe(res => {
-      this.categories = res.data.filter(category => category.type == 'product');
+      this.categories = res.data.filter(
+        category =>
+          category.type == 'product' &&
+          category?.slug?.toLowerCase() !== 'test' &&
+          category?.name?.trim().toLowerCase() !== 'test',
+      );
     });
   }
 

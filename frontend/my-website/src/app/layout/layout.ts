@@ -366,7 +366,7 @@ export class Layout {
         footerLogo = 'assets/images/icon/logo/47.png';
       } else if (this.theme == 'lovelydearly') {
         headerLogo = 'assets/images/settings/lovely-dearly-logo.jpeg';
-        footerLogo = 'assets/images/settings/footer-logo.png';
+        footerLogo = 'assets/images/settings/lovely-dearly-logo.jpeg';
       } else if (this.theme == 'goggles') {
         headerLogo = 'assets/images/icon/logo/4.png';
         footerLogo = 'assets/images/icon/logo/4.png';
