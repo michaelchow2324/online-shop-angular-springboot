@@ -71,7 +71,7 @@
             "exit": {
                 "title": "WAIT",
                 "image_url": "/images/placeholder/auth.png",
-                "is_enable": true,
+                "is_enable": false,
                 "sub_title": "Sorry to see you leaving...",
                 "description": "Enter your email address to receive 10% off your first order"
             },

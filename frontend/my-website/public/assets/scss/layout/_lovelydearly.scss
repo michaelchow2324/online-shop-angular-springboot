@@ -587,7 +587,7 @@ $lovelydearly-radius:      14px;
     }
   }
 
-  // ── Home hero banner — shorter than full viewport ───────────
+  // ── Home hero banner ────────────────────────────────────────
   .lovelydearly-hero {
     .home-slider {
       overflow: hidden;
@@ -596,9 +596,9 @@ $lovelydearly-radius:      14px;
       .home,
       .banner-contain img {
         width: 100%;
-        height: 48vh;
-        max-height: 480px;
-        min-height: 240px;
+        height: 75vh;
+        max-height: 820px;
+        min-height: 420px;
         object-fit: cover;
         object-position: center;
       }
