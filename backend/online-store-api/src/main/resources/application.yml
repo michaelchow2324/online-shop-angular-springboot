@@ -76,6 +76,13 @@ app:
     catalog-dir: ""
     catalog-cron: "0 0 3 * * *"
     keep-days: 14
+  rate-limit:
+    auth:
+      enabled: true
+      window-seconds: 60
+      login-limit: 10
+      register-limit: 5
+      resend-limit: 5
 
 ---
 spring:
