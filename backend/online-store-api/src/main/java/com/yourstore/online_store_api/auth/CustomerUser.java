@@ -53,10 +53,22 @@ public class CustomerUser {
     @Column(nullable = false, length = 32)
     private String role = "USER";
 
+    /** When true, ADMIN must pass a TOTP code after password login. */
+    @Column(name = "mfa_enabled", nullable = false)
+    private boolean mfaEnabled = false;
+
+    /** Base32 TOTP secret (null until setup starts). Never expose on MeDTO. */
+    @Column(name = "mfa_secret", length = 64)
+    private String mfaSecret;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     public boolean isEmailVerified() {
         return emailVerifiedAt != null;
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equalsIgnoreCase(role);
     }
 }

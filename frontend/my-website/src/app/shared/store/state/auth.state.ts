@@ -10,6 +10,7 @@ import { NotificationService } from '../../services/notification.service';
 import { roleFromJwt } from '../../utils/jwt-role';
 import { AccountClearAction, GetUserDetailsAction } from '../action/account.action';
 import {
+  ApplyAuthSessionAction,
   AuthClearAction,
   ForgotPasswordAction,
   LoginAction,
@@ -113,26 +114,65 @@ export class AuthState {
     // AuthInterceptor reads access_token and sets Authorization: Bearer …
     // Post-login navigation is handled by the login modal (avoid double navigate).
     this.authService.lastLoginEmail = String(action.payload?.email ?? '').trim() || null;
+    this.clearPendingMfa();
     return this.authService.login(action.payload).pipe(
       tap({
         next: res => {
-          const role =
-            (res.role || roleFromJwt(res.accessToken) || '').toString().toUpperCase() || null;
-          ctx.patchState({
-            email: res.email,
-            token: '',
-            access_token: res.accessToken,
-            role,
-          });
-          // Drop previous account cache (e.g. USER) before loading the new session
-          this.store.dispatch(new AccountClearAction());
-          this.store.dispatch(new GetUserDetailsAction());
+          // ADMIN MFA: password OK but no access token yet — UI continues with TOTP.
+          if (res.mfaRequired || res.mfaSetupRequired) {
+            this.authService.pendingMfaToken = res.mfaToken;
+            this.authService.pendingMfaSetup = !!res.mfaSetupRequired;
+            this.authService.pendingMfaChallenge = !!res.mfaRequired;
+            ctx.patchState({
+              email: res.email,
+              token: '',
+              access_token: null,
+              role: (res.role || '').toString().toUpperCase() || null,
+            });
+            return;
+          }
+          this.applySession(ctx, res.accessToken!, res.email, res.role);
         },
         error: err => {
           throw new Error(err?.error?.message || 'Invalid email or password');
         },
       }),
     );
+  }
+
+  @Action(ApplyAuthSessionAction)
+  applyAuthSession(ctx: StateContext<AuthStateModel>, action: ApplyAuthSessionAction) {
+    this.applySession(
+      ctx,
+      action.payload.accessToken,
+      action.payload.email,
+      action.payload.role,
+    );
+  }
+
+  private applySession(
+    ctx: StateContext<AuthStateModel>,
+    accessToken: string,
+    email: string,
+    roleRaw: string,
+  ) {
+    this.clearPendingMfa();
+    const role =
+      (roleRaw || roleFromJwt(accessToken) || '').toString().toUpperCase() || null;
+    ctx.patchState({
+      email,
+      token: '',
+      access_token: accessToken,
+      role,
+    });
+    this.store.dispatch(new AccountClearAction());
+    this.store.dispatch(new GetUserDetailsAction());
+  }
+
+  private clearPendingMfa() {
+    this.authService.pendingMfaToken = null;
+    this.authService.pendingMfaSetup = false;
+    this.authService.pendingMfaChallenge = false;
   }
 
   @Action(LoginWithNumberAction)
@@ -176,6 +216,7 @@ export class AuthState {
       permissions: [],
     });
     this.authService.redirectUrl = undefined;
+    this.clearPendingMfa();
     this.store.dispatch(new AccountClearAction());
     // Do not clear cart on logout — guest cart should survive.
   }

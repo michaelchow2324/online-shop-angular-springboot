@@ -47,6 +47,9 @@ class AuthServiceTest {
     @Mock
     private MailService mailService;
 
+    @Mock
+    private TotpService totpService;
+
     // note that injectmock only injects mock we declared with @mock. the dependencies will get null if we don't declare them with @mock.
     @InjectMocks // real AuthService with mock deps
     private AuthService authService;
@@ -103,6 +106,72 @@ class AuthServiceTest {
 
         assertThat(res.accessToken()).isEqualTo("jwt-token");
         assertThat(res.email()).isEqualTo("ok@example.com");
+        assertThat(res.mfaRequired()).isFalse();
+        assertThat(res.mfaSetupRequired()).isFalse();
+    }
+
+    @Test
+    void login_adminWithoutMfa_requiresSetup() {
+        CustomerUser admin = user(10L, "admin@example.com", LocalDateTime.now());
+        admin.setRole("ADMIN");
+        admin.setMfaEnabled(false);
+        when(userRepository.findByEmailIgnoreCase("admin@example.com")).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+        when(jwtService.createMfaToken(admin, JwtService.PURPOSE_MFA_SETUP)).thenReturn("mfa-setup-token");
+
+        LoginRequest req = new LoginRequest();
+        req.setEmail("admin@example.com");
+        req.setPassword("secret");
+
+        AuthResponse res = authService.login(req);
+
+        assertThat(res.accessToken()).isNull();
+        assertThat(res.mfaSetupRequired()).isTrue();
+        assertThat(res.mfaToken()).isEqualTo("mfa-setup-token");
+        verify(jwtService, never()).createToken(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void login_adminWithMfa_requiresChallenge() {
+        CustomerUser admin = user(11L, "admin@example.com", LocalDateTime.now());
+        admin.setRole("ADMIN");
+        admin.setMfaEnabled(true);
+        admin.setMfaSecret("SECRETBASE32");
+        when(userRepository.findByEmailIgnoreCase("admin@example.com")).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+        when(jwtService.createMfaToken(admin, JwtService.PURPOSE_MFA_CHALLENGE)).thenReturn("mfa-challenge-token");
+
+        LoginRequest req = new LoginRequest();
+        req.setEmail("admin@example.com");
+        req.setPassword("secret");
+
+        AuthResponse res = authService.login(req);
+
+        assertThat(res.accessToken()).isNull();
+        assertThat(res.mfaRequired()).isTrue();
+        assertThat(res.mfaToken()).isEqualTo("mfa-challenge-token");
+    }
+
+    @Test
+    void verifyMfa_validCode_returnsAccessToken() {
+        CustomerUser admin = user(12L, "admin@example.com", LocalDateTime.now());
+        admin.setRole("ADMIN");
+        admin.setMfaEnabled(true);
+        admin.setMfaSecret("SECRETBASE32");
+        when(jwtService.parseMfaToken("mfa-token", JwtService.PURPOSE_MFA_CHALLENGE))
+                .thenReturn(new CustomerPrincipal(12L, "admin@example.com", "ADMIN"));
+        when(userRepository.findById(12L)).thenReturn(Optional.of(admin));
+        when(totpService.verify("SECRETBASE32", "123456")).thenReturn(true);
+        when(jwtService.createToken(admin)).thenReturn("access-jwt");
+
+        MfaCodeRequest req = new MfaCodeRequest();
+        req.setMfaToken("mfa-token");
+        req.setCode("123456");
+
+        AuthResponse res = authService.verifyMfa(req);
+
+        assertThat(res.accessToken()).isEqualTo("access-jwt");
+        assertThat(res.mfaRequired()).isFalse();
     }
 
     @Test

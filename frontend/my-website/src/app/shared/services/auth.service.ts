@@ -8,6 +8,7 @@ import {
   AuthResponse,
   IAuthUserState,
   MeDTO,
+  MfaSetupResponse,
 } from "../interface/auth.interface";
 import { readPersistedAuth } from "../utils/persisted-auth";
 
@@ -24,12 +25,39 @@ export class AuthService {
   public isLogin: boolean = false;
   /** Last email used on login — Alert uses this for "Resend verification". */
   public lastLoginEmail: string | null = null;
+  /** Short-lived MFA session token between password OK and TOTP OK. */
+  public pendingMfaToken: string | null = null;
+  /** Set after ADMIN password login when authenticator enrollment is required. */
+  public pendingMfaSetup = false;
+  /** Set after ADMIN password login when an authenticator code is required. */
+  public pendingMfaChallenge = false;
 
   login(payload: IAuthUserState): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, {
       email: payload.email.trim(),
       password: payload.password,
     });
+  }
+
+  startMfaSetup(mfaToken: string): Observable<MfaSetupResponse> {
+    return this.http.post<MfaSetupResponse>(
+      `${environment.apiUrl}/auth/mfa/setup/start`,
+      { mfaToken },
+    );
+  }
+
+  confirmMfaSetup(mfaToken: string, code: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${environment.apiUrl}/auth/mfa/setup/confirm`,
+      { mfaToken, code },
+    );
+  }
+
+  verifyMfa(mfaToken: string, code: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${environment.apiUrl}/auth/mfa/verify`,
+      { mfaToken, code },
+    );
   }
 
   register(payload: {

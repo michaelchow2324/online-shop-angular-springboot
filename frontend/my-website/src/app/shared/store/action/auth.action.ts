@@ -18,6 +18,14 @@ export class LoginAction {
   constructor(public payload: IAuthUserState) {}
 }
 
+/** Apply a completed auth session (after password or after MFA). */
+export class ApplyAuthSessionAction {
+  static readonly type = '[Auth] Apply Session';
+  constructor(
+    public payload: { accessToken: string; email: string; role: string },
+  ) {}
+}
+
 export class LoginWithNumberAction {
   static readonly type = '[Auth] Login With Number';
   constructor(public payload: IAuthNumberLoginState) {}

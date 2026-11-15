@@ -100,7 +100,10 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/verify-email",
-                                "/api/auth/resend-verification"
+                                "/api/auth/resend-verification",
+                                "/api/auth/mfa/setup/start",
+                                "/api/auth/mfa/setup/confirm",
+                                "/api/auth/mfa/verify"
                         ).permitAll()
 
                         // Catalog + checkout plumbing — guests can browse and pay

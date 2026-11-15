@@ -116,6 +116,11 @@
 			<artifactId>stripe-java</artifactId>
 			<version>28.1.0</version>
 		</dependency>
+		<!-- Base32 for TOTP secrets (admin MFA) -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
 		<!-- JWT (guide 05) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

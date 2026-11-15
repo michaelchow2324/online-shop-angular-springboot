@@ -32,6 +32,9 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     private static final String LOGIN = "/api/auth/login";
     private static final String REGISTER = "/api/auth/register";
     private static final String RESEND = "/api/auth/resend-verification";
+    private static final String MFA_SETUP_START = "/api/auth/mfa/setup/start";
+    private static final String MFA_SETUP_CONFIRM = "/api/auth/mfa/setup/confirm";
+    private static final String MFA_VERIFY = "/api/auth/mfa/verify";
 
     private final AuthRateLimitProperties properties;
     private final InMemoryRateLimiter limiter;
@@ -63,7 +66,16 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             return true;
         }
         String path = normalizedPath(request);
-        return !(LOGIN.equals(path) || REGISTER.equals(path) || RESEND.equals(path));
+        return !isAuthRateLimitedPath(path);
+    }
+
+    private static boolean isAuthRateLimitedPath(String path) {
+        return LOGIN.equals(path)
+                || REGISTER.equals(path)
+                || RESEND.equals(path)
+                || MFA_SETUP_START.equals(path)
+                || MFA_SETUP_CONFIRM.equals(path)
+                || MFA_VERIFY.equals(path);
     }
 
     @Override
@@ -96,7 +108,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         if (REGISTER.equals(path)) {
             return properties.getRegisterLimit();
         }
-        if (RESEND.equals(path)) {
+        if (RESEND.equals(path) || MFA_SETUP_START.equals(path)
+                || MFA_SETUP_CONFIRM.equals(path) || MFA_VERIFY.equals(path)) {
             return properties.getResendLimit();
         }
         return properties.getLoginLimit();

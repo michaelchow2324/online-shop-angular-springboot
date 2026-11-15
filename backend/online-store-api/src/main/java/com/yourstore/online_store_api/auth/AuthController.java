@@ -34,6 +34,24 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    /** ADMIN: after password, begin authenticator enrollment (returns Base32 secret). */
+    @PostMapping("/mfa/setup/start")
+    public ResponseEntity<MfaSetupResponse> startMfaSetup(@Valid @RequestBody MfaTokenRequest request) {
+        return ResponseEntity.ok(authService.startMfaSetup(request.getMfaToken()));
+    }
+
+    /** ADMIN: confirm first TOTP code → enable MFA + full JWT. */
+    @PostMapping("/mfa/setup/confirm")
+    public ResponseEntity<AuthResponse> confirmMfaSetup(@Valid @RequestBody MfaCodeRequest request) {
+        return ResponseEntity.ok(authService.confirmMfaSetup(request));
+    }
+
+    /** ADMIN: enter TOTP after password when MFA already enabled. */
+    @PostMapping("/mfa/verify")
+    public ResponseEntity<AuthResponse> verifyMfa(@Valid @RequestBody MfaCodeRequest request) {
+        return ResponseEntity.ok(authService.verifyMfa(request));
+    }
+
     @PostMapping("/verify-email")
     public ResponseEntity<MeDTO> verifyEmail(@RequestParam("token") String token) {
         return ResponseEntity.ok(authService.verifyEmail(token));

@@ -3,11 +3,20 @@ export interface IAuthUserState {
   password: string;
 }
 
-/** POST /api/auth/login response */
+/** POST /api/auth/login (and MFA confirm/verify) response */
 export interface AuthResponse {
-  accessToken: string;
+  accessToken: string | null;
   email: string;
   role: string;
+  mfaRequired: boolean;
+  mfaSetupRequired: boolean;
+  mfaToken: string | null;
+}
+
+export interface MfaSetupResponse {
+  secret: string;
+  otpAuthUrl: string;
+  email: string;
 }
 
 /** GET /api/me, /api/auth/me, register, verify-email response */

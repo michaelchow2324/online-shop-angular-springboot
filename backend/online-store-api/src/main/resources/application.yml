@@ -83,6 +83,11 @@ app:
       login-limit: 10
       register-limit: 5
       resend-limit: 5
+  mfa:
+    issuer: Lovely Dearly
+  jwt:
+    # Short-lived token between password OK and TOTP OK (admin MFA)
+    mfa-expiration-ms: 300000
 
 ---
 spring:

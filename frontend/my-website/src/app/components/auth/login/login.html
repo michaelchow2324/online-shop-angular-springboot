@@ -1,3 +1,4 @@
+@if(step === 'credentials'){
 <div class="auth-title">
   <h3>{{ 'sign_in' | translate }}</h3>
   <p>{{ 'login_text' | translate }}</p>
@@ -46,3 +47,84 @@
   {{ 'no_account' | translate }}?
   <a href="javascript:void(0)" (click)="action('register')">{{ 'register_here' | translate }}</a>
 </p>
+}
+
+@if(step === 'mfa-setup'){
+<div class="auth-title">
+  <h3>Set up authenticator</h3>
+  <p>Admin accounts require two-factor authentication. Add this account in Google Authenticator (or Authy), then enter the 6-digit code.</p>
+</div>
+<app-alert />
+@if(mfaSecret){
+<div class="auth-box mb-3">
+  <label class="form-label">Manual setup key</label>
+  <div class="d-flex gap-2 align-items-center flex-wrap">
+    <code class="mfa-secret">{{ mfaSecret }}</code>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="copySecret()">Copy</button>
+  </div>
+  <p class="mt-2 mb-0 small text-muted">In your authenticator app choose “Enter a setup key”, then paste the key above.</p>
+</div>
+}
+<form class="auth-form-box" [formGroup]="mfaForm" (ngSubmit)="submitMfa()">
+  <div class="auth-box mb-3">
+    <label for="mfa-setup-code" class="form-label">Authenticator code</label>
+    <input
+      type="text"
+      class="form-control"
+      id="mfa-setup-code"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      placeholder="123456"
+      formControlName="code"
+    />
+    @if(validate && mfaForm.controls['code'].errors){
+    <div class="invalid-feedback d-block">Enter the 6-digit code from your app</div>
+    }
+  </div>
+  <app-button
+    [class]="'btn'"
+    [type]="'submit'"
+    [id]="'mfa_setup_btn'"
+    [spinner]="true"
+    [disabled]="mfaBusy"
+    >Enable &amp; continue</app-button
+  >
+  <button type="button" class="btn btn-link mt-2 px-0" (click)="backToCredentials()">Back</button>
+</form>
+}
+
+@if(step === 'mfa-verify'){
+<div class="auth-title">
+  <h3>Two-factor authentication</h3>
+  <p>Enter the 6-digit code from your authenticator app.</p>
+</div>
+<app-alert />
+<form class="auth-form-box" [formGroup]="mfaForm" (ngSubmit)="submitMfa()">
+  <div class="auth-box mb-3">
+    <label for="mfa-code" class="form-label">Authenticator code</label>
+    <input
+      type="text"
+      class="form-control"
+      id="mfa-code"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      placeholder="123456"
+      formControlName="code"
+    />
+    @if(validate && mfaForm.controls['code'].errors){
+    <div class="invalid-feedback d-block">Enter the 6-digit code from your app</div>
+    }
+  </div>
+  <app-button
+    [class]="'btn'"
+    [type]="'submit'"
+    [id]="'mfa_verify_btn'"
+    [spinner]="true"
+    [disabled]="mfaBusy"
+    >Verify</app-button
+  >
+  <button type="button" class="btn btn-link mt-2 px-0" (click)="backToCredentials()">Back</button>
+</form>
+}

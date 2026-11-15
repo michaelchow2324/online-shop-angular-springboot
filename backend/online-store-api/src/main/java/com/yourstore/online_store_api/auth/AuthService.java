@@ -26,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final MailService mailService;
+    private final TotpService totpService;
 
     AuthService(
             CustomerUserRepository userRepository,
@@ -33,13 +34,15 @@ public class AuthService {
             ShopOrderRepository orderRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            MailService mailService) {
+            MailService mailService,
+            TotpService totpService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.orderRepository = orderRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.mailService = mailService;
+        this.totpService = totpService;
     }
 
     @Transactional
@@ -65,8 +68,8 @@ public class AuthService {
     }
 
     /**
-     * Validates credentials and returns a JWT access token.
-     * Email must be verified first (check the link from registration mail).
+     * Validates credentials.
+     * USERs get a full JWT. ADMINs always go through MFA (setup or challenge).
      */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest req) {
@@ -82,8 +85,72 @@ public class AuthService {
                     "Please verify your email before signing in. Check your inbox for the link.");
         }
 
+        if (user.isAdmin()) {
+            if (user.isMfaEnabled() && user.getMfaSecret() != null && !user.getMfaSecret().isBlank()) {
+                String mfaToken = jwtService.createMfaToken(user, JwtService.PURPOSE_MFA_CHALLENGE);
+                return AuthResponse.mfaChallenge(user.getEmail(), user.getRole(), mfaToken);
+            }
+            String mfaToken = jwtService.createMfaToken(user, JwtService.PURPOSE_MFA_SETUP);
+            return AuthResponse.mfaSetup(user.getEmail(), user.getRole(), mfaToken);
+        }
+
         String accessToken = jwtService.createToken(user);
-        return new AuthResponse(accessToken, user.getEmail(), user.getRole());
+        return AuthResponse.fullAccess(accessToken, user.getEmail(), user.getRole());
+    }
+
+    /**
+     * ADMIN: create (or rotate) a TOTP secret after password login. MFA not enabled until confirm.
+     */
+    @Transactional
+    public MfaSetupResponse startMfaSetup(String mfaToken) {
+        CustomerUser user = requireAdminFromMfaToken(mfaToken, JwtService.PURPOSE_MFA_SETUP);
+        if (user.isMfaEnabled()) {
+            throw new IllegalArgumentException("MFA is already enabled. Sign in and enter your authenticator code.");
+        }
+
+        String secret = totpService.generateSecret();
+        user.setMfaSecret(secret);
+        user.setMfaEnabled(false);
+        userRepository.save(user);
+
+        return new MfaSetupResponse(secret, totpService.otpAuthUrl(user.getEmail(), secret), user.getEmail());
+    }
+
+    /**
+     * ADMIN: verify first authenticator code and enable MFA; return full access JWT.
+     */
+    @Transactional
+    public AuthResponse confirmMfaSetup(MfaCodeRequest req) {
+        CustomerUser user = requireAdminFromMfaToken(req.getMfaToken(), JwtService.PURPOSE_MFA_SETUP);
+        if (user.getMfaSecret() == null || user.getMfaSecret().isBlank()) {
+            throw new IllegalArgumentException("Start MFA setup first.");
+        }
+        if (!totpService.verify(user.getMfaSecret(), req.getCode())) {
+            throw new IllegalArgumentException("Invalid authenticator code");
+        }
+
+        user.setMfaEnabled(true);
+        userRepository.save(user);
+
+        String accessToken = jwtService.createToken(user);
+        return AuthResponse.fullAccess(accessToken, user.getEmail(), user.getRole());
+    }
+
+    /**
+     * ADMIN: verify TOTP after password; return full access JWT.
+     */
+    @Transactional(readOnly = true)
+    public AuthResponse verifyMfa(MfaCodeRequest req) {
+        CustomerUser user = requireAdminFromMfaToken(req.getMfaToken(), JwtService.PURPOSE_MFA_CHALLENGE);
+        if (!user.isMfaEnabled() || user.getMfaSecret() == null || user.getMfaSecret().isBlank()) {
+            throw new IllegalArgumentException("MFA is not enabled for this account. Sign in again to set it up.");
+        }
+        if (!totpService.verify(user.getMfaSecret(), req.getCode())) {
+            throw new IllegalArgumentException("Invalid authenticator code");
+        }
+
+        String accessToken = jwtService.createToken(user);
+        return AuthResponse.fullAccess(accessToken, user.getEmail(), user.getRole());
     }
 
     @Transactional(readOnly = true)
@@ -105,8 +172,6 @@ public class AuthService {
         LocalDateTime now = LocalDateTime.now();
         CustomerUser user = token.getUser();
 
-        // Idempotent / heal: SSR or double-click may hit verify twice; also recover if
-        // an older claimGuestOrders clear wiped email_verified_at after marking used.
         if (token.isUsed()) {
             if (user.isEmailVerified()) {
                 return toMeDTO(user);
@@ -122,8 +187,6 @@ public class AuthService {
 
         user.setEmailVerifiedAt(now);
         token.setUsedAt(now);
-        // Persist before claimGuestOrders: that @Modifying query clears the persistence
-        // context and would otherwise drop these unflushed changes.
         userRepository.save(user);
         tokenRepository.save(token);
 
@@ -132,10 +195,6 @@ public class AuthService {
         return toMeDTO(user);
     }
 
-    /**
-     * Issues a fresh verify link for an unverified account.
-     * Always succeeds from the caller's perspective (no email enumeration).
-     */
     @Transactional
     public void resendVerification(String emailRaw) {
         if (emailRaw == null || emailRaw.isBlank()) {
@@ -152,10 +211,6 @@ public class AuthService {
         });
     }
 
-    /**
-     * Attaches past guest orders (same email, user_id null) to the account.
-     * No-op when email is not verified — prevents account takeover.
-     */
     @Transactional
     public int claimGuestOrders(CustomerUser user) {
         if (!user.isEmailVerified()) {
@@ -175,6 +230,16 @@ public class AuthService {
                 user.getEmailVerifiedAt());
     }
 
+    private CustomerUser requireAdminFromMfaToken(String mfaToken, String purpose) {
+        CustomerPrincipal principal = jwtService.parseMfaToken(mfaToken, purpose);
+        CustomerUser user = userRepository.findById(principal.id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired MFA session. Sign in again."));
+        if (!user.isAdmin()) {
+            throw new IllegalArgumentException("MFA is only required for admin accounts");
+        }
+        return user;
+    }
+
     private String createVerificationToken(CustomerUser user) {
         EmailVerificationToken token = new EmailVerificationToken();
         token.setUser(user);
@@ -191,10 +256,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Mail failure must not roll back registration (account is already saved).
-     * User can request a resend later; link is logged at debug for local troubleshooting.
-     */
     private void sendVerifyEmailSafely(String email, String rawToken) {
         try {
             mailService.sendVerifyEmail(email, rawToken);
