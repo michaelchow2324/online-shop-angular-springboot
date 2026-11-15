@@ -6,7 +6,7 @@
   <div class="container">
     <div class="banner-section">
       <img
-        [src]="StorageURL + aboutUs?.about?.content_bg_image_url"
+        [src]="mediaUrl(aboutUs?.about?.content_bg_image_url)"
         class="img-fluid lazyload"
         alt=""
       />
@@ -35,7 +35,7 @@
           <div>
             <div class="media">
               <div class="text-center">
-                <img [src]="StorageURL + team?.profile_image_url" alt="image" />
+                <img [src]="mediaUrl(team?.profile_image_url)" alt="image" />
                 <h5>{{ team?.name }}</h5>
                 <h6>{{ team?.designation }}</h6>
               </div>
@@ -64,7 +64,7 @@
       <owl-carousel-o [options]="teamOptions">
         @for(team of aboutUs?.team?.members; track team.name){
         <ng-template carouselSlide>
-          <img [src]="StorageURL + team?.profile_image_url" class="img-fluid" [alt]="team?.name" />
+          <img [src]="mediaUrl(team?.profile_image_url)" class="img-fluid" [alt]="team?.name" />
           <h4>{{ team?.name }}</h4>
           <h6>{{ team?.designation }}</h6>
         </ng-template>
@@ -86,7 +86,7 @@
         [ngClass]="aboutUs?.about?.futures?.length === 4 ? 'col-xl-3 col-sm-6' : aboutUs?.about?.futures?.length === 3 ? 'col-md-4' : aboutUs?.about?.futures?.length === 2 ? 'col-md-6' : 'col-12'"
       >
         <div class="media">
-          <img [src]="StorageURL+service.icon" [alt]="service.title" />
+          <img [src]="mediaUrl(service.icon)" [alt]="service.title" />
           <div class="skeleton-img-box"></div>
           <div class="media-body">
             <h4>{{ service.title }}</h4>

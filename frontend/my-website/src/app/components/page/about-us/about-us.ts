@@ -6,12 +6,12 @@ import { Store } from '@ngxs/store';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
 import { Breadcrumb } from '../../../shared/components/widgets/breadcrumb/breadcrumb';
 import { teamSlider, testimonialSlider } from '../../../shared/data/owl-carousel';
 import { IBreadcrumb } from '../../../shared/interface/breadcrumb.interface';
 import { IAboutUs, IOption } from '../../../shared/interface/theme-option.interface';
 import { ThemeOptionState } from '../../../shared/store/state/theme-option.state';
+import { resolveMediaUrl } from '../../../shared/utils/resolve-media-url';
 
 @Component({
   selector: 'app-about-us',
@@ -29,7 +29,7 @@ export class AboutUs {
   public aboutUs?: IAboutUs;
   public testimonialOptions = testimonialSlider;
   public teamOptions = teamSlider;
-  public StorageURL = environment.storageURL;
+  public mediaUrl = resolveMediaUrl;
 
   public breadcrumb: IBreadcrumb = {
     title: 'About Us',

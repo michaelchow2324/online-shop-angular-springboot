@@ -123,6 +123,11 @@
                 },
                 {
                     "id": 2,
+                    "name": "About Us",
+                    "value": "about-us"
+                },
+                {
+                    "id": 3,
                     "name": "Search",
                     "value": "search"
                 }
@@ -277,100 +282,41 @@
         },
         "about_us": {
             "team": {
-                "title": "Multikart Team Member",
-                "status": true,
-                "members": [
-                    {
-                        "name": "Hileri Keol",
-                        "twitter": "https://twitter.com/",
-                        "facebook": "https://www.facebook.com/",
-                        "instagram": "https://instagram.com/",
-                        "pinterest": "https://pinterest.com/",
-                        "designation": "CEo & Founder At Company",
-                        "profile_image_url": "/images/placeholder/about-us/member.png"
-                    },
-                    {
-                        "name": "Constance K. Whang",
-                        "twitter": "https://twitter.com/",
-                        "facebook": "https://www.facebook.com/",
-                        "instagram": "https://instagram.com/",
-                        "pinterest": "https://pinterest.com/",
-                        "designation": "Jr. Project Manager",
-                        "profile_image_url": "/images/placeholder/about-us/member.png"
-                    },
-                    {
-                        "name": "Betty J. Turner",
-                        "twitter": "https://twitter.com/",
-                        "facebook": "https://www.facebook.com/",
-                        "instagram": "https://instagram.com/",
-                        "pinterest": "https://pinterest.com/",
-                        "designation": "CEO, Company",
-                        "profile_image_url": "/images/placeholder/about-us/member.png"
-                    },
-                    {
-                        "name": "Alfredo S. Rocha",
-                        "twitter": "https://twitter.com/",
-                        "facebook": "https://www.facebook.com/",
-                        "instagram": "https://instagram.com/",
-                        "pinterest": "https://pinterest.com/",
-                        "designation": "Sr. Project Manager",
-                        "profile_image_url": "/images/placeholder/about-us/member.png"
-                    }
-                ],
-                "sub_title": "Our Creative Team Multikart"
+                "title": "Our Team",
+                "status": false,
+                "members": [],
+                "sub_title": ""
             },
             "about": {
-                "title": "Sed Ut Perspiciatis Unde Omnis Iste Natus Error Sit Voluptatem Accusantium Doloremque Laudantium",
+                "title": "Handmade with love in Ontario, Canada",
                 "status": true,
                 "futures": [
                     {
-                        "icon": "/images/theme/fashion_one/service.png",
-                        "title": "Free Shipping",
-                        "description": "Free Shipping World Wide"
+                        "icon": "/assets/images/theme/fashion_one/service.png",
+                        "title": "Handcrafted",
+                        "description": "Every piece is sewn with care in our studio"
                     },
                     {
-                        "icon": "/images/theme/fashion_one/service.png",
-                        "title": "24 X 7 Service",
-                        "description": "Online Service For New Customer"
+                        "icon": "/assets/images/theme/fashion_one/service.png",
+                        "title": "Thoughtful Design",
+                        "description": "Cute, practical accessories for everyday life"
                     },
                     {
-                        "icon": "/images/theme/fashion_one/service.png",
-                        "title": "Festival Offer",
-                        "description": "New Online Special Festival Offer"
+                        "icon": "/assets/images/theme/fashion_one/service.png",
+                        "title": "Shipped with Care",
+                        "description": "From our home in Toronto to yours"
                     }
                 ],
-                "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,\n\nOn the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.",
-                "content_bg_image_url": "/images/placeholder/about-us/about_banner.png",
+                "description": "Lovely Dearly is a charming boutique dedicated to handcrafted fabric creations. Each piece is thoughtfully designed and lovingly made to add a touch of warmth and style to your everyday life.\n\nFrom tissue covers and coin pouches to makeup bags and more, we create cute and practical handmade accessories that feel personal. Everything is crafted with love in our studio and shipped from our home to yours.",
+                "content_bg_image_url": "/assets/images/theme/data/about_banner.png",
                 "content_left_image_url": null,
                 "content_right_image_url": null
             },
             "testimonial": {
                 "title": "What People Say",
-                "status": true,
-                "reviews": [
-                    {
-                        "name": "Alfredo S. Rocha",
-                        "title": "Alfredo S. Rocha",
-                        "review": "\"I bought this product on a budget, and it exceeded my expectations. The quality is impressive for the price. I'm delighted with my purchase.\"",
-                        "designation": "CEO, Company",
-                        "profile_image_url": "/images/placeholder/about-us/testimonial.png"
-                    },
-                    {
-                        "name": "Betty J. Turner",
-                        "title": "Betty J. Turner",
-                        "review": "\"I had high hopes for this product, but it fell short of my expectations. It constantly crashes and lacks essential features. I wouldn't recommend it.\"",
-                        "designation": "Sr. Project Manager",
-                        "profile_image_url": "/images/placeholder/about-us/testimonial.png"
-                    },
-                    {
-                        "name": "Gwen J. Geiger",
-                        "title": "Gwen J. Geiger",
-                        "review": "\"I encountered a minor issue with my purchase, and the customer service team was quick to resolve it. Their prompt and friendly support made me a happy customer!\"",
-                        "designation": "Designer",
-                        "profile_image_url": "/images/placeholder/about-us/testimonial.png"
-                    }
-                ],
-                "sub_title": "Latest Testimonials"
+                "status": false,
+                "reviews": [],
+                "sub_title": ""
             }
         },
         "collection": {

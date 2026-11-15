@@ -587,6 +587,24 @@ $lovelydearly-radius:      14px;
     }
   }
 
+  // ── Home hero banner — shorter than full viewport ───────────
+  .lovelydearly-hero {
+    .home-slider {
+      overflow: hidden;
+
+      img.bg-img,
+      .home,
+      .banner-contain img {
+        width: 100%;
+        height: 48vh;
+        max-height: 480px;
+        min-height: 240px;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+  }
+
   // Theme active-color (used by swatches, tabs etc.)
   --theme-color: #{$lovelydearly-rose};
 
