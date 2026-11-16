@@ -12,6 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
+import QRCode from 'qrcode';
 import { Observable } from 'rxjs';
 
 import { Alert } from '../../../shared/components/widgets/alert/alert';
@@ -54,6 +55,7 @@ export class Login {
   public step: LoginStep = 'credentials';
   public mfaSecret: string | null = null;
   public otpAuthUrl: string | null = null;
+  public qrDataUrl: string | null = null;
   public mfaBusy = false;
 
   constructor() {
@@ -141,6 +143,7 @@ export class Login {
     this.step = 'credentials';
     this.mfaSecret = null;
     this.otpAuthUrl = null;
+    this.qrDataUrl = null;
     this.authService.pendingMfaToken = null;
     this.authService.pendingMfaSetup = false;
     this.authService.pendingMfaChallenge = false;
@@ -160,6 +163,18 @@ export class Login {
     this.activeForm.emit(action);
   }
 
+  private async renderQr(otpAuthUrl: string): Promise<void> {
+    try {
+      this.qrDataUrl = await QRCode.toDataURL(otpAuthUrl, {
+        width: 196,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+      });
+    } catch {
+      this.qrDataUrl = null;
+    }
+  }
+
   private startMfaEnrollment(mfaToken: string) {
     this.mfaBusy = true;
     this.authService.startMfaSetup(mfaToken).subscribe({
@@ -168,6 +183,7 @@ export class Login {
         this.step = 'mfa-setup';
         this.mfaSecret = setup.secret;
         this.otpAuthUrl = setup.otpAuthUrl;
+        void this.renderQr(setup.otpAuthUrl);
         this.mfaForm.reset();
         this.validate = false;
       },

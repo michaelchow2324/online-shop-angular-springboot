@@ -2,6 +2,17 @@
   display: block !important;
 }
 
+.mfa-qr {
+  text-align: center;
+
+  img {
+    display: inline-block;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+  }
+}
+
 .mfa-secret {
   display: inline-block;
   padding: 8px 12px;

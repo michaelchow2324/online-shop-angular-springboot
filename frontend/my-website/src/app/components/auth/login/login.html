@@ -57,12 +57,17 @@
 <app-alert />
 @if(mfaSecret){
 <div class="auth-box mb-3">
-  <label class="form-label">Manual setup key</label>
+  @if(qrDataUrl){
+  <div class="mfa-qr">
+    <img [src]="qrDataUrl" width="196" height="196" alt="Authenticator QR code" />
+    <p class="small text-muted mt-2 mb-0">Scan with Google Authenticator or Authy</p>
+  </div>
+  }
+  <label class="form-label mt-3">Or enter this key manually</label>
   <div class="d-flex gap-2 align-items-center flex-wrap">
     <code class="mfa-secret">{{ mfaSecret }}</code>
     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="copySecret()">Copy</button>
   </div>
-  <p class="mt-2 mb-0 small text-muted">In your authenticator app choose “Enter a setup key”, then paste the key above.</p>
 </div>
 }
 <form class="auth-form-box" [formGroup]="mfaForm" (ngSubmit)="submitMfa()">
