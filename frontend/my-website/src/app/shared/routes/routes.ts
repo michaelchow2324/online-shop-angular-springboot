@@ -49,6 +49,30 @@ export const content: Routes = [
       ),
   },
   {
+    path: "admin/categories/new",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/category-form/admin-category-form").then(
+        (m) => m.AdminCategoryForm,
+      ),
+  },
+  {
+    path: "admin/categories/:id",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/category-form/admin-category-form").then(
+        (m) => m.AdminCategoryForm,
+      ),
+  },
+  {
+    path: "admin/categories",
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import("../../components/admin/categories/admin-categories").then(
+        (m) => m.AdminCategories,
+      ),
+  },
+  {
     path: "admin",
     pathMatch: "full",
     redirectTo: "admin/orders",

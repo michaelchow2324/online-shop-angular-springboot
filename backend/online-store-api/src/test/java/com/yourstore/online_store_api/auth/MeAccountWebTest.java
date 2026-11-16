@@ -29,12 +29,18 @@ import com.yourstore.online_store_api.config.SecurityConfig;
 import com.yourstore.online_store_api.order.OrderDTO;
 import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
+import com.yourstore.online_store_api.ratelimit.AuthRateLimitConfig;
 
 /**
  * Guide 09 — owner-scoped order detail + password endpoint auth.
  */
 @WebMvcTest(controllers = MeController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class})
+@Import({
+    SecurityConfig.class,
+    JwtAuthenticationFilter.class,
+    JwtService.class,
+    AuthRateLimitConfig.class
+})
 class MeAccountWebTest {
 
     @Autowired

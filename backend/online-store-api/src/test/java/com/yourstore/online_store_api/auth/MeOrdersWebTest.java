@@ -24,6 +24,7 @@ import com.yourstore.online_store_api.config.SecurityConfig;
 import com.yourstore.online_store_api.order.OrderDTO;
 import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
+import com.yourstore.online_store_api.ratelimit.AuthRateLimitConfig;
 
 /**
  * Guide 05 Step 8 — {@code GET /api/me/orders}:
@@ -31,7 +32,12 @@ import com.yourstore.online_store_api.order.OrderStatus;
  * - returns orders attached to the authenticated user (claimed guest orders after verify)
  */
 @WebMvcTest(controllers = MeController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class})
+@Import({
+    SecurityConfig.class,
+    JwtAuthenticationFilter.class,
+    JwtService.class,
+    AuthRateLimitConfig.class
+})
 class MeOrdersWebTest {
 
     @Autowired

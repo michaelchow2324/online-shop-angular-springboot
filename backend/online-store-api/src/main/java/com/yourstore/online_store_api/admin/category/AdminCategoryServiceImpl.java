@@ -1,0 +1,275 @@
+package com.yourstore.online_store_api.admin.category;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.yourstore.common.NotFoundException;
+import com.yourstore.common.PagedResponse;
+import com.yourstore.online_store_api.admin.category.AdminCategoryDTO.CategoryImage;
+import com.yourstore.online_store_api.category.Category;
+import com.yourstore.online_store_api.category.CategoryRepository;
+import com.yourstore.online_store_api.media.Media;
+import com.yourstore.online_store_api.media.MediaRepository;
+import com.yourstore.online_store_api.storage.ImageStorageService;
+
+@Service
+public class AdminCategoryServiceImpl implements AdminCategoryService {
+
+    private static final String ENTITY_TYPE = "category";
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_SIZE = 20;
+    private static final int MAX_SIZE = 100;
+    private static final int DEFAULT_SORT_ORDER = 100;
+    private static final long MAX_IMAGE_BYTES = 5L * 1024 * 1024;
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/webp", "image/gif");
+
+    private final CategoryRepository categoryRepository;
+    private final MediaRepository mediaRepository;
+    private final ImageStorageService storageService;
+
+    AdminCategoryServiceImpl(
+            CategoryRepository categoryRepository,
+            MediaRepository mediaRepository,
+            ImageStorageService storageService) {
+        this.categoryRepository = categoryRepository;
+        this.mediaRepository = mediaRepository;
+        this.storageService = storageService;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<AdminCategoryDTO> list(int page, int size, String q, Boolean active) {
+        int normalizedPage = Math.max(page, DEFAULT_PAGE);
+        int normalizedSize = size <= 0 ? DEFAULT_SIZE : Math.min(size, MAX_SIZE);
+        String query = q == null || q.isBlank() ? null : q.trim();
+        Pageable pageable = PageRequest.of(
+                normalizedPage,
+                normalizedSize,
+                Sort.by(Sort.Order.asc("sortOrder"), Sort.Order.asc("id")));
+        Page<Category> categoriesPage = query == null
+                ? categoryRepository.listFiltered(active, pageable)
+                : categoryRepository.searchByText(query, active, pageable);
+        List<AdminCategoryDTO> dtos = categoriesPage.getContent().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+        return new PagedResponse<>(
+                dtos,
+                normalizedPage,
+                normalizedSize,
+                categoriesPage.getTotalElements(),
+                categoriesPage.getTotalPages(),
+                categoriesPage.hasNext(),
+                categoriesPage.hasPrevious());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminCategoryDTO get(Long id) {
+        return toDto(requireCategory(id));
+    }
+
+    @Override
+    @Transactional
+    public AdminCategoryDTO create(UpsertCategoryRequest request) {
+        Category category = new Category();
+        category.setCreatedAt(LocalDateTime.now());
+        applyUpsert(category, request, true);
+        return toDto(categoryRepository.save(category));
+    }
+
+    @Override
+    @Transactional
+    public AdminCategoryDTO update(Long id, UpsertCategoryRequest request) {
+        Category category = requireCategory(id);
+        applyUpsert(category, request, false);
+        return toDto(categoryRepository.save(category));
+    }
+
+    @Override
+    @Transactional
+    public AdminCategoryDTO setActive(Long id, boolean active) {
+        Category category = requireCategory(id);
+        category.setActive(active);
+        category.setUpdatedAt(LocalDateTime.now());
+        return toDto(categoryRepository.save(category));
+    }
+
+    @Override
+    @Transactional
+    public AdminCategoryDTO uploadImage(Long id, MultipartFile file) {
+        Category category = requireCategory(id);
+        validateImage(file);
+
+        // Replace any existing category media rows + storage objects
+        clearCategoryMedia(category);
+
+        String storageKey = "categories/" + category.getId() + "/" + UUID.randomUUID() + "." + extensionFor(file);
+        try {
+            storageService.upload(
+                    storageKey,
+                    file.getInputStream(),
+                    file.getSize(),
+                    file.getContentType());
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Could not read image file");
+        }
+
+        Media media = new Media();
+        media.setStorageKey(storageKey);
+        media.setAlt(category.getName());
+        media.setPrimary(true);
+        media.setCreatedAt(LocalDateTime.now());
+        media.setEntityType(ENTITY_TYPE);
+        media.setEntityId(category.getId());
+        media = mediaRepository.save(media);
+
+        category.setImageMediaId(media.getId());
+        category.setUpdatedAt(LocalDateTime.now());
+        return toDto(categoryRepository.save(category));
+    }
+
+    @Override
+    @Transactional
+    public AdminCategoryDTO deleteImage(Long id) {
+        Category category = requireCategory(id);
+        clearCategoryMedia(category);
+        category.setImageMediaId(null);
+        category.setUpdatedAt(LocalDateTime.now());
+        return toDto(categoryRepository.save(category));
+    }
+
+    private void applyUpsert(Category category, UpsertCategoryRequest request, boolean creating) {
+        String name = request.getName().trim();
+        category.setName(name);
+        category.setDescription(blankToNull(request.getDescription()));
+
+        boolean active = request.getActive() == null ? (creating || category.isActive()) : request.getActive();
+        category.setActive(active);
+
+        int sortOrder = request.getSortOrder() == null
+                ? (creating ? DEFAULT_SORT_ORDER : category.getSortOrder())
+                : request.getSortOrder();
+        category.setSortOrder(sortOrder);
+
+        String requestedSlug = request.getSlug();
+        String slug = isBlank(requestedSlug)
+                ? (creating || isBlank(category.getSlug()) ? uniqueSlug(slugify(name), category.getId()) : category.getSlug())
+                : uniqueSlug(slugify(requestedSlug.trim()), category.getId());
+        category.setSlug(slug);
+        category.setUpdatedAt(LocalDateTime.now());
+    }
+
+    private void clearCategoryMedia(Category category) {
+        List<Media> existing = mediaRepository.findByEntityTypeAndEntityIdOrderByIsPrimaryDescIdAsc(
+                ENTITY_TYPE, category.getId());
+        for (Media media : existing) {
+            storageService.delete(media.getStorageKey());
+            mediaRepository.delete(media);
+        }
+        if (category.getImageMediaId() != null && existing.isEmpty()) {
+            mediaRepository.findById(category.getImageMediaId()).ifPresent(media -> {
+                storageService.delete(media.getStorageKey());
+                mediaRepository.delete(media);
+            });
+        }
+        category.setImageMediaId(null);
+    }
+
+    private Category requireCategory(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+
+    private AdminCategoryDTO toDto(Category category) {
+        CategoryImage image = null;
+        if (category.getImageMediaId() != null) {
+            Media media = mediaRepository.findById(category.getImageMediaId()).orElse(null);
+            if (media != null) {
+                image = new CategoryImage(media.getId(), storageService.publicUrl(media.getStorageKey()));
+            }
+        }
+        return new AdminCategoryDTO(
+                category.getId(),
+                category.getName(),
+                category.getSlug(),
+                category.getDescription(),
+                category.getSortOrder(),
+                image,
+                category.isActive(),
+                category.getCreatedAt(),
+                category.getUpdatedAt());
+    }
+
+    private void validateImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Image file is required");
+        }
+        if (file.getSize() > MAX_IMAGE_BYTES) {
+            throw new IllegalArgumentException("Image must be 5MB or smaller");
+        }
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        if (!ALLOWED_IMAGE_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Image must be JPEG, PNG, WebP, or GIF");
+        }
+    }
+
+    private String extensionFor(MultipartFile file) {
+        String contentType = file.getContentType().toLowerCase(Locale.ROOT);
+        return switch (contentType) {
+            case "image/png" -> "png";
+            case "image/webp" -> "webp";
+            case "image/gif" -> "gif";
+            default -> "jpg";
+        };
+    }
+
+    private String uniqueSlug(String base, Long currentId) {
+        String candidate = base;
+        int n = 2;
+        while (slugTaken(candidate, currentId)) {
+            candidate = base + "-" + n;
+            n++;
+        }
+        return candidate;
+    }
+
+    private boolean slugTaken(String slug, Long currentId) {
+        if (currentId == null) {
+            return categoryRepository.existsBySlug(slug);
+        }
+        return categoryRepository.existsBySlugAndIdNot(slug, currentId);
+    }
+
+    private String slugify(String value) {
+        String slug = value.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        return slug.isBlank() ? "category" : slug;
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static String blankToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+}

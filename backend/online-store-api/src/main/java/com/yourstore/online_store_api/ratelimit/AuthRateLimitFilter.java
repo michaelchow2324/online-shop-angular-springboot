@@ -10,7 +10,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Rate-limits public auth POSTs by client IP.
  * Returns HTTP 429 with the same {@link ApiError} shape as the rest of the API.
+ * Registered as a {@code @Bean} in {@link AuthRateLimitConfig} (not {@code @Component})
+ * so {@code @WebMvcTest} slices only load it when imported.
  */
-@Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 

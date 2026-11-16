@@ -1,0 +1,159 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+<section class="section-b-space admin-categories">
+  <div class="container">
+    <app-admin-nav />
+
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
+      <h2 class="h4 mb-0">Categories</h2>
+      <a routerLink="/admin/categories/new" class="btn btn-sm btn-solid">
+        Add category
+      </a>
+    </div>
+
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
+      <form class="search-row" (ngSubmit)="submitSearch()">
+        <input
+          type="search"
+          class="form-control"
+          name="search"
+          [(ngModel)]="search"
+          placeholder="Search name or slug"
+        />
+        <button type="submit" class="btn btn-sm btn-outline">Search</button>
+      </form>
+      <div class="status-filters">
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'all'"
+          [class.btn-outline]="statusFilter !== 'all'"
+          (click)="setStatus('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'active'"
+          [class.btn-outline]="statusFilter !== 'active'"
+          (click)="setStatus('active')"
+        >
+          Active
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-solid]="statusFilter === 'disabled'"
+          [class.btn-outline]="statusFilter !== 'disabled'"
+          (click)="setStatus('disabled')"
+        >
+          Disabled
+        </button>
+      </div>
+    </div>
+
+    @if (loading) {
+    <p class="text-muted">Loading categories…</p>
+    } @else if (error) {
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'Could not load categories'"
+      [description]="error"
+    />
+    } @else if (!categories.length) {
+    <app-no-data
+      [class]="'no-data-added'"
+      [image]="'assets/svg/empty-items.svg'"
+      [text]="'No categories'"
+      [description]="'Add a category or change the filter.'"
+    />
+    } @else {
+    <div class="table-responsive">
+      <table class="table cart-table">
+        <thead>
+          <tr class="table-head">
+            <th>Category</th>
+            <th>Sort</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of categories; track category.id) {
+          <tr>
+            <td>
+              <div class="category-cell">
+                @if (category.category_image?.original_url) {
+                <img
+                  [src]="category.category_image?.original_url"
+                  [alt]="category.name"
+                  width="48"
+                  height="48"
+                />
+                }
+                <div>
+                  <span class="fw-bolder">{{ category.name }}</span>
+                  <div class="small text-muted">{{ category.slug }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ category.sortOrder }}</td>
+            <td>
+              <span [class.text-muted]="!category.status">
+                {{ category.status ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a
+                  class="btn btn-sm btn-solid"
+                  [routerLink]="['/admin/categories', category.id]"
+                >
+                  Edit
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  [disabled]="togglingId === category.id"
+                  (click)="toggleActive(category)"
+                >
+                  {{ category.status ? 'Disable' : 'Enable' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <span class="small text-muted">{{ totalElements }} categories</span>
+      <div class="action-buttons">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          [disabled]="page === 0"
+          (click)="prevPage()"
+        >
+          Previous
+        </button>
+        <span class="small">Page {{ page + 1 }} / {{ totalPages || 1 }}</span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          [disabled]="page + 1 >= totalPages"
+          (click)="nextPage()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,148 @@
+<app-breadcrumb [breadcrumb]="breadcrumb" />
+
+<section class="section-b-space admin-category-form">
+  <div class="container">
+    <app-admin-nav />
+
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"
+    >
+      <h2 class="h4 mb-0">
+        {{ categoryId ? 'Edit category' : 'Add category' }}
+      </h2>
+      <a routerLink="/admin/categories" class="btn btn-sm btn-outline">
+        Back to list
+      </a>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="mb-3">
+            <label class="form-label" for="categoryName">Name</label>
+            <input
+              id="categoryName"
+              type="text"
+              class="form-control"
+              formControlName="name"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="categorySlug">Slug</label>
+            <input
+              id="categorySlug"
+              type="text"
+              class="form-control"
+              formControlName="slug"
+              placeholder="Leave blank to generate from the name"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="categorySortOrder">Sort order</label>
+            <input
+              id="categorySortOrder"
+              type="number"
+              min="0"
+              step="1"
+              class="form-control"
+              formControlName="sortOrder"
+            />
+            <div class="form-text">Lower numbers appear first on the shop.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="categoryDescription">
+              Description
+            </label>
+            <textarea
+              id="categoryDescription"
+              class="form-control"
+              rows="4"
+              formControlName="description"
+            ></textarea>
+          </div>
+          <div class="form-check mb-3">
+            <input
+              id="categoryActive"
+              type="checkbox"
+              class="form-check-input"
+              formControlName="active"
+            />
+            <label class="form-check-label" for="categoryActive">
+              Active (visible in the shop)
+            </label>
+          </div>
+
+          @if (error) {
+          <p class="text-danger">{{ error }}</p>
+          }
+
+          <button
+            type="submit"
+            class="btn btn-solid"
+            [disabled]="saving || uploading"
+          >
+            {{ saving ? 'Saving…' : categoryId ? 'Save changes' : 'Create category' }}
+          </button>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="image-panel">
+            <h3 class="h6">Category image</h3>
+            <p class="small text-muted">
+              JPEG, PNG, WebP, or GIF up to 5MB. Replacing uploads overwrite the
+              current image.
+            </p>
+
+            @if (pendingPreviewUrl) {
+            <div class="preview-wrap mb-2">
+              <img [src]="pendingPreviewUrl" alt="Pending category image" />
+              <button
+                type="button"
+                class="btn btn-sm btn-outline mt-2"
+                (click)="removePending()"
+              >
+                Remove pending
+              </button>
+            </div>
+            } @else if (imageUrl) {
+            <div class="preview-wrap mb-2">
+              <img [src]="imageUrl" alt="Category image" />
+              <button
+                type="button"
+                class="btn btn-sm btn-outline mt-2"
+                [disabled]="uploading"
+                (click)="deleteImage()"
+              >
+                Remove image
+              </button>
+            </div>
+            } @else {
+            <p class="small text-muted">No image yet.</p>
+            }
+
+            <input
+              #imageInput
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              hidden
+              (change)="onFileSelected($event)"
+            />
+            <button
+              type="button"
+              class="btn btn-sm btn-outline"
+              [disabled]="uploading"
+              (click)="imageInput.click()"
+            >
+              {{ uploading ? 'Uploading…' : imageUrl || pendingPreviewUrl ? 'Replace image' : 'Choose image' }}
+            </button>
+            @if (!categoryId) {
+            <p class="small text-muted mt-2 mb-0">
+              On create, the image uploads after the category is saved.
+            </p>
+            }
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

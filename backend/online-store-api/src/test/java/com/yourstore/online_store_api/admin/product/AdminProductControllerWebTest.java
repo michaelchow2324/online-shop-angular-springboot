@@ -32,9 +32,15 @@ import com.yourstore.online_store_api.auth.CustomerPrincipal;
 import com.yourstore.online_store_api.auth.JwtAuthenticationFilter;
 import com.yourstore.online_store_api.auth.JwtService;
 import com.yourstore.online_store_api.config.SecurityConfig;
+import com.yourstore.online_store_api.ratelimit.AuthRateLimitConfig;
 
 @WebMvcTest(controllers = AdminProductController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class})
+@Import({
+    SecurityConfig.class,
+    JwtAuthenticationFilter.class,
+    JwtService.class,
+    AuthRateLimitConfig.class
+})
 class AdminProductControllerWebTest {
 
     @Autowired

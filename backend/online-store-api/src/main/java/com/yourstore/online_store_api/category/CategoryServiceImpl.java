@@ -61,7 +61,8 @@ public class CategoryServiceImpl implements CategoryService {
         // for (Category c : categoryRepository.findAll()) { out.add(toDto(c)); }
         // return out;
         String normalizedLocale = normalizeLocale(locale);
-        return categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
+        // Storefront only sees active categories (admin disable hides them here).
+        return categoryRepository.findAllByActiveTrueOrderBySortOrderAscIdAsc().stream()
                 .map(c -> toDto(c, normalizedLocale))
                 .collect(Collectors.toList());
     }
@@ -69,7 +70,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Optional<CategoryDTO> findBySlug(String slug, String locale) {
         String normalizedLocale = normalizeLocale(locale);
-        return categoryRepository.findBySlug(slug).map(c -> toDto(c, normalizedLocale));
+        return categoryRepository.findBySlug(slug)
+                .filter(Category::isActive)
+                .map(c -> toDto(c, normalizedLocale));
     }
 
     /**

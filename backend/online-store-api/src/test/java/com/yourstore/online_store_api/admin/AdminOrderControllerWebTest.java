@@ -32,12 +32,18 @@ import com.yourstore.online_store_api.order.OrderService;
 import com.yourstore.online_store_api.order.OrderStatus;
 import com.yourstore.online_store_api.order.RefundOrderRequest;
 import com.yourstore.online_store_api.order.ShipOrderRequest;
+import com.yourstore.online_store_api.ratelimit.AuthRateLimitConfig;
 
 /**
  * Guide 07 — {@code /api/admin/orders/**} requires ROLE_ADMIN.
  */
 @WebMvcTest(controllers = AdminOrderController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class})
+@Import({
+    SecurityConfig.class,
+    JwtAuthenticationFilter.class,
+    JwtService.class,
+    AuthRateLimitConfig.class
+})
 class AdminOrderControllerWebTest {
 
     @Autowired
