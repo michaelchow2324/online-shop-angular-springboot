@@ -16,7 +16,8 @@ public class UpsertCategoryRequest {
     /** Optional. Generated from the name when blank. */
     private String slug;
 
-    private String description;
+    /** Traditional Chinese name shown when the shop language is 繁體中文. */
+    private String nameZh;
 
     /** Display order on the storefront (lower = earlier). Defaults to 100 on create. */
     private Integer sortOrder;

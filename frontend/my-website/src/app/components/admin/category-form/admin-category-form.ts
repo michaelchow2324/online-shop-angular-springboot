@@ -48,7 +48,7 @@ export class AdminCategoryForm implements OnDestroy {
   public form: FormGroup = this.fb.group({
     name: ["", Validators.required],
     slug: [""],
-    description: [""],
+    nameZh: [""],
     sortOrder: [100, [Validators.required, Validators.min(0)]],
     active: [true],
   });
@@ -143,14 +143,14 @@ export class AdminCategoryForm implements OnDestroy {
     const raw = this.form.getRawValue() as {
       name: string;
       slug: string;
-      description: string;
+      nameZh: string;
       sortOrder: number;
       active: boolean;
     };
     const body = {
       name: raw.name.trim(),
       slug: raw.slug.trim() || undefined,
-      description: raw.description.trim() || null,
+      nameZh: raw.nameZh.trim() || null,
       sortOrder: Number(raw.sortOrder),
       active: !!raw.active,
     };
@@ -208,7 +208,7 @@ export class AdminCategoryForm implements OnDestroy {
     this.form.patchValue({
       name: category.name,
       slug: category.slug,
-      description: category.description || "",
+      nameZh: category.nameZh || "",
       sortOrder: category.sortOrder ?? 100,
       active: category.status,
     });

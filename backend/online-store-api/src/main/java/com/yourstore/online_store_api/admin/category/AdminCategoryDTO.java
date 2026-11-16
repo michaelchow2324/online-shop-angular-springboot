@@ -9,7 +9,7 @@ public record AdminCategoryDTO(
         Long id,
         String name,
         String slug,
-        String description,
+        String nameZh,
         int sortOrder,
         CategoryImage category_image,
         boolean status,

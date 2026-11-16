@@ -86,7 +86,7 @@ class AdminCategoryControllerWebTest {
     @Test
     void setStatus_asAdmin_updatesActive() throws Exception {
         AdminCategoryDTO disabled = new AdminCategoryDTO(
-                1L, "Coin Pouches", "coin-pouches", null, 10, null, false, null, null);
+                1L, "Coin Pouches", "coin-pouches", "散銀包", 10, null, false, null, null);
         when(adminCategoryService.setActive(eq(1L), eq(false))).thenReturn(disabled);
 
         mockMvc.perform(patch("/api/admin/categories/1/status")
@@ -102,7 +102,7 @@ class AdminCategoryControllerWebTest {
                 1L,
                 "Coin Pouches",
                 "coin-pouches",
-                "Cute coin pouches",
+                "散銀包",
                 10,
                 new AdminCategoryDTO.CategoryImage(9L, "https://cdn.example/categories/1.jpg"),
                 true,

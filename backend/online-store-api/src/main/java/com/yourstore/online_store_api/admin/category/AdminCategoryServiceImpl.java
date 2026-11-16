@@ -24,6 +24,8 @@ import com.yourstore.online_store_api.category.CategoryRepository;
 import com.yourstore.online_store_api.media.Media;
 import com.yourstore.online_store_api.media.MediaRepository;
 import com.yourstore.online_store_api.storage.ImageStorageService;
+import com.yourstore.online_store_api.translation.CategoryTranslation;
+import com.yourstore.online_store_api.translation.CategoryTranslationRepository;
 
 @Service
 public class AdminCategoryServiceImpl implements AdminCategoryService {
@@ -40,14 +42,17 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     private final CategoryRepository categoryRepository;
     private final MediaRepository mediaRepository;
     private final ImageStorageService storageService;
+    private final CategoryTranslationRepository translationRepository;
 
     AdminCategoryServiceImpl(
             CategoryRepository categoryRepository,
             MediaRepository mediaRepository,
-            ImageStorageService storageService) {
+            ImageStorageService storageService,
+            CategoryTranslationRepository translationRepository) {
         this.categoryRepository = categoryRepository;
         this.mediaRepository = mediaRepository;
         this.storageService = storageService;
+        this.translationRepository = translationRepository;
     }
 
     @Override
@@ -88,7 +93,10 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
         Category category = new Category();
         category.setCreatedAt(LocalDateTime.now());
         applyUpsert(category, request, true);
-        return toDto(categoryRepository.save(category));
+        category = categoryRepository.save(category);
+        upsertEnglishTranslation(category);
+        upsertChineseTranslation(category, request.getNameZh());
+        return toDto(category);
     }
 
     @Override
@@ -96,7 +104,10 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     public AdminCategoryDTO update(Long id, UpsertCategoryRequest request) {
         Category category = requireCategory(id);
         applyUpsert(category, request, false);
-        return toDto(categoryRepository.save(category));
+        category = categoryRepository.save(category);
+        upsertEnglishTranslation(category);
+        upsertChineseTranslation(category, request.getNameZh());
+        return toDto(category);
     }
 
     @Override
@@ -155,7 +166,6 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     private void applyUpsert(Category category, UpsertCategoryRequest request, boolean creating) {
         String name = request.getName().trim();
         category.setName(name);
-        category.setDescription(blankToNull(request.getDescription()));
 
         boolean active = request.getActive() == null ? (creating || category.isActive()) : request.getActive();
         category.setActive(active);
@@ -171,6 +181,60 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
                 : uniqueSlug(slugify(requestedSlug.trim()), category.getId());
         category.setSlug(slug);
         category.setUpdatedAt(LocalDateTime.now());
+    }
+
+    private void upsertEnglishTranslation(Category category) {
+        upsertTranslation(category, "en", category.getName(), category.getDescription());
+    }
+
+    /**
+     * Storefront Chinese uses {@code zh-HK} (language picker) and {@code zh-TW}
+     * ({@code zh} normalized). Seed data is {@code zh-HK}. Keep both in sync.
+     */
+    private void upsertChineseTranslation(Category category, String nameZh) {
+        String name = blankToNull(nameZh);
+        if (name == null) {
+            deleteTranslation(category.getId(), "zh-TW");
+            deleteTranslation(category.getId(), "zh-HK");
+            deleteTranslation(category.getId(), "zh");
+            return;
+        }
+        CategoryTranslation existing = findChineseTranslation(category.getId());
+        String description = existing != null ? existing.getDescription() : null;
+        upsertTranslation(category, "zh-TW", name, description);
+        upsertTranslation(category, "zh-HK", name, description);
+    }
+
+    private void upsertTranslation(Category category, String locale, String name, String description) {
+        CategoryTranslation translation = translationRepository
+                .findByCategoryIdAndLocale(category.getId(), locale)
+                .orElseGet(CategoryTranslation::new);
+        if (translation.getId() == null) {
+            translation.setCategory(category);
+            translation.setLocale(locale);
+            translation.setCreatedAt(LocalDateTime.now());
+        }
+        translation.setName(name);
+        translation.setDescription(description);
+        translation.setUpdatedAt(LocalDateTime.now());
+        translationRepository.save(translation);
+    }
+
+    private void deleteTranslation(Long categoryId, String locale) {
+        translationRepository.findByCategoryIdAndLocale(categoryId, locale)
+                .ifPresent(translationRepository::delete);
+    }
+
+    private CategoryTranslation findChineseTranslation(Long categoryId) {
+        List<CategoryTranslation> translations = translationRepository.findByCategoryId(categoryId);
+        for (String locale : List.of("zh-TW", "zh-HK", "zh")) {
+            for (CategoryTranslation translation : translations) {
+                if (locale.equalsIgnoreCase(translation.getLocale())) {
+                    return translation;
+                }
+            }
+        }
+        return null;
     }
 
     private void clearCategoryMedia(Category category) {
@@ -202,11 +266,16 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
                 image = new CategoryImage(media.getId(), storageService.publicUrl(media.getStorageKey()));
             }
         }
+        String nameZh = null;
+        CategoryTranslation zh = findChineseTranslation(category.getId());
+        if (zh != null) {
+            nameZh = zh.getName();
+        }
         return new AdminCategoryDTO(
                 category.getId(),
                 category.getName(),
                 category.getSlug(),
-                category.getDescription(),
+                nameZh,
                 category.getSortOrder(),
                 image,
                 category.isActive(),

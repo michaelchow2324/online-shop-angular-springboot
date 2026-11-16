@@ -7,7 +7,7 @@ export interface AdminCategory {
   id: number;
   name: string;
   slug: string;
-  description: string | null;
+  nameZh?: string | null;
   sortOrder: number;
   category_image: AdminCategoryImage | null;
   status: boolean;
@@ -28,7 +28,7 @@ export interface AdminCategoryPage {
 export interface UpsertCategoryBody {
   name: string;
   slug?: string;
-  description?: string | null;
+  nameZh?: string | null;
   sortOrder?: number;
   active: boolean;
 }

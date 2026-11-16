@@ -99,6 +99,9 @@
                 }
                 <div>
                   <span class="fw-bolder">{{ category.name }}</span>
+                  @if (category.nameZh) {
+                  <div class="small">{{ category.nameZh }}</div>
+                  }
                   <div class="small text-muted">{{ category.slug }}</div>
                 </div>
               </div>
