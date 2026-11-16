@@ -8,6 +8,7 @@ export interface IMenuModel extends IPaginateModel {
 export interface IMenu {
   id?: number;
   title: string;
+  slug?: string;
   link_type: string;
   path: string;
   parent_id: number;

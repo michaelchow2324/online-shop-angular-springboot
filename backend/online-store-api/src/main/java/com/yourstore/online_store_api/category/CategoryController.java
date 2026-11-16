@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import com.yourstore.common.PagedResponse;
 import com.yourstore.online_store_api.product.ProductDTO;
@@ -31,16 +30,13 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<List<CategoryDTO>> list(@RequestParam(defaultValue = "en") String locale) {
         List<CategoryDTO> categories = categoryService.findAll(locale);
-        // Cache for 1 hour in shared caches (CDN/proxy).
-        // stale-while-revalidate lets a CDN serve stale content while it
-        // refreshes in the background, keeping menu latency near-zero.
+        // Do not cache this list: admin create/edit/disable must show up on
+        // the storefront immediately (Shop by Category + Collection menu).
         return ResponseEntity.ok()
-                .cacheControl(
-                    CacheControl.maxAge(1, TimeUnit.HOURS)
-                               .staleWhileRevalidate(1, TimeUnit.HOURS)
-                               .cachePublic()
-                )
-                .body(categories); // .body() is the same as .ok(categories) but allows us to set cache headers first.
+                .cacheControl(CacheControl.noStore().mustRevalidate())
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(categories);
     }
 
     @GetMapping("/{slug}")

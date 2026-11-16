@@ -117,11 +117,15 @@ export class CategoryState {
       tap({
         next: result => {
           if (result && result.data) {
+            const payload = {
+              data: result.data,
+              total: result?.total ? result?.total : result.data.length,
+            };
+            // Keep both slices in sync. Homepage widgets read `category`;
+            // the header/menu reads `categories`.
             ctx.patchState({
-              categories: {
-                data: result.data,
-                total: result?.total ? result?.total : result.data.length,
-              },
+              categories: payload,
+              category: payload,
             });
           }
         },

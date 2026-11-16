@@ -25,7 +25,7 @@ export class CollectionCategoryFilter {
   private router = inject(Router);
   private store = inject(Store);
 
-  category$: Observable<ICategoryModel> = inject(Store).select(CategoryState.category);
+  category$: Observable<ICategoryModel> = inject(Store).select(CategoryState.categories);
 
   @Input() filter: Params;
 
@@ -39,9 +39,9 @@ export class CollectionCategoryFilter {
 
   ngOnInit() {
     this.category$.subscribe(res => {
-      this.categories = res.data.filter(
+      this.categories = (res?.data || []).filter(
         category =>
-          category.type == 'product' &&
+          category?.status !== false &&
           category?.slug?.toLowerCase() !== 'test' &&
           category?.name?.trim().toLowerCase() !== 'test',
       );

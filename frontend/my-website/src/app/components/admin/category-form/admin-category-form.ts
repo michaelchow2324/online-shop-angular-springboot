@@ -19,6 +19,7 @@ import { AdminCategory } from "../../../shared/interface/admin-category.interfac
 import { IBreadcrumb } from "../../../shared/interface/breadcrumb.interface";
 import { AdminCategoryService } from "../../../shared/services/admin-category.service";
 import { AuthService } from "../../../shared/services/auth.service";
+import { GetCategoriesAction } from "../../../shared/store/action/category.action";
 import { httpErrorMessage } from "../../../shared/utils/http-error-message";
 
 @Component({
@@ -177,6 +178,7 @@ export class AdminCategoryForm implements OnDestroy {
       }
 
       this.saving = false;
+      this.store.dispatch(new GetCategoriesAction());
       if (wasCreate && this.categoryId) {
         void this.router.navigateByUrl(`/admin/categories/${this.categoryId}`, {
           replaceUrl: true,

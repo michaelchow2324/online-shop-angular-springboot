@@ -152,7 +152,7 @@ export class Menu {
   }
 
   buildCollectionPath(slug: string): string {
-    return `/collections?layout=collection_left_sidebar&collection=${encodeURIComponent(slug)}`;
+    return `/category/${encodeURIComponent(slug)}`;
   }
 
   concatDynamicProductKeys(

@@ -14,6 +14,7 @@ import { AdminCategory } from "../../../shared/interface/admin-category.interfac
 import { IBreadcrumb } from "../../../shared/interface/breadcrumb.interface";
 import { AdminCategoryService } from "../../../shared/services/admin-category.service";
 import { AuthService } from "../../../shared/services/auth.service";
+import { GetCategoriesAction } from "../../../shared/store/action/category.action";
 import { httpErrorMessage } from "../../../shared/utils/http-error-message";
 
 @Component({
@@ -129,6 +130,7 @@ export class AdminCategories {
           this.categories = this.categories.map((row) =>
             row.id === updated.id ? { ...row, ...updated } : row,
           );
+          this.store.dispatch(new GetCategoriesAction());
         },
         error: (err: HttpErrorResponse) => {
           this.togglingId = null;

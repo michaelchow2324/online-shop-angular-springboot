@@ -73,8 +73,8 @@
                       >
                       }
                     </a>
-                    } @if(menu.mega_menu === 1 && menu?.child?.length && menu.mega_menu_type !==
-                    'link_with_image'){
+                    } @if(menu.mega_menu === 1 && menu.mega_menu_type !== 'link_with_image' &&
+                    (menu.slug === 'collection' || menu?.child?.length)){
                     <div class="dropdown-menu dropdown-menu-2" [class.show]="menu.active" [ngClass]="{ 'collection-menu': menu.slug === 'collection', 'single-column': menu.slug === 'collection' }">
                       <div class="row g-4">
                         @if(menu.mega_menu_type === 'side_banner'){
@@ -110,6 +110,16 @@
                         </div>
                         } @if(menu.mega_menu_type === 'side_banner'){
                         END ORIGINAL -->
+                        }@else if (menu.slug === 'collection') {
+                        <div class="dropdown-column col-xl-3 mb-4">
+                          <ul>
+                            @for (item of collectionCategoryMenus; track item.id) {
+                            <li>
+                              <a class="dropdown-item" (click)="redirect(item.path)">{{ item.title }}</a>
+                            </li>
+                            }
+                          </ul>
+                        </div>
                         }@else { @for(megaMenu of menu.child.slice(0,1); track megaMenu.id){
                         <div class="dropdown-column col-xl-3 mb-4">
                           <app-link-box [menu]="megaMenu" />

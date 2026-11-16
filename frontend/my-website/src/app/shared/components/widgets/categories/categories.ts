@@ -26,7 +26,7 @@ export class Categories {
   private router = inject(Router);
   private attributeService = inject(AttributeService);
 
-  category$: Observable<ICategoryModel> = inject(Store).select(CategoryState.category);
+  category$: Observable<ICategoryModel> = inject(Store).select(CategoryState.categories);
 
   readonly categoryIds = input<number[]>([]);
   readonly style = input<string>('vertical');
@@ -114,7 +114,7 @@ export class Categories {
   private isPublicCategory(category: ICategory): boolean {
     const name = category?.name?.trim().toLowerCase();
     const slug = category?.slug?.toLowerCase();
-    return name !== 'test' && slug !== 'test';
+    return category?.status !== false && name !== 'test' && slug !== 'test';
   }
 
   closeCanvasMenu() {

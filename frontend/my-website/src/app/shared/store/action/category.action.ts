@@ -6,7 +6,7 @@ export class GetCategoriesAction {
 }
 
 export class GetCategoryAction {
-  static readonly type = '[Category] Get';
+  static readonly type = '[Category] Get List';
   constructor(public payload?: Params) {}
 }
 
