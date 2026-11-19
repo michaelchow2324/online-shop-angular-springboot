@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-alpine AS build
+FROM node:20.20.2-alpine AS build
 WORKDIR /app
 
 # Public URLs baked into Angular prod build (SSR + browser fetch these at build time)
@@ -24,7 +24,7 @@ RUN for f in src/environments/environment.ts src/environments/environment.develo
 
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:20.20.2-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
