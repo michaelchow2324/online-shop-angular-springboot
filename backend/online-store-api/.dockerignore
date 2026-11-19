@@ -7,3 +7,9 @@ application.properties
 application-dev.properties
 .env
 .env.*
+src/test/
+*.md
+Dockerfile*
+docker-compose*.yml
+.mvn/wrapper/maven-wrapper.jar
+backups/
