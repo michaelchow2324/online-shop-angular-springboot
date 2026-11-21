@@ -1,18 +1,20 @@
 # syntax=docker/dockerfile:1
 
+FROM node:20.20.2-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
 FROM node:20.20.2-alpine AS build
 WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Public URLs baked into Angular prod build (SSR + browser fetch these at build time)
+# Public URLs baked into the Angular build (SSR + browser fetch these)
 ARG SITE_URL=https://yoursite.com
 ARG STORAGE_PUBLIC_BASE_URL=https://yoursite.com/
 ENV SITE_URL=${SITE_URL}
 ENV STORAGE_PUBLIC_BASE_URL=${STORAGE_PUBLIC_BASE_URL}
-
-COPY package.json ./
-RUN npm install
-
-COPY . .
 
 # Replace localhost URLs in both env files (some services imported development directly)
 RUN for f in src/environments/environment.ts src/environments/environment.development.ts; do \
@@ -24,14 +26,22 @@ RUN for f in src/environments/environment.ts src/environments/environment.develo
 
 RUN npm run build
 
+FROM node:20.20.2-alpine AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
 FROM node:20.20.2-alpine
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV PORT=4000
+RUN addgroup -S web && adduser -S web -G web
 
 COPY --from=build /app/dist/multikart-frontend ./dist/multikart-frontend
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 
+USER web
+
+ENV NODE_ENV=production
+ENV PORT=4000
 EXPOSE 4000
 CMD ["node", "dist/multikart-frontend/server/server.mjs"]
