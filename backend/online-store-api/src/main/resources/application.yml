@@ -20,7 +20,16 @@ management:
     health:
       # Don't leak DB/disk details to anonymous callers
       show-details: never
+      probes:
+        enabled: true
     info:
+      access: unrestricted
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+    db:
       enabled: true
   info:
     # Boot 2.6+/3.x: env contributor is off by default → /actuator/info was {}
