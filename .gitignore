@@ -81,3 +81,4 @@ DEPLOYMENT_PLAN.md
 deploy/Caddyfile
 deploy/GIT_MONOREPO_FIX.md
 deploy/HETZNER_SERVER_SETUP.md
+k8s/base/secret.example.yaml
